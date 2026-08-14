@@ -3027,6 +3027,7 @@ function delClient(id) {
   if (!confirm('¿Eliminar cliente?')) return;
   state.clients = state.clients.filter(c => c.id !== id);
   save(); renderClients();
+  apiFetch('/api/proyectos/' + id, { method: 'DELETE' });
 }
 function cobrarCliente(id) {
   const inp = $('cli-pay-'+id);
@@ -3037,6 +3038,15 @@ function cobrarCliente(id) {
   inp.value = '';
   addXP(100);
   save(); renderClients();
+  // Nota: el contrato de /api/proyectos solo expone POST (INSERT), no hay PUT/PATCH para
+  // actualizar un proyecto existente. Reenviar el objeto completo aquí es lo único posible
+  // dentro del contrato fijo; puede generar filas duplicadas en D1 en cada cobro. Limitación
+  // conocida y aceptada, no resuelta (ver reporte).
+  apiFetch('/api/proyectos', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ id: String(c.id), nombre: c.name, servicio: c.service, presupuesto: c.budget, cobrado: c.collected, estado: 'activo' })
+  });
 }
 function addClientTask(id) {
   const inp = $('cli-task-'+id);
