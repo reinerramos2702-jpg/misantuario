@@ -157,3 +157,57 @@ de zonas) y que no se coló ninguna mención nueva a "Hotel La Guaira" / "Dropsh
 **Pendiente:** ninguno específico de este bloque — cerrado limpio.
 
 **Bloque 4: CERRADO.** Deploy en producción, smoke test OK, D1 limpia, todo commiteado local.
+
+---
+
+## Bloque 5 — GOD NODE Fase 2
+
+**2 agentes en paralelo (contrato fijado antes, zonas disjuntas):**
+- Agente Bloques de Foco (`index.html`): nueva sección `sec-foco` con 2 subtabs — timer real
+  de 90/120 min (cuenta regresiva con `setInterval`, pausar/reanudar/completar/romper bloque
+  con razón, sin persistir el tick a `state` para no spammear `save()`) + tracker semanal
+  (completados/rotos/promedio, filtrado por fecha real de los últimos 7 días) + Post-Mortem
+  semanal (3 preguntas fijas + acción concreta, historial con borrado). Nueva key
+  `state.foco`. Entrada en `SECS` + drawer.
+- Agente Academia IA (`index.html`, solo dentro de `#sec-academia`): currículo de 90 días,
+  9 temas fijos agrupados en 3 bloques (semanas 1-3/4-6/7-9) — decisión correcta del agente:
+  reusó los mismos 9 temas que ya existían en el selector `#acad-area` del log de aprendizaje,
+  coherencia con lo existente en vez de inventar categorías nuevas. Código de color 🔴🟡🟢
+  clickeable por tema, horas/entregable/checkpoint editables. Detectó bien que `academia` se
+  crea de forma perezosa (`state.academia = state.academia || {...}`) en vez de vivir en
+  `defaultState()`, y puso `curriculum` ahí (en las 3 ocurrencias del patrón) en vez de forzarlo
+  a `defaultState()` — decisión correcta, coherente con el patrón ya establecido en el archivo.
+
+**Incidente y cómo lo manejé (regla 4 — no reintentar indefinidamente):** el agente de
+Bloques de Foco se colgó ("no progress for 600s") durante su propio paso final de
+verificación — el mismo bug de mezcla de rutas bash/Windows del Bloque 4 volvió a dejar un
+archivo suelto en la raíz del repo (`Users...check_foco.js`), que limpié. Antes de decidir si
+reintentar, inspeccioné el archivo directamente: el trabajo real (HTML, `SECS`, drawer,
+`defaultState()`, las 12 funciones JS) estaba completo y con sintaxis válida — el agente solo
+se atoró verificándose a sí mismo, no construyendo. En vez de relanzar un agente nuevo
+(hubiera duplicado o pisado el trabajo ya bueno), hice yo mismo la verificación end-to-end.
+No hizo falta un segundo intento.
+
+**Verificación end-to-end (contra Worker real, `wrangler dev --remote`, con
+`Page.addScriptToEvaluateOnNewDocument` sembrando el flag de sync D1 antes de cargar, mismo
+método preventivo del Bloque 4):**
+- Recorrido visual de las 2 subtabs de Bloques de Foco + Currículo 90 días en Academia — tema
+  intacto, cero errores de consola.
+- Prueba funcional real: `iniciarBloque()` → `completarBloque()` con nota → confirmé la
+  entrada exacta en `state.foco.bloques` (incluye `fecha` ISO para el filtro semanal) y que
+  el tracker se actualizó en vivo (1 completado, 90m promedio). `iniciarBloque()` →
+  `romperBloque('razón')` → confirmé la entrada con `estado:'roto'` y la razón guardada.
+  `savePostMortem()` con las 4 respuestas → confirmé el registro completo. En Academia:
+  `cycleEstadoCurriculum(0)` → 🔴 pasó a 🟡 correctamente; `updateCurriculumField(1,
+  'entregable', ...)` → se guardó. Toasts visibles y correctos en cada acción. Cero
+  excepciones en las 6 pruebas.
+- D1 confirmada en 0/0/0 tras las pruebas (este bloque tampoco toca D1).
+
+**Deploy:** `npx wrangler deploy` (push a GitHub sigue bloqueado, ver encabezado).
+
+**Smoke test de producción:** `/` → 200 y contiene "Bloques de Foco", "Currículo 90 días",
+"Post-Mortem semanal"; las 4 rutas `/api/*` responden igual que antes.
+
+**Pendiente:** ninguno específico de este bloque.
+
+**Bloque 5: CERRADO.** Deploy en producción, smoke test OK, D1 limpia, todo commiteado local.
