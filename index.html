@@ -3474,6 +3474,7 @@ function iniciarBloque() {
   updateFocoClockDisplay();
   clearInterval(focoInterval);
   focoInterval = setInterval(focoTick, 1000);
+  focusModeEnter();
 }
 function pausarBloque() {
   if (!focoActive || focoPaused) return;
