@@ -3100,10 +3100,9 @@ function cobrarCliente(id) {
   inp.value = '';
   addXP(100);
   save(); renderClients();
-  // Nota: el contrato de /api/proyectos solo expone POST (INSERT), no hay PUT/PATCH para
-  // actualizar un proyecto existente. Reenviar el objeto completo aquí es lo único posible
-  // dentro del contrato fijo; puede generar filas duplicadas en D1 en cada cobro. Limitación
-  // conocida y aceptada, no resuelta (ver reporte).
+  // El contrato de /api/proyectos solo expone POST (no hay PUT/PATCH), pero el Worker
+  // hace upsert por id (ON CONFLICT DO UPDATE), así que reenviar el objeto completo aquí
+  // actualiza la fila existente en vez de duplicarla.
   apiFetch('/api/proyectos', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
