@@ -4889,8 +4889,9 @@ function maybeAskPushPermission() {
 }
 
 function slugify(str) {
+  const esc = '̀-ͯ';
   return String(str).toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .normalize('NFD').replace(new RegExp('[' + esc + ']', 'g'), '')
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
 
