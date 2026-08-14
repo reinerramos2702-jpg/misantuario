@@ -68,8 +68,13 @@ async function handleApi(request, env, url) {
     const presupuesto = b.presupuesto ?? 0;
     const cobrado = b.cobrado ?? 0;
     const estado = b.estado ?? 'activo';
+    // Upsert por id: el frontend reenvía el objeto completo (p.ej. al registrar un cobro,
+    // que no tiene endpoint PUT propio en el contrato), así que INSERT simple duplicaría
+    // la fila. ON CONFLICT lo vuelve idempotente sin agregar rutas nuevas al contrato.
     await env.DB.prepare(
-      'INSERT INTO proyectos (id, nombre, servicio, presupuesto, cobrado, estado) VALUES (?,?,?,?,?,?)'
+      `INSERT INTO proyectos (id, nombre, servicio, presupuesto, cobrado, estado) VALUES (?,?,?,?,?,?)
+       ON CONFLICT(id) DO UPDATE SET nombre = excluded.nombre, servicio = excluded.servicio,
+         presupuesto = excluded.presupuesto, cobrado = excluded.cobrado, estado = excluded.estado`
     ).bind(id, nombre, servicio, presupuesto, cobrado, estado).run();
     return json({ id, nombre, servicio, presupuesto, cobrado, estado }, 201);
   }
