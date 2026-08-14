@@ -128,26 +128,37 @@ async function handlePushSend(request, env) {
   const { title, body: msg, icon, tag } = body || {};
   if (!title) return json({ error: 'Falta "title"' }, 400);
 
-  webpush.setVapidDetails(
-    'mailto:reinersanchez1@gmail.com',
-    env.VAPID_PUBLIC_KEY,
-    env.VAPID_PRIVATE_KEY
-  );
+  const vapid = {
+    subject: 'mailto:reinersanchez1@gmail.com',
+    publicKey: env.VAPID_PUBLIC_KEY,
+    privateKey: env.VAPID_PRIVATE_KEY,
+  };
+  const message = {
+    data: JSON.stringify({ title, body: msg || '', icon: icon || './assets/santuario-icon.svg', tag: tag || 'santuario' }),
+    options: { ttl: 60 * 60 * 24 }, // 24h: si el dispositivo está offline, el push service la reintenta durante este tiempo
+  };
 
   const { results } = await env.DB.prepare('SELECT * FROM push_subscriptions').all();
-  const payload = JSON.stringify({ title, body: msg || '', icon: icon || './assets/santuario-icon.svg', tag: tag || 'santuario' });
 
   const outcomes = await Promise.all(results.map(async (row) => {
-    const sub = { endpoint: row.endpoint, keys: { p256dh: row.p256dh, auth: row.auth } };
+    const subscription = {
+      endpoint: row.endpoint,
+      expirationTime: null,
+      keys: { p256dh: row.p256dh, auth: row.auth },
+    };
     try {
-      await webpush.sendNotification(sub, payload);
+      const payload = await buildPushPayload(message, subscription, vapid);
+      const res = await fetch(subscription.endpoint, payload);
+      if (!res.ok) {
+        // 404/410 = la suscripción ya no existe del lado del navegador (desinstalada, etc.) — límpiala.
+        if (res.status === 404 || res.status === 410) {
+          await env.DB.prepare('DELETE FROM push_subscriptions WHERE endpoint = ?').bind(row.endpoint).run();
+        }
+        return { endpoint: row.endpoint, ok: false, error: `Push service HTTP ${res.status}` };
+      }
       return { endpoint: row.endpoint, ok: true };
     } catch (err) {
-      // 404/410 = la suscripción ya no existe del lado del navegador (desinstalada, etc.) — límpiala.
-      if (err.statusCode === 404 || err.statusCode === 410) {
-        await env.DB.prepare('DELETE FROM push_subscriptions WHERE endpoint = ?').bind(row.endpoint).run();
-      }
-      return { endpoint: row.endpoint, ok: false, error: String(err.message || err) };
+      return { endpoint: row.endpoint, ok: false, error: String((err && err.message) || err) };
     }
   }));
 
