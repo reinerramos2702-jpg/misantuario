@@ -478,6 +478,15 @@ textarea.txt { resize: vertical; min-height: 80px; line-height: 1.6; }
 }
 .habit:active { transform: scale(.98); }
 .habit.done { opacity: .55; }
+.streak-badge {
+  display: flex; align-items: center; gap: 4px;
+  background: rgba(244,114,182,0.12); border: 1px solid rgba(244,114,182,0.3);
+  border-radius: 20px; padding: 5px 11px;
+  font-size: 12.5px; font-weight: 700; color: var(--ember);
+  flex-shrink: 0;
+}
+.streak-badge.pop { animation: streakPop .45s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes streakPop { 0% { transform: scale(1); } 40% { transform: scale(1.35); } 100% { transform: scale(1); } }
 .habit-ico { width: 36px; height: 36px; border-radius: 11px; background: var(--elevated); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
 .habit.done .habit-ico { background: rgba(16,185,129,0.12); }
 .habit-body { flex: 1; min-width: 0; }
