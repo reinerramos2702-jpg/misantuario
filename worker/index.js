@@ -85,5 +85,81 @@ async function handleApi(request, env, url) {
     return json({ ok: true });
   }
 
+  if (pathname === '/api/ai' && method === 'POST') {
+    return handleAI(request, env);
+  }
+
   return json({ error: 'Not found', path: pathname, method }, 404);
+}
+
+async function handleAI(request, env) {
+  let body;
+  try { body = await request.json(); } catch { return json({ error: 'JSON inválido' }, 400); }
+  const { provider, prompt, system } = body || {};
+  if (!prompt || typeof prompt !== 'string') return json({ error: 'Falta "prompt"' }, 400);
+  const p = (provider || 'gemini').toLowerCase();
+
+  try {
+    if (p === 'gemini') {
+      if (!env.GEMINI_KEY) return json({ error: 'GEMINI_KEY no configurado' }, 501);
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${env.GEMINI_KEY}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          systemInstruction: system ? { parts: [{ text: system }] } : undefined
+        })
+      });
+      if (!res.ok) return json({ error: `Gemini HTTP ${res.status}` }, 502);
+      const data = await res.json();
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      return json({ text });
+    }
+
+    if (p === 'claude') {
+      if (!env.CLAUDE_KEY) return json({ error: 'CLAUDE_KEY no configurado' }, 501);
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': env.CLAUDE_KEY,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-5-20250929',
+          max_tokens: 1024,
+          system: system || undefined,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+      if (!res.ok) return json({ error: `Claude HTTP ${res.status}` }, 502);
+      const data = await res.json();
+      const text = data?.content?.[0]?.text || '';
+      return json({ text });
+    }
+
+    if (p === 'chatgpt' || p === 'openai') {
+      if (!env.OPENAI_KEY) return json({ error: 'OPENAI_KEY no configurado' }, 501);
+      const messages = [];
+      if (system) messages.push({ role: 'system', content: system });
+      messages.push({ role: 'user', content: prompt });
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'authorization': `Bearer ${env.OPENAI_KEY}`
+        },
+        body: JSON.stringify({ model: 'gpt-4o-mini', messages })
+      });
+      if (!res.ok) return json({ error: `OpenAI HTTP ${res.status}` }, 502);
+      const data = await res.json();
+      const text = data?.choices?.[0]?.message?.content || '';
+      return json({ text });
+    }
+
+    return json({ error: `Proveedor desconocido: ${p}` }, 400);
+  } catch (err) {
+    return json({ error: String((err && err.message) || err) }, 502);
+  }
 }
