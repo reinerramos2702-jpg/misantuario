@@ -135,7 +135,7 @@ async function handlePushSend(request, env) {
   );
 
   const { results } = await env.DB.prepare('SELECT * FROM push_subscriptions').all();
-  const payload = JSON.stringify({ title, body: msg || '', icon: icon || '/manifest-icon.png', tag: tag || 'santuario' });
+  const payload = JSON.stringify({ title, body: msg || '', icon: icon || './assets/santuario-icon.svg', tag: tag || 'santuario' });
 
   const outcomes = await Promise.all(results.map(async (row) => {
     const sub = { endpoint: row.endpoint, keys: { p256dh: row.p256dh, auth: row.auth } };
