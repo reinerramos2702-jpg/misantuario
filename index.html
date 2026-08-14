@@ -4889,9 +4889,8 @@ function maybeAskPushPermission() {
 }
 
 function slugify(str) {
-  const esc = '̀-ͯ';
   return String(str).toLowerCase()
-    .normalize('NFD').replace(new RegExp('[' + esc + ']', 'g'), '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
 
@@ -4933,6 +4932,8 @@ async function testPush() {
 // INIT
 // ============================================================
 function init() {
+  state.appOpens = (state.appOpens || 0) + 1;
+  save();
   setGreeting();
   checkDailyReset();
   renderXP();
