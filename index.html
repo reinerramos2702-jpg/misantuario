@@ -3142,6 +3142,14 @@ function showSubArq(id, btn) {
     btn.classList.add('active');
   }
 }
+function showSubMaestro(id, btn) {
+  document.querySelectorAll('#sec-maestro .subsec').forEach(el => el.classList.remove('active'));
+  $('maestro-'+id)?.classList.add('active');
+  if (btn) {
+    btn.parentElement.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
 function addClient() {
   const name = $('cli-name').value.trim();
   if (!name) return;
