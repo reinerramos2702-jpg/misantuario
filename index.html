@@ -2453,6 +2453,65 @@ function accountSlug(name) {
 function accountMoneda(name) {
   return name.includes('BsS') ? 'BsS' : name.includes('JPY') ? 'JPY' : 'USD';
 }
+// Migración de subida (una sola vez, marcada con santuario_d1_synced_v1): si D1 responde y
+// está vacía, sube lo que ya existe en localStorage. Nunca lee de vuelta hacia state ni
+// borra/sobreescribe state.exps, state.accounts o state.clients — solo lee y sube.
+async function syncD1OnLoad() {
+  const SYNC_KEY = 'santuario_d1_synced_v1';
+  if (localStorage.getItem(SYNC_KEY) === 'true') return;
+  try {
+    const [movs, cuentas, proyectos] = await Promise.all([
+      apiFetch('/api/movimientos'),
+      apiFetch('/api/cuentas'),
+      apiFetch('/api/proyectos')
+    ]);
+    // Si algún endpoint no respondió, D1 no está alcanzable todavía: no marcar la key,
+    // para reintentar en la próxima carga con red disponible.
+    if (movs === null || cuentas === null || proyectos === null) return;
+
+    if (Array.isArray(movs) && movs.length === 0 && state.exps && state.exps.length > 0) {
+      // state.exps usa unshift (más reciente primero); invertimos para subir en orden cronológico.
+      const ordered = [...state.exps].reverse();
+      for (const e of ordered) {
+        await apiFetch('/api/movimientos', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            fecha: todayKey(), descripcion: e.desc, monto: e.amt, moneda: e.cur,
+            cuenta: e.acc, categoria: e.cat, tipo: e.type, ts: e.ts
+          })
+        });
+      }
+    }
+
+    if (Array.isArray(cuentas) && cuentas.length === 0 && state.accounts && Object.keys(state.accounts).length > 0) {
+      for (const [name, bal] of Object.entries(state.accounts)) {
+        await apiFetch('/api/cuentas/' + accountSlug(name), {
+          method: 'PUT',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ saldo: parseFloat(bal) || 0, nombre: name, moneda: accountMoneda(name) })
+        });
+      }
+    }
+
+    if (Array.isArray(proyectos) && proyectos.length === 0 && state.clients && state.clients.length > 0) {
+      for (const c of state.clients) {
+        await apiFetch('/api/proyectos', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            id: String(c.id), nombre: c.name, servicio: c.service,
+            presupuesto: c.budget, cobrado: c.collected, estado: 'activo'
+          })
+        });
+      }
+    }
+
+    localStorage.setItem(SYNC_KEY, 'true');
+  } catch (e) {
+    console.warn('Sync D1 inicial no completada, se reintentará:', e.message);
+  }
+}
 function addExp() {
   const desc = $('exp-desc').value.trim();
   const amt = parseFloat($('exp-amt').value);
