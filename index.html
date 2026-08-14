@@ -2929,15 +2929,6 @@ function addClient() {
 }
 function renderClients() {
   state.clients = state.clients || [];
-  // Seed default: Hotel La Guaira
-  if (state.clients.length === 0) {
-    state.clients = [{
-      id: Date.now(), name: 'Hotel La Guaira', service: 'Contenido + marketing', budget: 0, collected: 0,
-      tasks: [{txt:'Plan de contenido semanal', done:false}, {txt:'1 post orgánico hoy', done:false}],
-      notes: [], ts: 'seed'
-    }];
-    save();
-  }
   const list = $('clients-list');
   if (!list) return;
   list.innerHTML = state.clients.map(c => `
