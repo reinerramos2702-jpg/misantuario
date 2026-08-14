@@ -4472,7 +4472,50 @@ function toast(icon, title, sub) {
   t.className = 'toast';
   t.innerHTML = `<div class="toast-icon">${icon}</div><div class="toast-body"><div class="toast-title">${title}</div>${sub?'<div class="toast-sub">'+sub+'</div>':''}</div>`;
   wrap.appendChild(t);
-  setTimeout(() => { t.classList.add('dismiss'); setTimeout(() => t.remove(), 300); }, 3200);
+
+  let dismissed = false;
+  const removeNow = () => { if (t.parentNode) t.remove(); };
+  const dismiss = () => {
+    if (dismissed) return;
+    dismissed = true;
+    clearTimeout(autoTimer);
+    t.classList.add('dismiss');
+    setTimeout(removeNow, 300);
+  };
+  let autoTimer = setTimeout(dismiss, 3200);
+
+  // Swipe para descartar (pointer events cubren touch + mouse en un solo listener)
+  let startX = null, dx = 0, dragging = false;
+  t.style.touchAction = 'pan-y'; // deja scroll vertical de la página, solo captura el gesto horizontal
+  t.addEventListener('pointerdown', e => {
+    dragging = true; startX = e.clientX; dx = 0;
+    clearTimeout(autoTimer); // no auto-descartar mientras el usuario interactúa
+    t.style.transition = 'none';
+  });
+  t.addEventListener('pointermove', e => {
+    if (!dragging || startX === null) return;
+    dx = e.clientX - startX;
+    t.style.transform = `translateX(${dx}px)`;
+    t.style.opacity = String(Math.max(0.15, 1 - Math.abs(dx) / 160));
+  });
+  const endDrag = () => {
+    if (!dragging) return;
+    dragging = false;
+    if (Math.abs(dx) > 70) {
+      t.style.transition = 'transform .25s ease, opacity .25s ease';
+      t.style.transform = `translateX(${dx > 0 ? 400 : -400}px)`;
+      t.style.opacity = '0';
+      dismissed = true;
+      setTimeout(removeNow, 250);
+    } else {
+      t.style.transition = 'transform .25s cubic-bezier(0.34,1.56,0.64,1), opacity .25s ease';
+      t.style.transform = 'translateX(0)';
+      t.style.opacity = '1';
+      autoTimer = setTimeout(dismiss, 2200); // reanuda el auto-dismiss (más corto, ya lo vio)
+    }
+  };
+  t.addEventListener('pointerup', endDrag);
+  t.addEventListener('pointercancel', endDrag);
 }
 
 const LEVEL_QUOTES = {
