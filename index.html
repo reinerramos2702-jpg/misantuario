@@ -4978,6 +4978,11 @@ function init() {
   refreshNotifBadge();
   setInterval(refreshNotifBadge, 60000); // cada minuto
 
+  // Web Push: pedir permiso (si aplica) y chequear alertas críticas
+  maybeAskPushPermission();
+  checkAndPushCriticalAlerts();
+  setInterval(checkAndPushCriticalAlerts, 60000);
+
   // Search input listener
   const si = $('search-input');
   if (si) {
