@@ -259,7 +259,7 @@ git en esta máquina) y luego `git push origin main` — o dímelo y lo hago yo.
 **No toqué datos financieros reales tuyos.** Sí encontré y limpié dos veces el mismo efecto
 secundario de mis propias pruebas (perfiles de Chrome limpios disparando la migración
 automática y subiendo saldos por defecto a la D1 real) — ambas veces pregunté antes de borrar
-y until confirmaste. La D1 real está en 0/0/0 filas ahora mismo, lista para que tus datos
+y tú confirmaste. La D1 real está en 0/0/0 filas ahora mismo, lista para que tus datos
 reales suban solos la primera vez que abras la app desde tu navegador.
 
 **No llegué a los Bloques 6 y 7** (Creatividad/Dieta de Input/Journaling, y Hardware
