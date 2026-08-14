@@ -3424,6 +3424,22 @@ let focoDuracionMin = 0;
 let focoActive = false;
 let focoPaused = false;
 
+// Modo Focus: oculta nav/header/mission y deja solo el timer a pantalla completa.
+// Entrar/salir del modo focus NUNCA toca el bloque en curso — solo lo hacen
+// completarBloque(), romperBloque() y cancelarBloque().
+function focusModeEnter() {
+  document.body.classList.add('focus-mode');
+  const btn = $('foco-refocus-btn'); if (btn) btn.style.display = 'none';
+}
+function focusModeExitVisual() {
+  document.body.classList.remove('focus-mode');
+  const btn = $('foco-refocus-btn'); if (btn) btn.style.display = focoActive ? 'flex' : 'none';
+}
+function focusModeStop() {
+  document.body.classList.remove('focus-mode');
+  const btn = $('foco-refocus-btn'); if (btn) btn.style.display = 'none';
+}
+
 function fmtFocoClock(sec) {
   sec = Math.max(0, Math.round(sec));
   const m = Math.floor(sec / 60), s = sec % 60;
