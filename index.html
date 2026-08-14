@@ -2688,11 +2688,58 @@ function renderHabits() {
   const pct = Math.round(done / state.habits.length * 100);
   $('habits-pct').textContent = pct+'%';
   $('habits-bar').style.width = pct+'%';
+  renderStreakBadge();
 }
 function toggleHabit(i) {
+  vibrate(20);
   state.habits[i].done = !state.habits[i].done;
   if (state.habits[i].done) addXP(10);
   save(); renderHabits();
+}
+
+// ============================================================
+// RACHA DE HÁBITOS (streak) — feature premium
+// ============================================================
+// Cuenta días consecutivos completando el 100% de la rutina diaria. Requiere saber cuándo
+// cambia el día real (los hábitos de por sí no se reseteaban solos): checkDailyReset() evalúa
+// el día que se cierra, actualiza la racha, y limpia los checks para el día nuevo.
+function daysBetweenKeys(a, b) {
+  const da = new Date(a + 'T00:00:00');
+  const db = new Date(b + 'T00:00:00');
+  return Math.round((db - da) / 86400000);
+}
+function checkDailyReset() {
+  const today = todayKey();
+  state.streak = state.streak || { current: 0, longest: 0, lastDate: null };
+  if (state.habitsDate === today) return; // ya es hoy, nada que evaluar todavía
+  if (state.habitsDate) {
+    const allDone = state.habits.length > 0 && state.habits.every(h => h.done);
+    if (allDone) {
+      const consecutive = state.streak.lastDate && daysBetweenKeys(state.streak.lastDate, state.habitsDate) === 1;
+      state.streak.current = consecutive ? state.streak.current + 1 : 1;
+      state.streak.longest = Math.max(state.streak.longest, state.streak.current);
+      state.streak.lastDate = state.habitsDate;
+    } else {
+      state.streak.current = 0;
+    }
+  }
+  state.habits.forEach(h => h.done = false);
+  state.habitsDate = today;
+  save();
+}
+function renderStreakBadge() {
+  const badge = $('streak-badge');
+  if (!badge) return;
+  state.streak = state.streak || { current: 0, longest: 0, lastDate: null };
+  const n = state.streak.current || 0;
+  if (n <= 0) { badge.style.display = 'none'; return; }
+  const prevShown = badge.dataset.n;
+  badge.style.display = 'flex';
+  $('streak-count').textContent = n + (n === 1 ? ' día' : ' días');
+  if (prevShown !== undefined && Number(prevShown) < n) {
+    badge.classList.remove('pop'); void badge.offsetWidth; badge.classList.add('pop');
+  }
+  badge.dataset.n = n;
 }
 
 // ============================================================
