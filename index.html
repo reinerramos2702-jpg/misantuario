@@ -2313,6 +2313,12 @@ function defaultState() {
     },
     foco: { bloques: [], postmortems: [] },
     sophiaProgress: { currentPhase: 0, log: [] },
+    // Racha de hábitos: habitsDate se deja en null a propósito (no usar todayKey() aquí —
+    // esa const se declara más abajo en el script y todavía no existe en este punto de la
+    // ejecución; checkDailyReset() la fija con el valor real la primera vez que corre, ya
+    // dentro del flujo normal donde todayKey ya está disponible).
+    habitsDate: null,
+    streak: { current: 0, longest: 0, lastDate: null },
   };
 }
 function migrateState(next) {
