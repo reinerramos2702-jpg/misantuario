@@ -1,4 +1,4 @@
-import webpush from 'web-push';
+import { buildPushPayload } from '@block65/webcrypto-web-push';
 
 export default {
   async fetch(request, env, ctx) {
