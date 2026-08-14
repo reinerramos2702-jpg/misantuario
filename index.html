@@ -2881,7 +2881,7 @@ async function askAI(prompt) {
       <div>${md(txt || 'Sin respuesta.')}</div>`;
   } catch (e) {
     if (e.status === 501) {
-      body.innerHTML += `<div style="margin-top:14px;font-size:12px;color:var(--stardust)">⚠ Este proveedor aún no tiene su clave configurada en el servidor. Cambia a Gemini o pídele al usuario que la agregue.</div>`;
+      body.innerHTML += `<div style="margin-top:14px;font-size:12px;color:var(--stardust)">⚠ Este proveedor aún no tiene su clave configurada en el servidor. Cambia a Gemini, o agrégala con <code style="background:var(--deep);padding:1px 5px;border-radius:4px">wrangler secret put</code>.</div>`;
     } else {
       body.innerHTML += `<div style="color:var(--ember);margin-top:10px">Error de conexión: ${e.message}</div>`;
     }
