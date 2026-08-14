@@ -2947,7 +2947,7 @@ function addClient() {
   const name = $('cli-name').value.trim();
   if (!name) return;
   state.clients = state.clients || [];
-  state.clients.unshift({
+  const client = {
     id: Date.now(),
     name,
     service: $('cli-service').value.trim(),
@@ -2956,9 +2956,15 @@ function addClient() {
     tasks: [],
     notes: [],
     ts: ts()
-  });
+  };
+  state.clients.unshift(client);
   ['cli-name','cli-service','cli-budget'].forEach(id => $(id).value = '');
   save(); renderClients();
+  apiFetch('/api/proyectos', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ id: String(client.id), nombre: client.name, servicio: client.service, presupuesto: client.budget, cobrado: client.collected, estado: 'activo' })
+  });
 }
 function renderClients() {
   state.clients = state.clients || [];
