@@ -3096,7 +3096,8 @@ function saveAcadLog() {
   const topic = $('acad-topic').value.trim();
   const note = $('acad-note').value.trim();
   if (!topic && !note) return;
-  state.academia = state.academia || { log: [], resources: [], totalMin: 0 };
+  state.academia = state.academia || { log: [], resources: [], totalMin: 0, curriculum: defaultCurriculum() };
+  state.academia.curriculum = state.academia.curriculum || defaultCurriculum();
   state.academia.log.unshift({
     topic, note,
     area: $('acad-area').value,
@@ -3111,13 +3112,15 @@ function saveAcadLog() {
 function addAcadRes() {
   const name = $('acad-res-name').value.trim();
   if (!name) return;
-  state.academia = state.academia || { log: [], resources: [], totalMin: 0 };
+  state.academia = state.academia || { log: [], resources: [], totalMin: 0, curriculum: defaultCurriculum() };
+  state.academia.curriculum = state.academia.curriculum || defaultCurriculum();
   state.academia.resources.unshift({ name, link: $('acad-res-link').value.trim(), ts: ts() });
   $('acad-res-name').value = ''; $('acad-res-link').value = '';
   save(); renderAcademia();
 }
 function renderAcademia() {
-  state.academia = state.academia || { log: [], resources: [], totalMin: 0 };
+  state.academia = state.academia || { log: [], resources: [], totalMin: 0, curriculum: defaultCurriculum() };
+  state.academia.curriculum = state.academia.curriculum || defaultCurriculum();
   // Progress: 1000h to "magíster" — 60,000 min
   const pct = Math.min(100, state.academia.totalMin / 60000 * 100);
   $('acad-pct').textContent = pct.toFixed(2) + '%';
