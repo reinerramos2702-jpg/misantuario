@@ -265,6 +265,40 @@ body::before {
 }
 
 /* ============================================================
+   MODO FOCUS (bloques de concentración a pantalla completa)
+   ============================================================ */
+body.focus-mode .hdr,
+body.focus-mode .offline-banner,
+body.focus-mode .mission,
+body.focus-mode .nav,
+body.focus-mode #sec-foco .sec-hdr,
+body.focus-mode #sec-foco .subtabs,
+body.focus-mode #sec-foco .card:not(#foco-timer-card) {
+  display: none !important;
+}
+body.focus-mode #sec-foco.active {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; padding: 18px;
+}
+body.focus-mode #foco-timer-card {
+  width: 100%; max-width: 420px; margin: 0;
+}
+body.focus-mode #foco-clock {
+  font-size: 88px !important;
+}
+#foco-exit-focus-wrap { display: none; text-align: center; margin-top: 14px; }
+body.focus-mode #foco-exit-focus-wrap { display: block; }
+#foco-refocus-btn {
+  position: fixed; right: 18px; bottom: calc(88px + 14px); z-index: 90;
+  display: none; align-items: center; gap: 6px;
+  padding: 10px 16px; border-radius: 99px;
+  border: 1px solid var(--line-emerald);
+  background: rgba(16,185,129,0.14); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  color: var(--mint); font-family: inherit; font-size: 12px; font-weight: 600;
+  cursor: pointer; box-shadow: var(--shadow-card); touch-action: manipulation;
+}
+
+/* ============================================================
    ALERTS
    ============================================================ */
 .alert {
