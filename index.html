@@ -2025,6 +2025,9 @@ const DEFAULT_PROJECTS = [
   { id: 'size', name: 'Sizestreet', color: '#F5F5F0', sub: 'Streetwear · standby', theme: 'proj-size' },
 ];
 let state = migrateState(loadState());
+// Migración de subida (una sola vez): sube a D1 lo que ya vive en localStorage.
+// No bloquea el render inicial ni toca/borra state.exps, state.accounts o state.clients.
+syncD1OnLoad();
 
 function loadState() {
   try {
