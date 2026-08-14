@@ -1475,6 +1475,24 @@ body.light .hdr h1 {
 
     <div class="subsec active" id="mente-diario">
       <div class="card">
+        <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--stardust)"></div><div class="card-title">Apertura del día</div></div></div>
+        <input class="txt" id="ap-p1" placeholder="Prioridad 1" style="margin-bottom:8px">
+        <input class="txt" id="ap-p2" placeholder="Prioridad 2" style="margin-bottom:8px">
+        <input class="txt" id="ap-p3" placeholder="Prioridad 3" style="margin-bottom:8px">
+        <input class="txt" id="ap-preg" placeholder="¿Qué pregunta quiero explorar hoy?">
+        <button class="save-btn" onclick="saveAperturaDiario()">Guardar apertura</button>
+      </div>
+
+      <div class="card">
+        <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--ember)"></div><div class="card-title">Cierre del día · Diario</div></div></div>
+        <div class="card-meta">Revisión emocional del día — distinto del cierre de tareas en Vida</div>
+        <textarea class="txt" id="ci-victorias" placeholder="Victorias de hoy" rows="3" style="margin-top:8px;margin-bottom:8px"></textarea>
+        <textarea class="txt" id="ci-friccion" placeholder="Fricciones / qué costó" rows="3" style="margin-bottom:8px"></textarea>
+        <textarea class="txt" id="ci-emocion" placeholder="Revisión emocional: ¿cómo me sentí hoy?" rows="2"></textarea>
+        <button class="save-btn" onclick="saveCierreDiario()">Guardar cierre</button>
+      </div>
+
+      <div class="card">
         <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--stellar)"></div><div class="card-title">Entrada libre</div></div></div>
         <div class="voice-wrap">
           <textarea class="txt" id="d-txt" placeholder="Nadie te lee. Solo tú. (toca el micrófono para dictar)" rows="5"></textarea>
