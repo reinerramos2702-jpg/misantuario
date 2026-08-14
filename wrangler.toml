@@ -1,0 +1,13 @@
+name = "misantuario"
+main = "worker/index.js"
+compatibility_date = "2024-09-23"
+account_id = "f3905ca6c195909711f212d3b72524a2"
+
+[assets]
+directory = "."
+binding = "ASSETS"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "misantuario-db"
+database_id = "85d5d951-935c-4096-9b69-7f11316dee7a"
