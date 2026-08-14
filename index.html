@@ -3491,6 +3491,7 @@ function reanudarBloque() {
   $('foco-status').textContent = `En foco · ${focoDuracionMin} min`;
   clearInterval(focoInterval);
   focoInterval = setInterval(focoTick, 1000);
+  focusModeEnter();
 }
 function toggleFocoPause() {
   if (focoPaused) reanudarBloque(); else pausarBloque();
