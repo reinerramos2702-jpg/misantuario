@@ -4081,7 +4081,14 @@ function toggleVoice(targetId, btn) {
 // ============================================================
 // SEARCH GLOBAL
 // ============================================================
-function openSearch() { $('search-overlay').classList.add('open'); setTimeout(() => $('search-input').focus(), 80); }
+function openSearch() {
+  // Foco síncrono, sin setTimeout: en iOS Safari (y algunos Android), un .focus() que ocurre
+  // fuera de la pila de llamadas del gesto de toque original NO abre el teclado virtual — el
+  // usuario ve el overlay pero no puede escribir sin tocar el input a mano. classList.add ya
+  // aplica display:block de forma síncrona, así que el input es enfocable en el mismo tick.
+  $('search-overlay').classList.add('open');
+  $('search-input').focus();
+}
 function closeSearch() { $('search-overlay').classList.remove('open'); }
 function runSearch(q) {
   const res = $('search-results');
