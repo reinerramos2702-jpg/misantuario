@@ -2556,6 +2556,11 @@ function addTask(key) {
   renderTasks(key, key === 'inicio' ? 'tasks-inicio' : 'tasks-proj');
 }
 function escapeHTML(s) { return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+// Feedback háptico (Vibration API) — no-op silencioso si el navegador no lo soporta (iOS Safari
+// no la tiene; Android Chrome sí). Nunca debe romper el flujo si falla.
+function vibrate(ms) {
+  try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {}
+}
 function slugProject(name) {
   const base = (name || 'proyecto').toLowerCase()
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
