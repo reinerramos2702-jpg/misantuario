@@ -91,7 +91,67 @@ async function handleApi(request, env, url) {
     return handleAI(request, env);
   }
 
+  if (pathname === '/api/push/subscribe' && method === 'POST') {
+    const b = await request.json();
+    const endpoint = b.endpoint;
+    const p256dh = b.keys?.p256dh;
+    const auth = b.keys?.auth;
+    if (!endpoint || !p256dh || !auth) return json({ error: 'Suscripción incompleta' }, 400);
+    await env.DB.prepare(
+      `INSERT INTO push_subscriptions (endpoint, p256dh, auth, created_at) VALUES (?,?,?,?)
+       ON CONFLICT(endpoint) DO UPDATE SET p256dh = excluded.p256dh, auth = excluded.auth`
+    ).bind(endpoint, p256dh, auth, new Date().toISOString()).run();
+    return json({ ok: true }, 201);
+  }
+
+  if (pathname === '/api/push/unsubscribe' && method === 'POST') {
+    const b = await request.json();
+    if (!b.endpoint) return json({ error: 'Falta "endpoint"' }, 400);
+    await env.DB.prepare('DELETE FROM push_subscriptions WHERE endpoint = ?').bind(b.endpoint).run();
+    return json({ ok: true });
+  }
+
+  if (pathname === '/api/push/send' && method === 'POST') {
+    return handlePushSend(request, env);
+  }
+
   return json({ error: 'Not found', path: pathname, method }, 404);
+}
+
+// Envía una notificación push real (Web Push / RFC 8291) a TODAS las suscripciones
+// guardadas. App de un solo usuario (Reiner) — en la práctica esto es "a todos sus
+// dispositivos suscritos", no hace falta un sistema de autenticación/targeting por usuario.
+async function handlePushSend(request, env) {
+  if (!env.VAPID_PRIVATE_KEY) return json({ error: 'VAPID_PRIVATE_KEY no configurado' }, 501);
+  let body;
+  try { body = await request.json(); } catch { return json({ error: 'JSON inválido' }, 400); }
+  const { title, body: msg, icon, tag } = body || {};
+  if (!title) return json({ error: 'Falta "title"' }, 400);
+
+  webpush.setVapidDetails(
+    'mailto:reinersanchez1@gmail.com',
+    env.VAPID_PUBLIC_KEY,
+    env.VAPID_PRIVATE_KEY
+  );
+
+  const { results } = await env.DB.prepare('SELECT * FROM push_subscriptions').all();
+  const payload = JSON.stringify({ title, body: msg || '', icon: icon || '/manifest-icon.png', tag: tag || 'santuario' });
+
+  const outcomes = await Promise.all(results.map(async (row) => {
+    const sub = { endpoint: row.endpoint, keys: { p256dh: row.p256dh, auth: row.auth } };
+    try {
+      await webpush.sendNotification(sub, payload);
+      return { endpoint: row.endpoint, ok: true };
+    } catch (err) {
+      // 404/410 = la suscripción ya no existe del lado del navegador (desinstalada, etc.) — límpiala.
+      if (err.statusCode === 404 || err.statusCode === 410) {
+        await env.DB.prepare('DELETE FROM push_subscriptions WHERE endpoint = ?').bind(row.endpoint).run();
+      }
+      return { endpoint: row.endpoint, ok: false, error: String(err.message || err) };
+    }
+  }));
+
+  return json({ sent: outcomes.filter(o => o.ok).length, total: outcomes.length, outcomes });
 }
 
 async function handleAI(request, env) {
