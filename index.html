@@ -2806,6 +2806,25 @@ function saveDec() {
   addXP(20);
   save(); renderMente('dec');
 }
+function saveAperturaDiario() {
+  const p1 = $('ap-p1').value.trim(), p2 = $('ap-p2').value.trim(), p3 = $('ap-p3').value.trim();
+  const preg = $('ap-preg').value.trim();
+  if (!p1 && !p2 && !p3 && !preg) return;
+  const txt = `🌅 Apertura\n1. ${p1}\n2. ${p2}\n3. ${p3}\n❓ ${preg}`;
+  state.diario.unshift({ txt, ts: ts() });
+  ['ap-p1','ap-p2','ap-p3','ap-preg'].forEach(id => $(id).value = '');
+  addXP(10);
+  save(); renderMente('diario');
+}
+function saveCierreDiario() {
+  const v = $('ci-victorias').value.trim(), f = $('ci-friccion').value.trim(), e = $('ci-emocion').value.trim();
+  if (!v && !f && !e) return;
+  const txt = `🌙 Cierre · Diario\n✓ Victorias: ${v}\n⚠ Fricciones: ${f}\n💭 Emocional: ${e}`;
+  state.diario.unshift({ txt, ts: ts() });
+  ['ci-victorias','ci-friccion','ci-emocion'].forEach(id => $(id).value = '');
+  addXP(10);
+  save(); renderMente('diario');
+}
 function saveSophia() {
   const v = $('sophia-note').value.trim();
   if (!v) return;
