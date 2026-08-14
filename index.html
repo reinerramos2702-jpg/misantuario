@@ -3145,6 +3145,70 @@ function renderAcademia() {
 function delAcadLog(i) { state.academia.log.splice(i,1); save(); renderAcademia(); }
 function delAcadRes(i) { state.academia.resources.splice(i,1); save(); renderAcademia(); }
 
+function defaultCurriculum() {
+  return [
+    { bloque: 1, semana: '1-3', tema: 'Fundamentos', horas: 15, entregable: '', checkpoint: '', estado: 'no-iniciado' },
+    { bloque: 1, semana: '1-3', tema: 'LLMs', horas: 15, entregable: '', checkpoint: '', estado: 'no-iniciado' },
+    { bloque: 1, semana: '1-3', tema: 'Prompt engineering', horas: 15, entregable: '', checkpoint: '', estado: 'no-iniciado' },
+    { bloque: 2, semana: '4-6', tema: 'RAG / Embeddings', horas: 15, entregable: '', checkpoint: '', estado: 'no-iniciado' },
+    { bloque: 2, semana: '4-6', tema: 'Agentes IA', horas: 15, entregable: '', checkpoint: '', estado: 'no-iniciado' },
+    { bloque: 2, semana: '4-6', tema: 'Fine-tuning', horas: 15, entregable: '', checkpoint: '', estado: 'no-iniciado' },
+    { bloque: 3, semana: '7-9', tema: 'Multimodal', horas: 15, entregable: '', checkpoint: '', estado: 'no-iniciado' },
+    { bloque: 3, semana: '7-9', tema: 'APIs Claude/Gemini/GPT', horas: 15, entregable: '', checkpoint: '', estado: 'no-iniciado' },
+    { bloque: 3, semana: '7-9', tema: 'Producto IA', horas: 15, entregable: '', checkpoint: '', estado: 'no-iniciado' },
+  ];
+}
+const CURRICULUM_ESTADO_EMOJI = { 'no-iniciado': '🔴', 'en-progreso': '🟡', 'completado': '🟢' };
+function renderCurriculum() {
+  state.academia = state.academia || { log: [], resources: [], totalMin: 0, curriculum: defaultCurriculum() };
+  state.academia.curriculum = state.academia.curriculum || defaultCurriculum();
+  const wrap = $('curriculum-list');
+  if (!wrap) return;
+  const cur = state.academia.curriculum;
+  const bloques = [
+    { n: 1, lbl: 'Bloque 1 · Semanas 1-3' },
+    { n: 2, lbl: 'Bloque 2 · Semanas 4-6' },
+    { n: 3, lbl: 'Bloque 3 · Semanas 7-9' },
+  ];
+  wrap.innerHTML = bloques.map(b => {
+    const filas = cur.map((c, i) => ({ c, i })).filter(x => x.c.bloque === b.n);
+    return `
+      <div class="lbl" style="margin-top:14px">${b.lbl}</div>
+      ${filas.map(({ c, i }) => `
+        <div class="entry">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <button onclick="cycleEstadoCurriculum(${i})" title="Cambiar estado" style="font-size:18px;background:none;border:none;cursor:pointer;padding:2px 4px;line-height:1">${CURRICULUM_ESTADO_EMOJI[c.estado] || '🔴'}</button>
+            <div class="entry-txt" style="font-weight:700">${escapeHTML(c.tema)}</div>
+          </div>
+          <div style="display:grid;grid-template-columns:70px 1fr 1fr;gap:8px">
+            <input class="txt" type="number" value="${c.horas}" placeholder="Horas" style="padding:8px 10px;font-size:12px" onchange="updateCurriculumField(${i},'horas',this.value)">
+            <input class="txt" type="text" value="${escapeHTML(c.entregable)}" placeholder="Entregable" style="padding:8px 10px;font-size:12px" onblur="updateCurriculumField(${i},'entregable',this.value)">
+            <input class="txt" type="text" value="${escapeHTML(c.checkpoint)}" placeholder="Checkpoint" style="padding:8px 10px;font-size:12px" onblur="updateCurriculumField(${i},'checkpoint',this.value)">
+          </div>
+        </div>`).join('')}
+    `;
+  }).join('');
+}
+function cycleEstadoCurriculum(i) {
+  state.academia = state.academia || { log: [], resources: [], totalMin: 0, curriculum: defaultCurriculum() };
+  state.academia.curriculum = state.academia.curriculum || defaultCurriculum();
+  const orden = ['no-iniciado', 'en-progreso', 'completado'];
+  const c = state.academia.curriculum[i];
+  if (!c) return;
+  const idx = orden.indexOf(c.estado);
+  c.estado = orden[(idx + 1) % orden.length];
+  save(); renderCurriculum();
+}
+function updateCurriculumField(i, campo, valor) {
+  state.academia = state.academia || { log: [], resources: [], totalMin: 0, curriculum: defaultCurriculum() };
+  state.academia.curriculum = state.academia.curriculum || defaultCurriculum();
+  const c = state.academia.curriculum[i];
+  if (!c) return;
+  if (campo === 'horas') c[campo] = parseInt(valor) || 0;
+  else c[campo] = valor;
+  save();
+}
+
 // ============================================================
 // ARQUITECTO DIGITAL — Clientes
 // ============================================================
