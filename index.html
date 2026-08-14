@@ -2539,11 +2539,22 @@ function updateTaskProgress(key) {
   if (barEl) barEl.style.width = pct+'%';
 }
 function toggleTask(key, i) {
+  vibrate(20);
   const t = state.tasks[key][i];
   t.done = !t.done;
   if (t.done) addXP(15);
   save();
   renderTasks(key, key === 'inicio' ? 'tasks-inicio' : 'tasks-proj');
+  // "Completar la Misión Activa" no existe como botón propio en la app — el Checklist crítico
+  // de Inicio es lo más cercano (la misma tarjeta de Inicio bajo la Misión Activa). Vibración
+  // extra + toast cuando el checklist del día pasa a 100%.
+  if (key === 'inicio') {
+    const arr = state.tasks.inicio;
+    if (arr.length && arr.every(x => x.done)) {
+      vibrate([30, 60, 30]);
+      toast('🎯', 'Checklist del día completo', 'Misión activa al 100% hoy');
+    }
+  }
 }
 function addTask(key) {
   const inp = $('in-'+key);
