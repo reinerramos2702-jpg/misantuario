@@ -1,0 +1,9 @@
+{
+  "name": "mi-santuario-worker",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Worker de Mi Santuario (D1 API + IA + Web Push). No es un paquete publicable.",
+  "dependencies": {
+    "web-push": "^3.6.7"
+  }
+}
