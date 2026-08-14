@@ -2774,7 +2774,7 @@ async function askAI(prompt) {
   }
 
   try {
-    const sys = 'Eres el agente personal de Reiner. Responde en español latinoamericano, conciso, directo, motivador. Usa markdown ligero. Contexto: emprendedor venezolano, meta Japón en 6 MESES con $10k acumulados y JLPT N5, capital actual $48, proyectos: EducaLibros, Dropshipping, VidaFácil, La Estrella de Medianoche, MaxziMedia, Hotel La Guaira, Sizestreet en standby. Estudia IA para magíster. Tiende a dispersarse: necesita foco brutal en 1-2 acciones por sesión.';
+    const sys = 'Eres el agente personal de Reiner. Responde en español latinoamericano, conciso, directo, motivador. Usa markdown ligero. Contexto: emprendedor venezolano, meta Japón en 6 MESES con $10k acumulados y JLPT N5, capital actual $48, proyectos: EducaLibros, VidaFácil, La Estrella de Medianoche, MaxziMedia, Arquitecto Digital (clientes freelance), Sizestreet en standby. Estudia IA para magíster. Tiende a dispersarse: necesita foco brutal en 1-2 acciones por sesión.';
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${CONFIG.GEMINI_KEY}`;
     const res = await fetch(url, {
       method: 'POST',
