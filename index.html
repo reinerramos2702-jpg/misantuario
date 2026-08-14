@@ -4810,6 +4810,7 @@ if ('serviceWorker' in navigator) {
 // ============================================================
 function init() {
   setGreeting();
+  checkDailyReset();
   renderXP();
   setAI(state.selectedAI || 'gemini');
   renderTasks('inicio', 'tasks-inicio');
