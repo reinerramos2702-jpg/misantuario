@@ -1,0 +1,20 @@
+{
+  "name": "Santuario — Sistema Operativo Personal",
+  "short_name": "Santuario",
+  "description": "Tu OS personal: hábitos, proyectos, finanzas, mente, Japón.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#050A08",
+  "theme_color": "#0A1410",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "./assets/santuario-icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

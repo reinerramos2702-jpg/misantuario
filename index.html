@@ -1,0 +1,4009 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0A1410">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Santuario">
+<link rel="icon" type="image/svg+xml" href="./assets/santuario-icon.svg">
+<link rel="apple-touch-icon" href="./assets/santuario-icon.svg">
+<title>Santuario · Reiner OS</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* ============================================================
+   SANTUARIO · Premium Green Nature × Cosmic Galaxy
+   ============================================================ */
+:root {
+  /* Cosmic depths */
+  --void: #050A08;
+  --deep: #0A1410;
+  --surface: #0F1B17;
+  --elevated: #142922;
+  --raised: #1A332B;
+
+  /* Nature green spectrum */
+  --emerald: #10B981;
+  --mint: #6EE7B7;
+  --forest: #064E3B;
+  --sage: #84A98C;
+  --moss: #2D5A4A;
+
+  /* Cosmic accents */
+  --nebula: #A78BFA;
+  --stellar: #60A5FA;
+  --aurora: #2DD4BF;
+  --stardust: #FCD34D;
+  --ember: #F472B6;
+
+  /* Text */
+  --ink: #ECFDF5;
+  --ink-2: #B6CFC4;
+  --ink-3: #6B8278;
+  --ink-4: #3A4C45;
+
+  /* Borders */
+  --line: rgba(167, 215, 197, 0.08);
+  --line-2: rgba(167, 215, 197, 0.16);
+  --line-emerald: rgba(16, 185, 129, 0.25);
+
+  /* Shadows */
+  --shadow-glow: 0 0 40px rgba(16, 185, 129, 0.08);
+  --shadow-card: 0 1px 0 rgba(255,255,255,0.04) inset, 0 12px 32px -16px rgba(0,0,0,0.6);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body {
+  background: var(--void);
+  overflow-x: hidden;
+}
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  background: var(--void);
+}
+body.drawer-lock { overflow: hidden; }
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: -1;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(16,185,129,0.10), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 100% 30%, rgba(167,139,250,0.07), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 0% 70%, rgba(96,165,250,0.05), transparent 70%);
+  pointer-events: none;
+}
+
+/* Subtle starfield (estático — sin promoción GPU: capas fixed full-screen + drawer fixed causaban glitch/scroll-jank en Chrome/WebKit móvil) */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(236,253,245,0.5), transparent),
+    radial-gradient(1px 1px at 70% 60%, rgba(167,139,250,0.4), transparent),
+    radial-gradient(1px 1px at 40% 80%, rgba(96,165,250,0.4), transparent),
+    radial-gradient(1px 1px at 85% 15%, rgba(252,211,77,0.3), transparent),
+    radial-gradient(1px 1px at 10% 90%, rgba(110,231,183,0.4), transparent);
+  pointer-events: none; z-index: 0; opacity: .6;
+}
+
+.shell {
+  position: relative; z-index: 1;
+  max-width: 520px; margin: 0 auto;
+  min-height: 100vh; padding-bottom: 88px;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.hdr {
+  padding: 22px 22px 16px;
+  position: sticky; top: 0; z-index: 50;
+  background: linear-gradient(180deg, rgba(5,10,8,0.95) 0%, rgba(5,10,8,0.85) 70%, rgba(5,10,8,0) 100%);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+}
+.hdr-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.hdr-left { flex: 1; min-width: 0; }
+.greet { font-size: 11px; font-weight: 500; color: var(--ink-3); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px; }
+.hdr h1 {
+  font-family: 'Fraunces', serif;
+  font-size: 26px; font-weight: 400; letter-spacing: -0.5px;
+  color: var(--ink);
+  background: linear-gradient(135deg, var(--mint) 0%, var(--ink) 60%, var(--nebula) 100%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hdr h1 em { font-style: italic; color: var(--stardust); -webkit-text-fill-color: var(--stardust); }
+.date { font-size: 11px; color: var(--ink-3); margin-top: 3px; font-weight: 500; }
+
+.xp-ring { position: relative; width: 54px; height: 54px; flex-shrink: 0; }
+.xp-ring svg { transform: rotate(-90deg); }
+.xp-bg { fill: none; stroke: var(--elevated); stroke-width: 3.5; }
+.xp-fg {
+  fill: none; stroke: url(#xpGrad); stroke-width: 3.5; stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 0 6px rgba(16,185,129,0.5));
+}
+.xp-txt { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.xp-num { font-size: 13px; font-weight: 700; color: var(--ink); font-family: 'Fraunces', serif; }
+.xp-lvl { font-size: 7.5px; color: var(--mint); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-top: -1px; }
+
+/* ============================================================
+   MISSION CARD
+   ============================================================ */
+.mission {
+  margin: 6px 18px 18px;
+  background:
+    linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(167,139,250,0.05) 100%),
+    var(--surface);
+  border: 1px solid var(--line-emerald);
+  border-radius: 22px;
+  padding: 20px 22px;
+  position: relative; overflow: hidden;
+  box-shadow: var(--shadow-glow), var(--shadow-card);
+}
+.mission::before {
+  content: ''; position: absolute; top: -50%; right: -20%;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(252,211,77,0.12), transparent 70%);
+  pointer-events: none;
+}
+.mission-lbl {
+  font-size: 10px; font-weight: 700; color: var(--stardust);
+  letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.mission-lbl::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--stardust); box-shadow: 0 0 8px var(--stardust);
+}
+.mission-txt {
+  font-family: 'Fraunces', serif; font-size: 17px; font-weight: 400;
+  color: var(--ink); line-height: 1.5; letter-spacing: -0.2px;
+}
+.mission-txt b { font-weight: 600; color: var(--mint); }
+.mission-kpi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; position: relative; z-index: 1; }
+.kpi { text-align: center; }
+.kpi-val { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600; letter-spacing: -0.5px; }
+.kpi-lbl { font-size: 9px; color: var(--ink-3); font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; margin-top: 2px; }
+
+/* ============================================================
+   SECTIONS
+   ============================================================ */
+.sec { display: none; padding: 4px 18px; animation: rise .4s cubic-bezier(0.16, 1, 0.3, 1); }
+.sec.active { display: block; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.sec-hdr {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin: 8px 4px 16px;
+}
+.sec-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.icon-action {
+  width: 38px; height: 38px; border-radius: 13px;
+  border: 1px solid var(--line-emerald); background: rgba(16,185,129,0.07);
+  color: var(--mint); cursor: pointer; font-family: inherit;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s; touch-action: manipulation;
+}
+.icon-action:active { transform: scale(.93); background: rgba(16,185,129,0.14); }
+.icon-action svg { width: 18px; height: 18px; stroke-width: 2; }
+.sec-title {
+  font-family: 'Fraunces', serif; font-size: 22px; font-weight: 400;
+  letter-spacing: -0.4px; color: var(--ink);
+}
+.sec-title em { font-style: italic; color: var(--mint); }
+.sec-sub { font-size: 11px; color: var(--ink-3); font-weight: 500; }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 18px 18px;
+  margin-bottom: 12px;
+  position: relative;
+  box-shadow: var(--shadow-card);
+  transition: border-color .3s, transform .2s;
+}
+.card:hover { border-color: var(--line-2); }
+.card-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; margin-bottom: 14px;
+}
+.card-title-wrap { display: flex; align-items: center; gap: 11px; min-width: 0; }
+.dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 8px currentColor; }
+.card-title {
+  font-size: 13.5px; font-weight: 600; color: var(--ink); letter-spacing: -0.1px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.card-meta { font-size: 10.5px; color: var(--ink-3); margin-top: 2px; font-weight: 500; }
+
+.ghost-btn {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.2px;
+  padding: 7px 14px; border-radius: 99px;
+  border: 1px solid var(--line-emerald); background: transparent;
+  color: var(--mint); cursor: pointer; font-family: inherit;
+  white-space: nowrap; flex-shrink: 0;
+  transition: all .2s; touch-action: manipulation;
+}
+.ghost-btn:active { transform: scale(.95); background: rgba(16,185,129,0.08); }
+
+/* ============================================================
+   NAV (bottom)
+   ============================================================ */
+.nav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 520px; z-index: 100;
+  background: linear-gradient(180deg, transparent 0%, rgba(5,10,8,0.92) 30%, rgba(5,10,8,0.98) 100%);
+  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid var(--line);
+  display: flex; padding: 10px 8px calc(10px + env(safe-area-inset-bottom, 0px));
+  gap: 4px;
+}
+.nav-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 8px 4px; cursor: pointer; border: none; background: none;
+  color: var(--ink-3); font-family: inherit; min-height: 52px;
+  border-radius: 14px; transition: all .25s; touch-action: manipulation;
+  position: relative;
+}
+.nav-btn:active { transform: scale(.92); }
+.nav-btn svg { width: 19px; height: 19px; stroke-width: 1.8; transition: transform .3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.nav-btn span { font-size: 9.5px; font-weight: 600; letter-spacing: 0.2px; }
+.nav-btn.active { color: var(--mint); }
+.nav-btn.active svg { transform: translateY(-2px) scale(1.08); filter: drop-shadow(0 0 4px rgba(16,185,129,0.5)); }
+.nav-btn.active::after {
+  content: ''; position: absolute; top: 4px;
+  width: 24px; height: 2px; border-radius: 99px;
+  background: var(--mint); box-shadow: 0 0 8px var(--mint);
+}
+
+/* ============================================================
+   ALERTS
+   ============================================================ */
+.alert {
+  border-radius: 14px; padding: 13px 16px;
+  font-size: 12.5px; font-weight: 500; line-height: 1.55;
+  margin-bottom: 12px;
+  border: 1px solid; position: relative;
+  display: flex; gap: 11px; align-items: flex-start;
+}
+.alert::before { content: ''; width: 3px; align-self: stretch; border-radius: 99px; }
+.alert b { font-weight: 700; }
+.alert.gold { background: rgba(252,211,77,0.04); border-color: rgba(252,211,77,0.18); color: #FDE68A; }
+.alert.gold::before { background: var(--stardust); }
+.alert.emerald { background: rgba(16,185,129,0.04); border-color: rgba(16,185,129,0.2); color: var(--mint); }
+.alert.emerald::before { background: var(--emerald); }
+.alert.nebula { background: rgba(167,139,250,0.04); border-color: rgba(167,139,250,0.2); color: #C4B5FD; }
+.alert.nebula::before { background: var(--nebula); }
+.alert.ember { background: rgba(244,114,182,0.04); border-color: rgba(244,114,182,0.2); color: #FBCFE8; }
+.alert.ember::before { background: var(--ember); }
+
+/* ============================================================
+   METRICS
+   ============================================================ */
+.metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.metric {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 16px; padding: 14px 12px; text-align: left;
+}
+.metric-lbl { font-size: 9.5px; color: var(--ink-3); font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 6px; }
+.metric-val { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 500; letter-spacing: -0.5px; line-height: 1; }
+.metric-note { font-size: 10px; color: var(--ink-4); margin-top: 4px; font-weight: 500; }
+
+/* ============================================================
+   TASKS
+   ============================================================ */
+.tasks { list-style: none; }
+.task {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 11px 0; border-bottom: 1px solid var(--line);
+}
+.task:last-child { border-bottom: none; }
+.chk {
+  width: 20px; height: 20px; border-radius: 7px; flex-shrink: 0;
+  border: 1.5px solid var(--line-2); background: transparent;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: transparent;
+  transition: all .25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  margin-top: 1px; touch-action: manipulation;
+}
+.chk:active { transform: scale(.85); }
+.chk.done {
+  background: var(--emerald); border-color: var(--emerald); color: var(--void);
+  box-shadow: 0 0 12px rgba(16,185,129,0.4);
+}
+.task-txt { flex: 1; font-size: 13px; font-weight: 500; color: var(--ink); line-height: 1.5; transition: all .3s; }
+.task-txt.done { color: var(--ink-4); text-decoration: line-through; }
+.tag {
+  font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 6px;
+  letter-spacing: 0.5px; text-transform: uppercase; flex-shrink: 0;
+}
+.tag.gold { background: rgba(252,211,77,0.1); color: var(--stardust); }
+.tag.emerald { background: rgba(16,185,129,0.1); color: var(--mint); }
+.tag.nebula { background: rgba(167,139,250,0.1); color: #C4B5FD; }
+.tag.ember { background: rgba(244,114,182,0.1); color: #FBCFE8; }
+.tag.stellar { background: rgba(96,165,250,0.1); color: #93C5FD; }
+.tag.muted { background: var(--elevated); color: var(--ink-3); }
+
+/* Progress bar */
+.prog { margin-top: 14px; }
+.prog-lbl { display: flex; justify-content: space-between; font-size: 10px; color: var(--ink-3); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px; }
+.prog-track { height: 4px; background: var(--elevated); border-radius: 99px; overflow: hidden; }
+.prog-fill {
+  height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg, var(--forest), var(--emerald), var(--mint));
+  transition: width .8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 8px rgba(16,185,129,0.4);
+}
+
+/* Inputs */
+.add-row { display: flex; gap: 8px; margin-top: 14px; }
+input.txt, textarea.txt, select.txt {
+  display: block;
+  width: 100%; min-width: 0; max-width: 100%;
+  font-family: inherit; font-size: 13px;
+  padding: 11px 14px; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--deep); color: var(--ink);
+  outline: none; transition: border-color .2s, background .2s;
+  -webkit-appearance: none; appearance: none;
+  box-sizing: border-box;
+}
+.add-row input.txt { flex: 1 1 0; }
+input.txt[type="number"] { -moz-appearance: textfield; }
+input.txt[type="number"]::-webkit-outer-spin-button,
+input.txt[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+/* Grid items: forzar contracción correcta dentro de cards en móvil */
+.card > div[style*="grid"] > input.txt,
+.card > div[style*="grid"] > select.txt,
+.card > div[style*="grid"] > textarea.txt { min-width: 0; width: 100%; }
+.card { overflow: hidden; }
+input.txt:focus, textarea.txt:focus, select.txt:focus { border-color: var(--line-emerald); background: var(--surface); }
+textarea.txt { resize: vertical; min-height: 80px; line-height: 1.6; }
+.add-row button {
+  width: 44px; flex-shrink: 0; font-size: 20px; font-weight: 300;
+  border-radius: 12px; border: 1px solid var(--line-emerald); background: rgba(16,185,129,0.05); color: var(--mint);
+  cursor: pointer; transition: all .15s; touch-action: manipulation;
+}
+.add-row button:active { transform: scale(.94); background: rgba(16,185,129,0.15); }
+
+.lbl { font-size: 10px; color: var(--ink-3); font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; margin: 0 0 6px 2px; display: block; }
+
+.save-btn {
+  width: 100%; padding: 13px; border-radius: 12px;
+  border: 1px solid var(--line-emerald); background: rgba(16,185,129,0.06);
+  color: var(--mint); font-family: inherit; font-size: 13px; font-weight: 700;
+  letter-spacing: 0.3px; cursor: pointer; margin-top: 14px;
+  transition: all .2s; touch-action: manipulation;
+}
+.save-btn:active { transform: scale(.97); background: rgba(16,185,129,0.14); }
+
+/* Sub-tabs */
+.subtabs {
+  display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 14px;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.subtabs::-webkit-scrollbar { display: none; }
+.subtab {
+  font-size: 11.5px; font-weight: 600; letter-spacing: 0.2px;
+  padding: 7px 14px; border-radius: 99px;
+  border: 1px solid var(--line); background: transparent; color: var(--ink-3);
+  cursor: pointer; font-family: inherit; white-space: nowrap; flex-shrink: 0;
+  transition: all .2s; touch-action: manipulation;
+}
+.subtab:active { transform: scale(.95); }
+.subtab.active { background: rgba(16,185,129,0.08); border-color: var(--line-emerald); color: var(--mint); }
+.subsec { display: none; animation: rise .25s ease; }
+.subsec.active { display: block; }
+
+/* Chips */
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.chip {
+  font-size: 11px; font-weight: 600; padding: 8px 14px; border-radius: 99px;
+  border: 1px solid var(--line); background: transparent; color: var(--ink-2);
+  cursor: pointer; font-family: inherit; transition: all .2s; touch-action: manipulation;
+}
+.chip:active { background: var(--elevated); transform: scale(.95); }
+
+/* Entry list */
+.entry {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 14px; padding: 14px 16px; margin-bottom: 10px;
+  position: relative; animation: rise .3s ease;
+}
+.entry-meta { font-size: 9.5px; color: var(--ink-4); font-weight: 600; letter-spacing: 0.5px; margin-bottom: 6px; }
+.entry-txt { font-size: 12.5px; line-height: 1.6; color: var(--ink-2); font-weight: 500; white-space: pre-wrap; }
+.entry-del {
+  position: absolute; top: 10px; right: 10px;
+  background: none; border: none; color: var(--ink-4); font-size: 12px;
+  cursor: pointer; padding: 4px 8px; border-radius: 6px; font-family: inherit;
+  transition: color .2s; touch-action: manipulation;
+}
+.entry-del:active { color: var(--ember); }
+
+.empty {
+  font-size: 12px; color: var(--ink-4); font-weight: 500;
+  text-align: center; padding: 32px 20px;
+  border: 1px dashed var(--line); border-radius: 14px;
+  font-style: italic; font-family: 'Fraunces', serif;
+}
+
+/* Habit item */
+.habit {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 14px; border-radius: 13px; margin-bottom: 8px;
+  background: var(--surface); border: 1px solid var(--line);
+  cursor: pointer; -webkit-user-select: none; user-select: none;
+  transition: all .2s; touch-action: manipulation;
+}
+.habit:active { transform: scale(.98); }
+.habit.done { opacity: .55; }
+.habit-ico { width: 36px; height: 36px; border-radius: 11px; background: var(--elevated); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.habit.done .habit-ico { background: rgba(16,185,129,0.12); }
+.habit-body { flex: 1; min-width: 0; }
+.habit-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+.habit.done .habit-name { color: var(--ink-3); text-decoration: line-through; }
+.habit-meta { font-size: 10.5px; color: var(--ink-3); font-weight: 500; margin-top: 1px; }
+.habit-chk {
+  width: 24px; height: 24px; border-radius: 8px; flex-shrink: 0;
+  border: 1.5px solid var(--line-2); display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: transparent; transition: all .3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.habit.done .habit-chk { background: var(--emerald); border-color: var(--emerald); color: var(--void); box-shadow: 0 0 10px rgba(16,185,129,0.4); }
+
+/* Water glasses */
+.water-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; margin: 12px 0; }
+.glass {
+  aspect-ratio: 1; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--deep);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; cursor: pointer; transition: all .3s; touch-action: manipulation;
+  opacity: .5;
+}
+.glass:active { transform: scale(.85); }
+.glass.full {
+  background: linear-gradient(180deg, rgba(96,165,250,0.1), rgba(16,185,129,0.15));
+  border-color: var(--line-emerald); opacity: 1;
+  box-shadow: 0 0 10px rgba(16,185,129,0.2);
+}
+
+/* AI selector pill */
+.ai-picker {
+  display: flex; gap: 4px; padding: 4px;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 99px; margin-bottom: 12px; width: fit-content;
+}
+.ai-pill {
+  font-size: 10.5px; font-weight: 600; padding: 6px 12px; border-radius: 99px;
+  border: none; background: transparent; color: var(--ink-3);
+  cursor: pointer; font-family: inherit; transition: all .2s; touch-action: manipulation;
+}
+.ai-pill.active { background: var(--elevated); color: var(--ink); }
+.ai-pill[data-ai="claude"].active { color: var(--stardust); }
+.ai-pill[data-ai="gemini"].active { color: var(--stellar); }
+.ai-pill[data-ai="chatgpt"].active { color: var(--mint); }
+
+/* Modal */
+.modal-bg {
+  display: none; position: fixed; inset: 0; z-index: 1000;
+  background: rgba(5,10,8,0.92);
+  align-items: flex-end; justify-content: center;
+}
+.modal-bg.open { display: flex; animation: rise .2s ease; }
+.modal {
+  background: var(--surface); border: 1px solid var(--line-2);
+  border-radius: 24px 24px 0 0; width: 100%; max-width: 520px;
+  max-height: 88vh; display: flex; flex-direction: column;
+  animation: slideUp .4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 -10px 60px rgba(0,0,0,0.5);
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-handle { width: 40px; height: 4px; border-radius: 99px; background: var(--ink-4); margin: 12px auto 0; }
+.modal-hdr { padding: 14px 22px 8px; display: flex; align-items: center; gap: 10px; }
+.modal-hdr h3 { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; color: var(--ink); }
+.modal-body { padding: 8px 22px 22px; font-size: 13px; line-height: 1.7; color: var(--ink-2); overflow-y: auto; }
+.modal-body b { color: var(--ink); }
+.modal-foot { padding: 14px 22px 22px; border-top: 1px solid var(--line); display: flex; justify-content: flex-end; }
+.modal-btn {
+  padding: 10px 22px; border-radius: 10px;
+  border: 1px solid var(--line-emerald); background: rgba(16,185,129,0.08);
+  color: var(--mint); font-family: inherit; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all .15s; touch-action: manipulation;
+}
+.modal-btn:active { transform: scale(.96); background: rgba(16,185,129,0.18); }
+
+.loading { color: var(--nebula); font-weight: 600; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
+
+/* Offline banner */
+.offline-banner {
+  display: none;
+  margin: 10px 18px 0; padding: 9px 14px; border-radius: 10px;
+  background: rgba(252,211,77,0.06); border: 1px solid rgba(252,211,77,0.18);
+  font-size: 11px; font-weight: 600; color: var(--stardust);
+  text-align: center; letter-spacing: 0.3px;
+}
+.offline-banner.show { display: block; }
+
+/* Drawer */
+.drawer-bg { display: none; position: fixed; inset: 0; background: rgba(5,10,8,0.92); z-index: 90; }
+.drawer-bg.open { display: block; }
+.drawer {
+  display: none; position: fixed; bottom: 0; left: 0; right: 0;
+  width: min(100%, 520px); max-width: 520px; margin: 0 auto; z-index: 95;
+  background: var(--surface); border: 1px solid var(--line-2);
+  border-radius: 24px 24px 0 0; padding: 18px 18px calc(96px + env(safe-area-inset-bottom, 0px));
+  max-height: min(86svh, 720px); overflow-y: auto; overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y pinch-zoom;
+}
+.drawer.open { display: flex; flex-direction: column; }
+.drawer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.drawer-item {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
+  padding: 16px 14px; border-radius: 14px;
+  background: var(--deep); border: 1px solid var(--line);
+  color: var(--ink); font-family: inherit; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all .2s; touch-action: manipulation;
+}
+.drawer-item:active { transform: scale(.97); border-color: var(--line-emerald); }
+.drawer-item svg { width: 20px; height: 20px; color: var(--mint); }
+
+::-webkit-scrollbar { width: 0; background: transparent; }
+
+/* ============================================================
+   HEADER ACTIONS · search + notifications + theme
+   ============================================================ */
+.hdr-actions {
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+}
+.icon-btn {
+  position: relative;
+  width: 38px; height: 38px; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--surface);
+  color: var(--ink-2); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s; touch-action: manipulation;
+}
+.icon-btn:active { transform: scale(.9); }
+.icon-btn:hover { border-color: var(--line-emerald); color: var(--mint); }
+.icon-btn svg { width: 17px; height: 17px; stroke-width: 1.8; }
+.icon-badge {
+  position: absolute; top: -3px; right: -3px;
+  min-width: 16px; height: 16px; border-radius: 99px; padding: 0 4px;
+  background: var(--ember); color: #fff;
+  font-size: 9px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--void); box-shadow: 0 0 8px rgba(244,114,182,0.5);
+}
+
+/* ============================================================
+   SEARCH OVERLAY
+   ============================================================ */
+.search-overlay {
+  display: none; position: fixed; inset: 0; z-index: 2000;
+  background: rgba(5,10,8,0.96);
+  padding: 20px;
+}
+.search-overlay.open { display: block; animation: rise .2s ease; }
+.search-wrap { max-width: 520px; margin: 0 auto; padding-top: 10px; }
+.search-bar {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface); border: 1px solid var(--line-emerald);
+  border-radius: 16px; padding: 12px 16px; box-shadow: var(--shadow-glow);
+}
+.search-bar svg { width: 18px; height: 18px; color: var(--mint); flex-shrink: 0; }
+.search-bar input {
+  flex: 1; border: none; outline: none; background: transparent;
+  font-family: inherit; font-size: 15px; color: var(--ink);
+}
+.search-close {
+  background: var(--elevated); border: none; color: var(--ink-2);
+  width: 30px; height: 30px; border-radius: 8px;
+  cursor: pointer; font-family: inherit; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+}
+.search-results { margin-top: 18px; max-height: calc(100vh - 110px); overflow-y: auto; padding-bottom: 40px; }
+.search-group { margin-bottom: 18px; }
+.search-group-title {
+  font-size: 10px; color: var(--mint); font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; padding: 0 4px;
+}
+.search-item {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 12px; padding: 12px 14px; margin-bottom: 6px;
+  cursor: pointer; transition: all .15s; touch-action: manipulation;
+}
+.search-item:active { transform: scale(.98); border-color: var(--line-emerald); }
+.search-item-title { font-size: 13px; font-weight: 600; color: var(--ink); }
+.search-item-meta { font-size: 10.5px; color: var(--ink-3); font-weight: 500; margin-top: 2px; }
+.search-item mark { background: rgba(252,211,77,0.25); color: var(--stardust); padding: 0 2px; border-radius: 3px; }
+.search-empty { text-align: center; padding: 40px 20px; color: var(--ink-3); font-family: 'Fraunces', serif; font-style: italic; }
+
+/* ============================================================
+   TOAST / ACHIEVEMENTS
+   ============================================================ */
+.toast-wrap {
+  position: fixed; top: max(20px, env(safe-area-inset-top, 20px)); left: 50%;
+  transform: translateX(-50%); z-index: 3000;
+  display: flex; flex-direction: column; gap: 8px;
+  pointer-events: none; width: 100%; max-width: 480px; padding: 0 12px;
+}
+.toast {
+  pointer-events: auto;
+  background: linear-gradient(135deg, var(--surface), var(--elevated));
+  border: 1px solid var(--line-emerald); border-radius: 14px;
+  padding: 14px 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5), var(--shadow-glow);
+  display: flex; align-items: center; gap: 12px;
+  animation: toastIn .4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  font-size: 13px; color: var(--ink); font-weight: 500;
+}
+.toast.dismiss { animation: toastOut .3s ease forwards; }
+@keyframes toastIn { from { transform: translateY(-100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes toastOut { to { transform: translateY(-100px); opacity: 0; } }
+.toast-icon { font-size: 22px; flex-shrink: 0; }
+.toast-body { flex: 1; min-width: 0; }
+.toast-title { font-weight: 700; font-size: 13px; }
+.toast-sub { font-size: 11px; color: var(--ink-3); margin-top: 1px; }
+
+/* Level up overlay */
+.lvlup {
+  display: none; position: fixed; inset: 0; z-index: 4000;
+  background: radial-gradient(ellipse at center, rgba(16,185,129,0.15), rgba(5,10,8,0.95));
+  backdrop-filter: blur(8px);
+  align-items: center; justify-content: center; padding: 30px;
+}
+.lvlup.open { display: flex; animation: rise .4s ease; }
+.lvlup-card {
+  text-align: center; max-width: 360px;
+  animation: lvlupPulse .8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes lvlupPulse {
+  0% { transform: scale(0.5); opacity: 0; }
+  60% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.lvlup-icon {
+  width: 100px; height: 100px; border-radius: 50%;
+  background: radial-gradient(circle, var(--stardust), var(--emerald));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 50px; margin: 0 auto 18px;
+  box-shadow: 0 0 60px rgba(252,211,77,0.6), 0 0 120px rgba(16,185,129,0.4);
+  animation: spin 4s linear infinite;
+}
+@keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+.lvlup-label { font-size: 11px; color: var(--mint); letter-spacing: 3px; text-transform: uppercase; font-weight: 700; }
+.lvlup-name { font-family: 'Fraunces', serif; font-size: 38px; color: var(--ink); margin: 6px 0; font-style: italic; }
+.lvlup-quote { font-size: 13px; color: var(--ink-2); line-height: 1.6; font-style: italic; font-family: 'Fraunces', serif; margin-top: 14px; }
+.lvlup-close {
+  margin-top: 22px; padding: 12px 30px; border-radius: 12px;
+  background: var(--surface); border: 1px solid var(--line-emerald);
+  color: var(--mint); font-family: inherit; font-size: 13px; font-weight: 700;
+  cursor: pointer; letter-spacing: 0.3px;
+}
+
+/* ============================================================
+   BRIEF / DASHBOARD CARDS
+   ============================================================ */
+.brief-card {
+  background:
+    linear-gradient(135deg, rgba(16,185,129,0.08), rgba(252,211,77,0.04)),
+    var(--surface);
+  border: 1px solid var(--line-emerald); border-radius: 20px;
+  padding: 18px 20px; margin-bottom: 14px;
+  position: relative; overflow: hidden;
+}
+.brief-card::before {
+  content: ''; position: absolute; top: -50px; right: -50px;
+  width: 150px; height: 150px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(252,211,77,0.15), transparent 60%);
+  pointer-events: none;
+}
+.brief-eyebrow { font-size: 10px; color: var(--stardust); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+.brief-eyebrow::before { content: '⚡ '; }
+.brief-title { font-family: 'Fraunces', serif; font-size: 17px; color: var(--ink); margin-top: 4px; font-weight: 500; }
+.brief-content { font-size: 13px; line-height: 1.7; color: var(--ink-2); margin-top: 10px; }
+.brief-content b { color: var(--ink); }
+.brief-content ol, .brief-content ul { padding-left: 20px; margin: 6px 0; }
+.brief-content li { margin: 4px 0; }
+
+/* ============================================================
+   VOICE BUTTON
+   ============================================================ */
+.voice-btn {
+  position: absolute; right: 8px; bottom: 8px;
+  width: 32px; height: 32px; border-radius: 10px;
+  background: var(--elevated); border: 1px solid var(--line);
+  color: var(--ink-3); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s; touch-action: manipulation; z-index: 5;
+}
+.voice-btn:active { transform: scale(.9); }
+.voice-btn.recording {
+  background: var(--ember); color: #fff; border-color: var(--ember);
+  animation: voicePulse 1s infinite;
+}
+@keyframes voicePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(244,114,182,0.6); }
+  50% { box-shadow: 0 0 0 8px rgba(244,114,182,0); }
+}
+.voice-wrap { position: relative; }
+
+/* ============================================================
+   CALENDAR
+   ============================================================ */
+.cal-controls {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.cal-month {
+  font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500;
+  color: var(--ink); text-transform: capitalize;
+}
+.cal-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+}
+.cal-dow {
+  font-size: 9px; color: var(--ink-3); text-align: center; font-weight: 700;
+  letter-spacing: 0.5px; text-transform: uppercase; padding: 6px 0;
+}
+.cal-day {
+  aspect-ratio: 1; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--line);
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  padding: 4px 2px; font-size: 11px; font-weight: 600; color: var(--ink-2);
+  position: relative; cursor: pointer; transition: all .15s;
+}
+.cal-day:active { transform: scale(.95); }
+.cal-day.muted { opacity: 0.35; }
+.cal-day.today {
+  background: rgba(16,185,129,0.12);
+  border-color: var(--line-emerald); color: var(--mint);
+  box-shadow: 0 0 12px rgba(16,185,129,0.2);
+}
+.cal-day.has-events { border-color: rgba(252,211,77,0.3); }
+.cal-day-num { font-weight: 700; font-size: 12px; }
+.cal-dots { display: flex; gap: 2px; margin-top: 2px; }
+.cal-dots span { width: 4px; height: 4px; border-radius: 50%; }
+
+/* ============================================================
+   IMPORT MODAL
+   ============================================================ */
+.file-drop {
+  border: 2px dashed var(--line-2); border-radius: 14px;
+  padding: 24px; text-align: center; color: var(--ink-3);
+  cursor: pointer; transition: all .2s; font-size: 12px;
+}
+.file-drop:hover, .file-drop.over { border-color: var(--mint); color: var(--mint); background: rgba(16,185,129,0.04); }
+
+/* ============================================================
+   AUDIOLIBRO TIMESTAMP LINKS
+   ============================================================ */
+.ts-link {
+  display: inline-block; padding: 2px 8px; border-radius: 6px;
+  background: rgba(96,165,250,0.12); color: var(--stellar);
+  font-weight: 700; cursor: pointer; font-size: 11px;
+  font-family: ui-monospace, monospace; transition: all .15s;
+}
+.ts-link:hover { background: rgba(96,165,250,0.25); }
+.ts-link::before { content: '⏵ '; }
+
+/* ============================================================
+   LIGHT THEME · CSS variable swap
+   ============================================================ */
+body.light {
+  --void: #F7FBF5;
+  --deep: #EFF5EB;
+  --surface: #FFFFFF;
+  --elevated: #F0F5EC;
+  --raised: #E2EBDB;
+  --ink: #0A1410;
+  --ink-2: #2D3A33;
+  --ink-3: #5A6B62;
+  --ink-4: #94A398;
+  --line: rgba(10,30,20,0.07);
+  --line-2: rgba(10,30,20,0.14);
+  --line-emerald: rgba(5,150,105,0.25);
+  --emerald: #059669;
+  --mint: #047857;
+  --forest: #064E3B;
+  --nebula: #7C3AED;
+  --stellar: #2563EB;
+  --aurora: #0891B2;
+  --stardust: #D97706;
+  --ember: #DB2777;
+}
+body.light::before { opacity: 0.15; }
+body.light::after {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(5,150,105,0.08), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 100% 30%, rgba(124,58,237,0.05), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 0% 70%, rgba(37,99,235,0.04), transparent 70%);
+}
+
+/* Mobile GPU fix — kill fixed pseudo-elements that cause rendering artifacts */
+@media (max-width: 600px) {
+  body::before,
+  body::after { display: none !important; }
+  body {
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(16,185,129,0.10), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 100% 30%, rgba(167,139,250,0.07), transparent 70%),
+      var(--void);
+  }
+  .hdr { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(5,10,8,0.97); }
+  .nav { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(5,10,8,0.98); }
+  .sec { content-visibility: visible; contain: none; }
+  .drawer { border-left: 0; border-right: 0; border-radius: 20px 20px 0 0; }
+  .drawer-grid { gap: 8px; }
+  .drawer-item { min-height: 76px; }
+  .project-form-row { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  body.light { background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(5,150,105,0.08), transparent 60%), var(--void); }
+  body.light .hdr { background: rgba(247,251,245,0.97); }
+  body.light .nav { background: rgba(247,251,245,0.98); }
+}
+body.light .hdr {
+  background: linear-gradient(180deg, rgba(247,251,245,0.95) 0%, rgba(247,251,245,0.85) 70%, rgba(247,251,245,0) 100%);
+}
+body.light .nav {
+  background: linear-gradient(180deg, transparent 0%, rgba(247,251,245,0.92) 30%, rgba(247,251,245,0.98) 100%);
+}
+body.light .modal-bg, body.light .drawer-bg, body.light .search-overlay {
+  background: rgba(247,251,245,0.95);
+}
+body.light .hdr h1 {
+  background: linear-gradient(135deg, var(--mint) 0%, var(--ink) 60%, var(--nebula) 100%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+/* Theme toggle in drawer */
+.theme-row {
+  display: flex; gap: 4px; padding: 4px; background: var(--deep);
+  border: 1px solid var(--line); border-radius: 99px; margin: 10px 0;
+}
+.theme-opt {
+  flex: 1; padding: 8px; border-radius: 99px; border: none; background: transparent;
+  color: var(--ink-3); font-family: inherit; font-size: 11px; font-weight: 700;
+  cursor: pointer; transition: all .2s; touch-action: manipulation;
+}
+.theme-opt.active { background: var(--surface); color: var(--mint); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+/* Editable projects */
+.project-manager {
+  display: none; margin: -4px 0 14px; padding: 14px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+  box-shadow: var(--shadow-card);
+}
+.project-manager.open { display: block; animation: rise .25s ease; }
+.project-form { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.project-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.project-color-row { display: flex; gap: 8px; align-items: center; }
+.project-color-row input[type="color"] {
+  width: 44px; height: 42px; border-radius: 12px; border: 1px solid var(--line);
+  background: var(--deep); padding: 4px; flex-shrink: 0;
+}
+.danger-btn {
+  padding: 8px 12px; border-radius: 99px; border: 1px solid rgba(244,114,182,0.28);
+  background: rgba(244,114,182,0.06); color: var(--ember);
+  font-family: inherit; font-size: 11px; font-weight: 700; cursor: pointer;
+  transition: all .2s; touch-action: manipulation;
+}
+.danger-btn:active { transform: scale(.95); background: rgba(244,114,182,0.12); }
+
+/* ============================================================
+   NOTIFICATIONS PANEL
+   ============================================================ */
+.notif-list { max-height: 60vh; overflow-y: auto; }
+.notif {
+  padding: 14px 16px; border-radius: 12px; margin-bottom: 8px;
+  background: var(--surface); border: 1px solid var(--line);
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.notif.urgent { border-color: rgba(244,114,182,0.25); background: rgba(244,114,182,0.04); }
+.notif.warn { border-color: rgba(252,211,77,0.25); background: rgba(252,211,77,0.04); }
+.notif.info { border-color: rgba(96,165,250,0.25); background: rgba(96,165,250,0.04); }
+.notif-icon { font-size: 18px; flex-shrink: 0; line-height: 1.2; }
+.notif-body { flex: 1; min-width: 0; }
+.notif-title { font-weight: 700; font-size: 13px; color: var(--ink); }
+.notif-msg { font-size: 12px; color: var(--ink-2); margin-top: 3px; line-height: 1.5; }
+
+/* ============================================================
+   BRIEF RESULT IN MODAL
+   ============================================================ */
+.brief-section {
+  margin-top: 12px; padding: 12px 14px; border-radius: 12px;
+  background: var(--deep); border: 1px solid var(--line);
+}
+.brief-section h4 { font-size: 11px; color: var(--mint); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+.brief-section p { font-size: 12.5px; line-height: 1.6; color: var(--ink-2); }
+
+/* Project color themes per active project */
+.proj-edu { --accent: var(--stardust); --accent-soft: rgba(252,211,77,0.15); }
+.proj-vf { --accent: #FB923C; --accent-soft: rgba(251,146,60,0.15); }
+.proj-hotel { --accent: var(--aurora); --accent-soft: rgba(45,212,191,0.15); }
+.proj-maxz { --accent: var(--ember); --accent-soft: rgba(244,114,182,0.15); }
+.proj-drop { --accent: var(--stellar); --accent-soft: rgba(96,165,250,0.15); }
+.proj-size { --accent: #F5F5F0; --accent-soft: rgba(245,245,240,0.1); }
+.proj-estrella { --accent: var(--nebula); --accent-soft: rgba(167,139,250,0.15); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="xpGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981"/>
+      <stop offset="50%" stop-color="#6EE7B7"/>
+      <stop offset="100%" stop-color="#A78BFA"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<div class="shell">
+
+  <!-- HEADER -->
+  <header class="hdr">
+    <div class="hdr-row">
+      <div class="hdr-left">
+        <div class="greet" id="greet">Buen día</div>
+        <h1>Santuario<em>·</em></h1>
+        <div class="date" id="date"></div>
+      </div>
+      <div class="hdr-actions">
+        <button class="icon-btn" id="btn-search" onclick="openSearch()" aria-label="Buscar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="M21 21 l-4-4"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-notif" onclick="openNotif()" aria-label="Notificaciones">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 16 v-5 a6 6 0 0 0 -12 0 v5 l-2 3 h16 z M9 19 a3 3 0 0 0 6 0"/></svg>
+          <span class="icon-badge" id="notif-badge" style="display:none">0</span>
+        </button>
+        <div class="xp-ring" title="Nivel actual" onclick="showLevelInfo()" style="cursor:pointer">
+          <svg width="54" height="54" viewBox="0 0 54 54">
+            <circle class="xp-bg" cx="27" cy="27" r="23"/>
+            <circle class="xp-fg" id="xp-fg" cx="27" cy="27" r="23" stroke-dasharray="144" stroke-dashoffset="100"/>
+          </svg>
+          <div class="xp-txt">
+            <span class="xp-num" id="xp-num">12%</span>
+            <span class="xp-lvl" id="xp-lvl">Tales</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- OFFLINE BANNER -->
+  <div class="offline-banner" id="offline-banner">Modo offline · cambios guardados localmente</div>
+
+  <!-- MISSION CARD -->
+  <div class="mission">
+    <div class="mission-lbl">Misión activa · 72h</div>
+    <div class="mission-txt">Construir <b>$1,000</b> de capital limpio. Primera venta EducaLibros y campaña dropshipping rentable.</div>
+    <div class="mission-kpi">
+      <div class="kpi"><div class="kpi-val" style="color:var(--ember)" id="k-cap">$48</div><div class="kpi-lbl">Capital</div></div>
+      <div class="kpi"><div class="kpi-val" style="color:var(--stardust)">$1k</div><div class="kpi-lbl">Meta</div></div>
+      <div class="kpi"><div class="kpi-val" style="color:var(--mint)">72h</div><div class="kpi-lbl">Plazo</div></div>
+      <div class="kpi"><div class="kpi-val" style="color:var(--nebula)">6m</div><div class="kpi-lbl">Japón</div></div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SEC: INICIO
+       ============================================================ -->
+  <section class="sec active" id="sec-inicio">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Hoy <em>·</em> foco</div>
+        <div class="sec-sub">Una tarea crítica por proyecto. Sin dispersión.</div>
+      </div>
+    </div>
+
+    <!-- AGENTE DIARIO · Brief de la mañana -->
+    <div class="brief-card" id="agente-diario">
+      <div class="brief-eyebrow">Agente diario</div>
+      <div class="brief-title" id="ad-greeting">Tu brief de hoy</div>
+      <div class="brief-content" id="ad-content">
+        <p style="color:var(--ink-3);font-style:italic;font-family:'Fraunces',serif">Toca el botón para que la IA genere tu plan estratégico de hoy basado en hábitos pendientes, tareas urgentes, sesiones de japonés y alertas financieras.</p>
+      </div>
+      <button class="save-btn" onclick="generarBrief()" style="margin-top:14px">⚡ Generar brief con IA</button>
+    </div>
+
+    <!-- DASHBOARD SEMANAL (visible siempre) -->
+    <div class="card" id="weekly-dash" style="display:none">
+      <div class="card-row">
+        <div class="card-title-wrap">
+          <div class="dot" style="background:var(--nebula)"></div>
+          <div><div class="card-title">Cierre semanal</div><div class="card-meta">Resumen + plan próxima semana</div></div>
+        </div>
+      </div>
+      <div id="weekly-content"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-row">
+        <div class="card-title-wrap">
+          <div class="dot" style="background:var(--ember);color:var(--ember)"></div>
+          <div>
+            <div class="card-title">Checklist crítico</div>
+            <div class="card-meta">Las cosas que mueven la aguja hoy</div>
+          </div>
+        </div>
+        <button class="ghost-btn" onclick="askAI('Soy Reiner. Tengo $48 y meta de $1,000 en 72h vía primera venta EducaLibros $50 y campaña de dropshipping. Dame el plan de las próximas 4 horas.')">Plan</button>
+      </div>
+      <ul class="tasks" id="tasks-inicio"></ul>
+      <div class="add-row">
+        <input class="txt" id="in-inicio" placeholder="Agregar tarea crítica..." onkeydown="if(event.key==='Enter')addTask('inicio')">
+        <button onclick="addTask('inicio')">+</button>
+      </div>
+      <div class="prog">
+        <div class="prog-lbl"><span>Progreso</span><span id="pct-inicio">0%</span></div>
+        <div class="prog-track"><div class="prog-fill" id="bar-inicio" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-row">
+        <div class="card-title-wrap">
+          <div class="dot" style="background:var(--mint);color:var(--mint)"></div>
+          <div><div class="card-title">Consulta rápida</div><div class="card-meta">Elige tu IA y pregunta</div></div>
+        </div>
+      </div>
+      <div class="ai-picker" role="tablist">
+        <button class="ai-pill" data-ai="claude" onclick="setAI('claude')">Claude</button>
+        <button class="ai-pill active" data-ai="gemini" onclick="setAI('gemini')">Gemini</button>
+        <button class="ai-pill" data-ai="chatgpt" onclick="setAI('chatgpt')">ChatGPT</button>
+      </div>
+      <textarea class="txt" id="ai-prompt" placeholder="Pregunta lo que necesites..." style="min-height:70px"></textarea>
+      <button class="save-btn" onclick="askFromInput()">Consultar</button>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SEC: PROYECTOS
+       ============================================================ -->
+  <section class="sec" id="sec-proyectos">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Proyectos <em>activos</em></div>
+        <div class="sec-sub" id="projects-sub">7 frentes. Una victoria por día.</div>
+      </div>
+      <div class="sec-actions">
+        <button class="icon-action" onclick="toggleProjectManager()" aria-label="Agregar proyecto">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="project-manager" id="project-manager">
+      <div class="project-form">
+        <div class="project-form-row">
+          <input class="txt" id="proj-name" placeholder="Nombre del proyecto">
+          <input class="txt" id="proj-sub" placeholder="Enfoque / meta breve">
+        </div>
+        <div class="project-color-row">
+          <input id="proj-color" type="color" value="#6EE7B7" aria-label="Color del proyecto">
+          <button class="save-btn" onclick="addProject()" style="margin-top:0">Agregar proyecto</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="subtabs" id="proj-tabs"></div>
+
+    <!-- Project content panes (rendered dynamically) -->
+    <div id="proj-pane"></div>
+  </section>
+
+  <!-- ============================================================
+       SEC: FINANZAS
+       ============================================================ -->
+  <section class="sec" id="sec-finanzas">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Finanzas <em>·</em> multi-moneda</div>
+        <div class="sec-sub">USD · BsS · JPY · cambio manual</div>
+      </div>
+    </div>
+
+    <div class="subtabs">
+      <button class="subtab active" onclick="showSub('fin','today',this)">Hoy</button>
+      <button class="subtab" onclick="showSub('fin','cuentas',this)">Cuentas</button>
+      <button class="subtab" onclick="showSub('fin','ahorros',this)">Ahorros Japón</button>
+    </div>
+
+    <!-- Hoy -->
+    <div class="subsec active" id="fin-today">
+      <div class="metric-grid">
+        <div class="metric"><div class="metric-lbl">Capital</div><div class="metric-val" style="color:var(--ember)" id="fin-capital">$48</div><div class="metric-note">USD total</div></div>
+        <div class="metric"><div class="metric-lbl">Gastado</div><div class="metric-val" id="fin-spent">$0</div><div class="metric-note" id="fin-count">0 mov.</div></div>
+        <div class="metric"><div class="metric-lbl">Disponible</div><div class="metric-val" style="color:var(--mint)" id="fin-avail">$8</div><div class="metric-note">hoy</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title-wrap">
+            <div class="dot" style="background:var(--mint);color:var(--mint)"></div>
+            <div>
+              <div class="card-title">Registrar movimiento</div>
+              <div class="card-meta">Antes de gastar. Cada centavo.</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px">
+          <input class="txt" id="exp-desc" placeholder="Descripción">
+          <input class="txt" id="exp-amt" type="number" placeholder="Monto" step="0.01">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+          <select class="txt" id="exp-cur">
+            <option value="USD">USD</option>
+            <option value="BsS">BsS</option>
+            <option value="JPY">JPY</option>
+          </select>
+          <select class="txt" id="exp-cat">
+            <option>Comida</option><option>Medicamentos</option><option>Transporte</option>
+            <option>Deuda</option><option>Proyecto</option><option>Ads</option><option>Otro</option>
+          </select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+          <select class="txt" id="exp-acc">
+            <option>Binance</option><option>PayPal</option><option>BdV</option><option>Efectivo BsS</option>
+          </select>
+          <input class="txt" id="exp-fx" type="number" placeholder="Tasa USD→BsS" step="0.01" value="677">
+        </div>
+        <select class="txt" id="exp-type" style="margin-top:8px">
+          <option value="out">Gasto</option><option value="in">Ingreso</option>
+        </select>
+        <button class="save-btn" onclick="addExp()">Registrar</button>
+      </div>
+
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title-wrap">
+            <div class="dot" style="background:var(--stardust);color:var(--stardust)"></div>
+            <div class="card-title">Movimientos recientes</div>
+          </div>
+        </div>
+        <div id="exp-list"></div>
+      </div>
+    </div>
+
+    <!-- Cuentas -->
+    <div class="subsec" id="fin-cuentas">
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title-wrap">
+            <div class="dot" style="background:var(--stellar)"></div>
+            <div class="card-title">Saldos por cuenta</div>
+          </div>
+        </div>
+        <div id="accounts-list"></div>
+        <div class="lbl" style="margin-top:14px">Actualizar saldo</div>
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px">
+          <select class="txt" id="acc-name">
+            <option>Binance</option><option>PayPal</option><option>BdV</option><option>Efectivo BsS</option><option>JPY futuro</option>
+          </select>
+          <input class="txt" id="acc-bal" type="number" placeholder="Saldo" step="0.01">
+        </div>
+        <button class="save-btn" onclick="updateAccount()">Actualizar</button>
+      </div>
+    </div>
+
+    <!-- Ahorros Japón -->
+    <div class="subsec" id="fin-ahorros">
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title-wrap">
+            <div class="dot" style="background:var(--nebula)"></div>
+            <div>
+              <div class="card-title">Fondo Japón · intocable</div>
+              <div class="card-meta">Meta $10,000 · visa cumplida</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+          <div style="font-family:'Fraunces',serif;font-size:34px;font-weight:500;color:var(--nebula);letter-spacing:-1px" id="japan-amount">$0</div>
+          <div style="font-size:11px;color:var(--ink-3);font-weight:600">/ $10,000</div>
+        </div>
+        <div class="prog-track" style="height:6px"><div class="prog-fill" id="japan-bar" style="width:0%;background:linear-gradient(90deg,var(--moss),var(--nebula),var(--stardust))"></div></div>
+        <div style="font-size:11px;color:var(--ink-3);font-weight:500;margin-top:8px" id="japan-pct">0% · arranque</div>
+
+        <div class="lbl" style="margin-top:18px">Agregar al fondo</div>
+        <div style="display:flex;gap:8px">
+          <input class="txt" id="jap-amt" type="number" placeholder="Cantidad USD" step="0.01">
+          <button onclick="addJapan()" style="padding:11px 22px;border-radius:12px;border:1px solid var(--line-emerald);background:rgba(167,139,250,0.08);color:var(--nebula);font-weight:700;cursor:pointer;font-family:inherit;font-size:13px">Sumar</button>
+        </div>
+        <div id="japan-log" style="margin-top:14px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SEC: VIDA
+       ============================================================ -->
+  <section class="sec" id="sec-vida">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Vida <em>·</em> cuerpo & mente</div>
+        <div class="sec-sub">Disciplina diaria · sistemas no motivación</div>
+      </div>
+    </div>
+
+    <div class="subtabs">
+      <button class="subtab active" onclick="showSub('vida','habitos',this)">Hábitos</button>
+      <button class="subtab" onclick="showSub('vida','agua',this)">Agua</button>
+      <button class="subtab" onclick="showSub('vida','lectura',this)">Lectura</button>
+      <button class="subtab" onclick="showSub('vida','audio',this)">Audiolibros</button>
+      <button class="subtab" onclick="showSub('vida','cierre',this)">Cierre</button>
+    </div>
+
+    <div class="subsec active" id="vida-habitos">
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title-wrap">
+            <div class="dot" style="background:var(--mint)"></div>
+            <div>
+              <div class="card-title">Rutina del día</div>
+              <div class="card-meta">Mañana · día · noche</div>
+            </div>
+          </div>
+        </div>
+        <div id="habits-list"></div>
+        <div class="prog">
+          <div class="prog-lbl"><span>Hábitos hoy</span><span id="habits-pct">0%</span></div>
+          <div class="prog-track"><div class="prog-fill" id="habits-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsec" id="vida-agua">
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title-wrap">
+            <div class="dot" style="background:var(--stellar)"></div>
+            <div>
+              <div class="card-title">Hidratación · 2 litros</div>
+              <div class="card-meta" id="water-count">0 / 8 vasos</div>
+            </div>
+          </div>
+        </div>
+        <div class="water-grid" id="water-grid"></div>
+      </div>
+    </div>
+
+    <div class="subsec" id="vida-lectura">
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title-wrap">
+            <div class="dot" style="background:var(--stardust)"></div>
+            <div>
+              <div class="card-title">Lectura · 52 libros/año</div>
+              <div class="card-meta">10+ páginas diarias</div>
+            </div>
+          </div>
+        </div>
+        <div id="book-active"></div>
+        <div class="lbl" style="margin-top:14px">Páginas leídas hoy</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="ghost-btn" onclick="pages(-1)">−</button>
+          <div style="flex:1;text-align:center;font-family:'Fraunces',serif;font-size:30px;font-weight:500" id="pages-today">0</div>
+          <button class="ghost-btn" onclick="pages(1)">+1</button>
+          <button class="ghost-btn" onclick="pages(5)">+5</button>
+          <button class="ghost-btn" onclick="pages(10)">+10</button>
+        </div>
+        <button class="save-btn" onclick="savePages()">Registrar</button>
+
+        <div class="lbl" style="margin-top:18px">Agregar libro</div>
+        <input class="txt" id="book-title" placeholder="Título" style="margin-bottom:8px">
+        <input class="txt" id="book-author" placeholder="Autor" style="margin-bottom:8px">
+        <button class="save-btn" onclick="addBook()">Agregar a biblioteca</button>
+        <div id="library-list" style="margin-top:14px"></div>
+      </div>
+    </div>
+
+    <div class="subsec" id="vida-audio">
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title-wrap">
+            <div class="dot" style="background:var(--nebula)"></div>
+            <div>
+              <div class="card-title">Audiolibros · 72/año</div>
+              <div class="card-meta">YouTube embebido + notas estructuradas</div>
+            </div>
+          </div>
+        </div>
+        <input class="txt" id="audio-url" placeholder="Link YouTube del audiolibro..." style="margin-bottom:10px">
+        <button class="save-btn" onclick="loadAudio()" style="margin-top:0">Cargar reproductor</button>
+        <div id="audio-player" style="margin-top:14px;border-radius:12px;overflow:hidden"></div>
+        <div id="audio-notes-area" style="display:none;margin-top:14px">
+          <div class="lbl">Notas mientras escuchas</div>
+          <textarea class="txt" id="note-ideas" placeholder="💡 Ideas principales..." rows="3"></textarea>
+          <textarea class="txt" id="note-frases" placeholder="📜 Frases clave..." rows="2" style="margin-top:8px"></textarea>
+          <textarea class="txt" id="note-reflex" placeholder="🧘 Reflexiones personales..." rows="2" style="margin-top:8px"></textarea>
+          <textarea class="txt" id="note-aplic" placeholder="🎯 Aplicaciones a mi vida..." rows="2" style="margin-top:8px"></textarea>
+          <textarea class="txt" id="note-preg" placeholder="❓ Preguntas que me surgen..." rows="2" style="margin-top:8px"></textarea>
+          <textarea class="txt" id="note-acc" placeholder="⚡ Acciones concretas..." rows="2" style="margin-top:8px"></textarea>
+          <input class="txt" id="note-time" placeholder="⏱ Timestamp · ej: 24:35 disciplina" style="margin-top:8px">
+          <textarea class="txt" id="note-cont" placeholder="🎬 Ideas para contenido..." rows="2" style="margin-top:8px"></textarea>
+          <button class="save-btn" onclick="saveAudioNote()">Guardar sesión de notas</button>
+        </div>
+        <div id="audio-notes-list" style="margin-top:14px"></div>
+      </div>
+    </div>
+
+    <div class="subsec" id="vida-cierre">
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title-wrap">
+            <div class="dot" style="background:var(--nebula)"></div>
+            <div>
+              <div class="card-title">Cierre del día</div>
+              <div class="card-meta">10 min · honesto · prepara mañana</div>
+            </div>
+          </div>
+        </div>
+        <div class="lbl">Lo que logré hoy</div>
+        <textarea class="txt" id="c-logre" placeholder="Sé específico..."></textarea>
+        <div class="lbl" style="margin-top:12px">Lo que no terminé</div>
+        <textarea class="txt" id="c-pend" placeholder="Sin excusas..."></textarea>
+        <div class="lbl" style="margin-top:12px">Mis 3 metas para mañana</div>
+        <input class="txt" id="meta1" placeholder="Meta 1" style="margin-bottom:6px">
+        <input class="txt" id="meta2" placeholder="Meta 2" style="margin-bottom:6px">
+        <input class="txt" id="meta3" placeholder="Meta 3">
+        <div class="lbl" style="margin-top:12px">Una cosa por la que estoy agradecido</div>
+        <input class="txt" id="c-grat" placeholder="Algo pequeño o grande...">
+        <button class="save-btn" onclick="saveCierre()">Guardar cierre</button>
+        <div id="cierre-list" style="margin-top:14px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SEC: JAPÓN
+       ============================================================ -->
+  <section class="sec" id="sec-japon">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Protocolo <em>Japón</em></div>
+        <div class="sec-sub">6 meses · $10,000 · JLPT N5</div>
+      </div>
+    </div>
+
+    <div class="alert nebula"><div><b>Contexto:</b> Visa Skilled Worker para devs. Tu perfil tech es ventaja real. Mínimo 5 sesiones japonés/semana (3=riesgo).</div></div>
+
+    <div class="card">
+      <div class="card-row">
+        <div class="card-title-wrap">
+          <div class="dot" style="background:var(--nebula)"></div>
+          <div class="card-title">Sesiones japonés esta semana</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px" id="jp-week"></div>
+      <button class="save-btn" onclick="addJpSession()">+ Sesión hoy</button>
+    </div>
+
+    <div class="card">
+      <div class="card-row">
+        <div class="card-title-wrap">
+          <div class="dot" style="background:var(--stardust)"></div>
+          <div class="card-title">Roadmap 12 meses</div>
+        </div>
+      </div>
+      <div style="font-size:12.5px;line-height:1.9;color:var(--ink-2)">
+        <div style="padding:8px 0;border-bottom:1px solid var(--line)"><b style="color:var(--ember)">Mes 1</b> · Capital base · primera venta · campaña dropshipping rentable</div>
+        <div style="padding:8px 0;border-bottom:1px solid var(--line)"><b style="color:var(--stardust)">Mes 2</b> · Flujo $500+/mes · 3 clientes Arquitecto · hiragana dominado</div>
+        <div style="padding:8px 0;border-bottom:1px solid var(--line)"><b style="color:var(--aurora)">Mes 3</b> · $2k+ acumulados · sistema escalable · katakana + 200 kanji básicos</div>
+        <div style="padding:8px 0;border-bottom:1px solid var(--line)"><b style="color:var(--stellar)">Mes 4</b> · $5k+ ahorrados · portafolio sólido · documentación visa iniciada</div>
+        <div style="padding:8px 0;border-bottom:1px solid var(--line)"><b style="color:var(--mint)">Mes 5</b> · $8k+ · JLPT N5 listo · visa Skilled Worker en proceso</div>
+        <div style="padding:8px 0"><b style="color:var(--nebula)">Mes 6</b> · $10k+ · ticket comprado · ejecución</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--mint)"></div><div class="card-title">Agente Japón</div></div></div>
+      <div class="chips">
+        <button class="chip" onclick="askAI('Visa para devs venezolanos en Japón 2026. Requisitos exactos y pasos.')">Visa devs</button>
+        <button class="chip" onclick="askAI('Plan 12 meses para JLPT N4 desde cero con recursos gratuitos.')">Plan N5→N4</button>
+        <button class="chip" onclick="askAI('Costo de vida en Tokio o ciudad secundaria para soltero.')">Costo vida</button>
+        <button class="chip" onclick="askAI('Cómo conseguir trabajo remoto con empresa japonesa desde Venezuela.')">Trabajo remoto</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SEC: SOPHIA
+       ============================================================ -->
+  <section class="sec" id="sec-sophia">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Sophia <em>·</em> visión 10 años</div>
+        <div class="sec-sub">Aprendizaje perpetuo · Phoenix · naturaleza</div>
+      </div>
+    </div>
+
+    <div class="card" style="background:linear-gradient(135deg,rgba(167,139,250,0.06),rgba(252,211,77,0.04));border-color:rgba(167,139,250,0.2)">
+      <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:400;color:var(--ink);line-height:1.6;font-style:italic">
+        "Sophia. Aprendizaje perpetuo para ayudar a la humanidad como un Phoenix en la naturaleza."
+      </div>
+      <div style="font-size:11px;color:var(--ink-3);font-weight:600;letter-spacing:0.5px;margin-top:10px">— VISIÓN MAESTRA ·  10 AÑOS</div>
+    </div>
+
+    <div class="card">
+      <div class="card-row">
+        <div class="card-title-wrap">
+          <div class="dot" style="background:var(--nebula)"></div>
+          <div class="card-title">Fases de construcción</div>
+        </div>
+      </div>
+      <div style="font-size:12.5px;line-height:1.9;color:var(--ink-2)">
+        <div style="padding:10px 0;border-bottom:1px solid var(--line)"><b style="color:var(--mint)">Fase 1 · Años 1–2</b> · Capital base · ingresos sostenidos · Japón</div>
+        <div style="padding:10px 0;border-bottom:1px solid var(--line)"><b style="color:var(--aurora)">Fase 2 · Años 3–4</b> · Capital expansivo · networking global</div>
+        <div style="padding:10px 0;border-bottom:1px solid var(--line)"><b style="color:var(--stellar)">Fase 3 · Años 5–6</b> · Adquisición de terreno</div>
+        <div style="padding:10px 0;border-bottom:1px solid var(--line)"><b style="color:var(--stardust)">Fase 4 · Años 7–8</b> · Construcción del castillo-academia</div>
+        <div style="padding:10px 0"><b style="color:var(--nebula)">Fase 5 · Años 9–10</b> · Apertura Sophia · primera generación</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--stardust)"></div><div class="card-title">Notas de visión</div></div></div>
+      <textarea class="txt" id="sophia-note" placeholder="Documento de visión, símbolos, lugares, ideas filosóficas..." rows="4"></textarea>
+      <button class="save-btn" onclick="saveSophia()">Guardar nota</button>
+      <div id="sophia-list" style="margin-top:14px"></div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SEC: MENTE
+       ============================================================ -->
+  <section class="sec" id="sec-mente">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Mente <em>·</em> espacio interno</div>
+        <div class="sec-sub">Diario · ideas · gratitud · decisiones</div>
+      </div>
+    </div>
+
+    <div class="subtabs">
+      <button class="subtab active" onclick="showSub('mente','diario',this)">Diario</button>
+      <button class="subtab" onclick="showSub('mente','vault',this)">Ideas</button>
+      <button class="subtab" onclick="showSub('mente','grat',this)">Gratitud</button>
+      <button class="subtab" onclick="showSub('mente','dec',this)">Decisión</button>
+    </div>
+
+    <div class="subsec active" id="mente-diario">
+      <div class="card">
+        <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--stellar)"></div><div class="card-title">Entrada libre</div></div></div>
+        <div class="voice-wrap">
+          <textarea class="txt" id="d-txt" placeholder="Nadie te lee. Solo tú. (toca el micrófono para dictar)" rows="5"></textarea>
+          <button class="voice-btn" onclick="toggleVoice('d-txt', this)" aria-label="Dictar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11 a7 7 0 0 0 14 0 M12 18 v3 M9 21 h6"/></svg></button>
+        </div>
+        <button class="save-btn" onclick="saveMente('diario','d-txt')">Guardar</button>
+        <div id="diario-list" style="margin-top:14px"></div>
+      </div>
+    </div>
+
+    <div class="subsec" id="mente-vault">
+      <div class="card">
+        <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--stardust)"></div><div class="card-title">Vault de ideas</div></div></div>
+        <div class="voice-wrap">
+          <textarea class="txt" id="v-txt" placeholder="Captura antes de perderla..." rows="3"></textarea>
+          <button class="voice-btn" onclick="toggleVoice('v-txt', this)" aria-label="Dictar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11 a7 7 0 0 0 14 0 M12 18 v3 M9 21 h6"/></svg></button>
+        </div>
+        <button class="save-btn" onclick="saveMente('vault','v-txt')">Guardar</button>
+        <div id="vault-list" style="margin-top:14px"></div>
+      </div>
+    </div>
+
+    <div class="subsec" id="mente-grat">
+      <div class="card">
+        <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--stardust)"></div><div class="card-title">3 cosas · cada mañana</div></div></div>
+        <input class="txt" id="g-1" placeholder="1. Hoy agradezco..." style="margin-bottom:8px">
+        <input class="txt" id="g-2" placeholder="2. Hoy agradezco..." style="margin-bottom:8px">
+        <input class="txt" id="g-3" placeholder="3. Hoy agradezco...">
+        <button class="save-btn" onclick="saveGrat()">Guardar</button>
+        <div id="grat-list" style="margin-top:14px"></div>
+      </div>
+    </div>
+
+    <div class="subsec" id="mente-dec">
+      <div class="card">
+        <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--ember)"></div><div class="card-title">Motor de decisiones</div></div></div>
+        <input class="txt" id="dec-t" placeholder="La decisión a tomar..." style="margin-bottom:8px">
+        <button class="ghost-btn" onclick="aiProsCons()" style="width:100%;padding:10px;margin-bottom:10px">⚡ Generar Pros/Contras con IA</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <textarea class="txt" id="dec-p" placeholder="✓ Pros" rows="4"></textarea>
+          <textarea class="txt" id="dec-c" placeholder="✗ Contras" rows="4"></textarea>
+        </div>
+        <input class="txt" id="dec-i" placeholder="Mi intuición dice..." style="margin-top:8px">
+        <input class="txt" id="dec-f" placeholder="Decisión final" style="margin-top:8px">
+        <button class="save-btn" onclick="saveDec()">Registrar decisión</button>
+        <div id="dec-list" style="margin-top:14px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SEC: RADAR IA
+       ============================================================ -->
+  <section class="sec" id="sec-radar">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Radar <em>IA</em></div>
+        <div class="sec-sub">Fuentes vivas · brief diario inteligente</div>
+      </div>
+    </div>
+
+    <!-- Brief diario IA -->
+    <div class="brief-card">
+      <div class="brief-eyebrow">Brief diario</div>
+      <div class="brief-title">Lo más relevante hoy</div>
+      <div class="brief-content" id="radar-brief-content">
+        <p style="color:var(--ink-3);font-style:italic;font-family:'Fraunces',serif">Toca el botón para que el agente jale las últimas publicaciones de tus fuentes y te dé un brief priorizado.</p>
+      </div>
+      <button class="save-btn" onclick="generarRadarBrief()" style="margin-top:14px">⚡ Generar brief de fuentes</button>
+    </div>
+
+    <div class="card">
+      <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--mint)"></div><div class="card-title">Agregar fuente</div></div></div>
+      <input class="txt" id="src-url" placeholder="URL del canal / blog / feed RSS..." style="margin-bottom:8px">
+      <input class="txt" id="src-channelid" placeholder="YouTube channelId (opcional, formato UCxxx — para RSS automático)" style="margin-bottom:8px">
+      <input class="txt" id="src-kw" placeholder="Keywords (ej: disciplina, IA, Sócrates)" style="margin-bottom:8px">
+      <select class="txt" id="src-cat" style="margin-bottom:8px">
+        <option>IA</option><option>Filosofía</option><option>Marketing</option>
+        <option>Negocios</option><option>Disciplina</option><option>Otro</option>
+      </select>
+      <button class="save-btn" onclick="addSource()">Agregar fuente</button>
+    </div>
+
+    <div class="card">
+      <div class="card-row">
+        <div class="card-title-wrap"><div class="dot" style="background:var(--stardust)"></div><div class="card-title">Fuentes activas</div></div>
+        <select class="txt" id="src-filter" onchange="renderSources()" style="width:auto;max-width:140px">
+          <option value="">Todas</option>
+          <option>IA</option><option>Filosofía</option><option>Marketing</option>
+          <option>Negocios</option><option>Disciplina</option><option>Otro</option>
+        </select>
+      </div>
+      <div id="src-list"></div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SEC: CALENDARIO
+       ============================================================ -->
+  <section class="sec" id="sec-calendar">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Calendario <em>·</em> unificado</div>
+        <div class="sec-sub">Contenido · clientes · deadlines</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cal-controls">
+        <button class="icon-btn" onclick="calNav(-1)" style="width:34px;height:34px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M15 18 L9 12 L15 6"/></svg></button>
+        <div class="cal-month" id="cal-month">—</div>
+        <button class="icon-btn" onclick="calNav(1)" style="width:34px;height:34px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18 L15 12 L9 6"/></svg></button>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--aurora)"></div><div class="card-title">Nuevo evento</div></div></div>
+      <input class="txt" id="ev-title" placeholder="Título del evento" style="margin-bottom:8px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <input class="txt" id="ev-date" type="date">
+        <select class="txt" id="ev-type">
+          <option value="content">📹 Contenido</option>
+          <option value="client">👤 Cliente</option>
+          <option value="deadline">⚡ Deadline</option>
+          <option value="learning">🎓 Aprendizaje</option>
+          <option value="japan">🇯🇵 Japón</option>
+        </select>
+      </div>
+      <select class="txt" id="ev-project" style="margin-top:8px">
+        <option value="">Sin proyecto</option>
+        <option value="edu">EducaLibros</option><option value="drop">Dropshipping</option>
+        <option value="vf">VidaFácil</option><option value="estrella">La Estrella</option>
+        <option value="maxz">MaxziMedia</option><option value="hotel">Hotel La Guaira</option>
+        <option value="size">Sizestreet</option>
+      </select>
+      <button class="save-btn" onclick="addEvent()">Agregar evento</button>
+    </div>
+
+    <div class="card" id="ev-day-card" style="display:none">
+      <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--mint)"></div><div class="card-title" id="ev-day-title">Eventos del día</div></div></div>
+      <div id="ev-day-list"></div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SEC: ACADEMIA IA
+       ============================================================ -->
+  <section class="sec" id="sec-academia">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Academia <em>IA</em></div>
+        <div class="sec-sub">Ruta a magíster · aprendizaje continuo innegociable</div>
+      </div>
+    </div>
+
+    <div class="card" style="background:linear-gradient(135deg,rgba(96,165,250,0.06),rgba(167,139,250,0.04));border-color:rgba(96,165,250,0.2)">
+      <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:400;color:var(--ink);line-height:1.6;font-style:italic">
+        "Magíster en IA. Inmersión profunda. Sin atajos."
+      </div>
+      <div class="prog" style="margin-top:14px">
+        <div class="prog-lbl"><span>Progreso hacia magíster</span><span id="acad-pct">0%</span></div>
+        <div class="prog-track"><div class="prog-fill" id="acad-bar" style="width:0%;background:linear-gradient(90deg,var(--stellar),var(--nebula),var(--stardust))"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-row">
+        <div class="card-title-wrap">
+          <div class="dot" style="background:var(--stellar)"></div>
+          <div><div class="card-title">Log de aprendizaje del día</div><div class="card-meta">+50 XP por entrada · suma al progreso</div></div>
+        </div>
+        <button class="ghost-btn" onclick="askAI('Soy Reiner. Estoy estudiando IA con meta de magíster. Hoy dame un concepto avanzado de IA bien explicado y un mini-ejercicio práctico (15 min) para aplicarlo.')">Mentor</button>
+      </div>
+      <input class="txt" id="acad-topic" placeholder="Tema / concepto estudiado..." style="margin-bottom:8px">
+      <textarea class="txt" id="acad-note" placeholder="Qué aprendí concretamente, qué apliqué, qué quedó pendiente..."></textarea>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+        <select class="txt" id="acad-area">
+          <option>Fundamentos</option><option>LLMs</option><option>Prompt engineering</option>
+          <option>RAG / Embeddings</option><option>Agentes IA</option><option>Fine-tuning</option>
+          <option>Multimodal</option><option>APIs Claude/Gemini/GPT</option><option>Producto IA</option>
+        </select>
+        <input class="txt" id="acad-time" type="number" placeholder="Min. dedicados">
+      </div>
+      <button class="save-btn" onclick="saveAcadLog()">Registrar sesión</button>
+      <div id="acad-list" style="margin-top:14px"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--nebula)"></div><div class="card-title">Cursos / recursos activos</div></div></div>
+      <input class="txt" id="acad-res-name" placeholder="Curso / libro / canal..." style="margin-bottom:8px">
+      <input class="txt" id="acad-res-link" placeholder="Link (opcional)" style="margin-bottom:8px">
+      <button class="save-btn" onclick="addAcadRes()">Agregar recurso</button>
+      <div id="acad-res-list" style="margin-top:14px"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--mint)"></div><div class="card-title">Agente Academia</div></div></div>
+      <div class="chips">
+        <button class="chip" onclick="askAI('Dame un currículo de 90 días para dominar agentes IA con Claude/Gemini APIs. Bloques semanales con outputs entregables.')">Currículo 90d</button>
+        <button class="chip" onclick="askAI('Explícame el concepto de RAG (Retrieval Augmented Generation) en profundidad con ejemplo de código real en JavaScript usando Gemini.')">RAG profundo</button>
+        <button class="chip" onclick="askAI('Cuáles son los 5 papers de IA que TODO arquitecto digital debe haber leído en 2026? Con resumen ejecutivo de cada uno.')">5 papers clave</button>
+        <button class="chip" onclick="askAI('Dame un proyecto real de portafolio que demuestre dominio de agentes IA multi-modelo (Claude + Gemini + GPT orquestados). Spec técnica completa.')">Proyecto portafolio</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SEC: ARQUITECTO DIGITAL
+       ============================================================ -->
+  <section class="sec" id="sec-arq">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Arquitecto <em>Digital</em></div>
+        <div class="sec-sub">Workspace de clientes · webs · apps · automatizaciones</div>
+      </div>
+    </div>
+
+    <div class="subtabs">
+      <button class="subtab active" onclick="showSubArq('clientes',this)">Clientes</button>
+      <button class="subtab" onclick="showSubArq('captura',this)">Captura rápida</button>
+      <button class="subtab" onclick="showSubArq('radar',this)">Radar servicios</button>
+      <button class="subtab" onclick="showSubArq('portfolio',this)">Portafolio</button>
+    </div>
+
+    <!-- Clientes -->
+    <div class="subsec active" id="arq-clientes">
+      <div class="card">
+        <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--aurora)"></div><div class="card-title">Nuevo cliente</div></div></div>
+        <input class="txt" id="cli-name" placeholder="Nombre del cliente / proyecto" style="margin-bottom:8px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <input class="txt" id="cli-service" placeholder="Servicio (web/app/automatización)">
+          <input class="txt" id="cli-budget" type="number" placeholder="Presupuesto USD">
+        </div>
+        <button class="save-btn" onclick="addClient()">+ Crear hub del cliente</button>
+      </div>
+      <div id="clients-list"></div>
+    </div>
+
+    <!-- Captura rápida -->
+    <div class="subsec" id="arq-captura">
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title-wrap">
+            <div class="dot" style="background:var(--ember)"></div>
+            <div><div class="card-title">Captura rápida</div><div class="card-meta">Anota correcciones desde el celular · procesa al llegar</div></div>
+          </div>
+        </div>
+        <select class="txt" id="cap-client" style="margin-bottom:8px"><option value="">— Asignar a cliente —</option></select>
+        <div class="voice-wrap">
+          <textarea class="txt" id="cap-note" placeholder="Corrección urgente, idea, llamada de cliente... (toca el micrófono para dictar)" rows="3"></textarea>
+          <button class="voice-btn" onclick="toggleVoice('cap-note', this)" aria-label="Dictar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11 a7 7 0 0 0 14 0 M12 18 v3 M9 21 h6"/></svg></button>
+        </div>
+        <button class="save-btn" onclick="addCapture()">Capturar</button>
+        <div id="captures-list" style="margin-top:14px"></div>
+      </div>
+    </div>
+
+    <!-- Radar servicios -->
+    <div class="subsec" id="arq-radar">
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title-wrap">
+            <div class="dot" style="background:var(--mint)"></div>
+            <div><div class="card-title">Radar de novedades</div><div class="card-meta">Refina tus servicios con lo último de la IA</div></div>
+          </div>
+        </div>
+        <div class="chips">
+          <button class="chip" onclick="askAI('Qué herramientas IA aparecieron este mes que un arquitecto digital (webs/apps/automatizaciones) debe integrar a su oferta para subir el ticket promedio?')">Herramientas nuevas</button>
+          <button class="chip" onclick="askAI('Cuáles son los 3 servicios IA mejor pagados que un freelance dev puede ofrecer hoy en Latam con Gemini + Claude?')">Servicios premium</button>
+          <button class="chip" onclick="askAI('Dame 5 micro-automatizaciones con n8n / Make / Zapier + IA que pueda venderle a un hotel pequeño para mejorar reservas.')">Auto hoteles</button>
+        </div>
+        <textarea class="txt" id="arq-nov" placeholder="Apunta una novedad / aprendizaje técnico..." rows="3" style="margin-top:12px"></textarea>
+        <button class="save-btn" onclick="addNovedad()">Guardar novedad</button>
+        <div id="novedades-list" style="margin-top:14px"></div>
+      </div>
+    </div>
+
+    <!-- Portfolio sync -->
+    <div class="subsec" id="arq-portfolio">
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title-wrap">
+            <div class="dot" style="background:var(--stardust)"></div>
+            <div><div class="card-title">Portafolio sincronizado</div><div class="card-meta">Fuente de verdad bidireccional</div></div>
+          </div>
+        </div>
+        <div class="alert nebula"><div><b>Fase 2:</b> Cuando publiques tu web, el VPS expondrá un endpoint <code style="background:var(--deep);padding:2px 6px;border-radius:4px">/api/portfolio</code> y la web la consumirá. Edita aquí o allá, sincroniza al instante.</div></div>
+        <div class="lbl" style="margin-top:14px">Servicios del catálogo</div>
+        <input class="txt" id="port-name" placeholder="Nombre del servicio" style="margin-bottom:6px">
+        <input class="txt" id="port-price" placeholder="Precio desde (USD)" type="number" style="margin-bottom:6px">
+        <textarea class="txt" id="port-desc" placeholder="Descripción del servicio..." rows="2"></textarea>
+        <button class="save-btn" onclick="addService()">+ Servicio</button>
+        <div id="port-list" style="margin-top:14px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SEC: PROMPT LAB V2
+       ============================================================ -->
+  <section class="sec" id="sec-promptlab">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Prompt <em>Lab v2</em></div>
+        <div class="sec-sub">Tu prompt base → versión 2.0 multi-rol</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-row">
+        <div class="card-title-wrap">
+          <div class="dot" style="background:var(--nebula)"></div>
+          <div><div class="card-title">Refinador de prompts</div><div class="card-meta">Selecciona los roles que debe asumir el agente</div></div>
+        </div>
+      </div>
+      <div class="lbl">Roles a aplicar (toca para activar)</div>
+      <div class="chips" id="role-chips">
+        <button class="chip" data-role="code" onclick="toggleRole(this)">💻 Código</button>
+        <button class="chip" data-role="marketing" onclick="toggleRole(this)">📣 Marketing</button>
+        <button class="chip" data-role="sales" onclick="toggleRole(this)">💸 Ventas</button>
+        <button class="chip" data-role="strategy" onclick="toggleRole(this)">🎯 Estrategia</button>
+        <button class="chip" data-role="ux" onclick="toggleRole(this)">✨ UX/UI</button>
+        <button class="chip" data-role="philosopher" onclick="toggleRole(this)">📜 Filósofo</button>
+        <button class="chip" data-role="architect" onclick="toggleRole(this)">🏛 Arquitecto</button>
+        <button class="chip" data-role="seo" onclick="toggleRole(this)">🔍 SEO</button>
+      </div>
+      <div class="lbl" style="margin-top:14px">Tu prompt base</div>
+      <textarea class="txt" id="pl-base" placeholder="Escribe el prompt que quieres elevar a V2..." rows="5"></textarea>
+      <button class="save-btn" onclick="refinePrompt()">⚡ Generar V2</button>
+      <div class="lbl" style="margin-top:14px">Resultado V2</div>
+      <textarea class="txt" id="pl-out" placeholder="El prompt refinado aparecerá aquí..." rows="8" readonly></textarea>
+      <button class="ghost-btn" onclick="copyPromptV2()" style="width:100%;padding:10px;margin-top:10px">📋 Copiar V2</button>
+    </div>
+
+    <div class="card">
+      <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--stardust)"></div><div class="card-title">Plantillas guardadas</div></div></div>
+      <div id="pl-list"></div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SEC: COMPRAS
+       ============================================================ -->
+  <section class="sec" id="sec-compras">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Lista de <em>compras</em></div>
+        <div class="sec-sub">Toca para marcar como comprado</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="add-row" style="margin:0 0 12px">
+        <input class="txt" id="shop-in" placeholder="Agregar producto..." onkeydown="if(event.key==='Enter')addShop()">
+        <button onclick="addShop()">+</button>
+      </div>
+      <div id="shop-list"></div>
+    </div>
+  </section>
+
+</div> <!-- /shell -->
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="showSec('inicio',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3 L4 10 v10 h6 v-6 h4 v6 h6 V10 z"/></svg>
+    <span>Inicio</span>
+  </button>
+  <button class="nav-btn" onclick="showSec('proyectos',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M8 6 V4 a2 2 0 0 1 2-2 h4 a2 2 0 0 1 2 2 v2"/></svg>
+    <span>Proyectos</span>
+  </button>
+  <button class="nav-btn" onclick="showSec('finanzas',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10 h18 M7 15 h3"/></svg>
+    <span>Finanzas</span>
+  </button>
+  <button class="nav-btn" onclick="showSec('vida',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 21 C 6 16 3 12 3 8 a4 4 0 0 1 8-1 a4 4 0 0 1 8 1 c0 4-3 8-7 13 z"/></svg>
+    <span>Vida</span>
+  </button>
+  <button class="nav-btn" onclick="toggleDrawer()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+    <span>Más</span>
+  </button>
+</nav>
+
+<!-- DRAWER -->
+<div class="drawer-bg" id="drawer-bg" onclick="toggleDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div style="font-family:'Fraunces',serif;font-size:18px;color:var(--ink);margin-bottom:4px">Más secciones</div>
+  <div style="font-size:11px;color:var(--ink-3);font-weight:600">Explora el resto del Santuario</div>
+  <div class="drawer-grid">
+    <button class="drawer-item" onclick="showSec('japon');toggleDrawer()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
+      Japón
+    </button>
+    <button class="drawer-item" onclick="showSec('sophia');toggleDrawer()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2 L15 9 L22 10 L17 15 L18 22 L12 18 L6 22 L7 15 L2 10 L9 9 z"/></svg>
+      Sophia
+    </button>
+    <button class="drawer-item" onclick="showSec('mente');toggleDrawer()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 3 a5 5 0 0 0 -5 5 c0 2 1 4 3 5 a4 4 0 0 0 4 4 V3 z M15 3 a5 5 0 0 1 5 5 c0 2-1 4-3 5 a4 4 0 0 1 -4 4 V3 z"/></svg>
+      Mente
+    </button>
+    <button class="drawer-item" onclick="showSec('academia');toggleDrawer()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 8 L12 4 L21 8 L12 12 z M7 10 v6 a5 5 0 0 0 10 0 v-6"/></svg>
+      Academia IA
+    </button>
+    <button class="drawer-item" onclick="showSec('arq');toggleDrawer()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 21 V10 l9-7 l9 7 V21 z M9 21 v-8 h6 v8"/></svg>
+      Arquitecto
+    </button>
+    <button class="drawer-item" onclick="showSec('promptlab');toggleDrawer()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 3 v4 L4 17 a3 3 0 0 0 3 4 h10 a3 3 0 0 0 3 -4 L15 7 V3 z M9 3 h6"/></svg>
+      Prompt Lab
+    </button>
+    <button class="drawer-item" onclick="showSec('radar');toggleDrawer()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 3 v9 l6 4"/></svg>
+      Radar IA
+    </button>
+    <button class="drawer-item" onclick="showSec('calendar');toggleDrawer()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9 h18 M8 3 v4 M16 3 v4"/></svg>
+      Calendario
+    </button>
+    <button class="drawer-item" onclick="showSec('compras');toggleDrawer()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 6 h2 l2 12 h12 l2-9 H6"/><circle cx="9" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg>
+      Compras
+    </button>
+    <button class="drawer-item" onclick="exportAll()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3 v12 m0 0 l-4-4 m4 4 l4-4 M4 21 h16"/></svg>
+      Exportar
+    </button>
+    <button class="drawer-item" onclick="openImport()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 21 V9 m0 0 l-4 4 m4-4 l4 4 M4 3 h16"/></svg>
+      Importar
+    </button>
+  </div>
+  <div style="font-size:11px;color:var(--ink-3);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:18px 4px 4px">Tema</div>
+  <div class="theme-row" id="theme-row">
+    <button class="theme-opt" data-theme="dark" onclick="setTheme('dark')">🌙 Cósmico</button>
+    <button class="theme-opt" data-theme="light" onclick="setTheme('light')">🌿 Bosque</button>
+    <button class="theme-opt" data-theme="auto" onclick="setTheme('auto')">⊙ Auto</button>
+  </div>
+</div>
+
+<!-- SEARCH OVERLAY -->
+<div class="search-overlay" id="search-overlay">
+  <div class="search-wrap">
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="M21 21 l-4-4"/></svg>
+      <input id="search-input" placeholder="Buscar en todo el Santuario..." autocomplete="off">
+      <button class="search-close" onclick="closeSearch()">✕</button>
+    </div>
+    <div class="search-results" id="search-results">
+      <div class="search-empty">Empieza a escribir para buscar tareas, ideas, decisiones, clientes, libros, fuentes...</div>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATIONS MODAL -->
+<div class="modal-bg" id="notif-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-hdr">
+      <div class="dot" style="background:var(--ember)"></div>
+      <h3>Notificaciones</h3>
+    </div>
+    <div class="modal-body">
+      <div class="notif-list" id="notif-list"></div>
+    </div>
+    <div class="modal-foot"><button class="modal-btn" onclick="closeNotif()">Cerrar</button></div>
+  </div>
+</div>
+
+<!-- IMPORT MODAL -->
+<div class="modal-bg" id="import-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-hdr">
+      <div class="dot" style="background:var(--stellar)"></div>
+      <h3>Importar backup</h3>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom:14px">Selecciona un archivo <b>santuario-backup-*.json</b> previamente exportado.</p>
+      <label class="file-drop" id="file-drop">
+        <input type="file" accept=".json,application/json" id="import-file" style="display:none" onchange="handleImport(event)">
+        <div style="font-size:30px;margin-bottom:8px">📥</div>
+        Toca aquí para seleccionar archivo<br>
+        <small style="color:var(--ink-4)">o arrástralo dentro</small>
+      </label>
+      <div id="import-preview" style="margin-top:14px;display:none"></div>
+      <div style="display:flex;gap:8px;margin-top:14px" id="import-actions" hidden>
+        <button class="ghost-btn" onclick="confirmImport('replace')" style="flex:1;padding:11px">⚠ Reemplazar todo</button>
+        <button class="save-btn" onclick="confirmImport('merge')" style="margin:0;flex:1">+ Fusionar</button>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="modal-btn" onclick="closeImport()">Cerrar</button></div>
+  </div>
+</div>
+
+<!-- LEVEL UP -->
+<div class="lvlup" id="lvlup">
+  <div class="lvlup-card">
+    <div class="lvlup-icon" id="lvlup-icon">🏛</div>
+    <div class="lvlup-label">Has alcanzado el nivel</div>
+    <div class="lvlup-name" id="lvlup-name">Tales</div>
+    <div class="lvlup-quote" id="lvlup-quote">"Conócete a ti mismo."</div>
+    <button class="lvlup-close" onclick="closeLvlup()">Continuar la travesía</button>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<!-- AI MODAL -->
+<div class="modal-bg" id="ai-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-hdr">
+      <div class="dot" id="modal-dot" style="background:var(--mint)"></div>
+      <h3 id="modal-title">Agente</h3>
+    </div>
+    <div class="modal-body" id="modal-body">Cargando...</div>
+    <div class="modal-foot"><button class="modal-btn" onclick="closeModal()">Entendido</button></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG · placeholders — el usuario los pegará en la sesión.
+// ============================================================
+const CONFIG = {
+  GEMINI_KEY: 'AIzaSyCy1xcFW7sJyMifiJkQ0lDz3_VEKEAoDGU',
+  YT_CHANNEL: 'LaEstrellaDeMedianoche',
+  TG_TOKEN: '8260033548:AAG7NxnOhOmdXNzdAShZ_xy7Cr7jA09TzsQ',
+  TG_USER: '@lofaee'
+};
+
+// ============================================================
+// STATE (localStorage-backed)
+// ============================================================
+const STORAGE_KEY = 'santuario_v0_1';
+const DEFAULT_PROJECTS = [
+  { id: 'edu', name: 'EducaLibros', color: 'var(--stardust)', sub: 'Pack 3000+ cursos · $50/venta', theme: 'proj-edu' },
+  { id: 'drop', name: 'Dropshipping', color: 'var(--stellar)', sub: 'Primera campaña en marcha', theme: 'proj-drop' },
+  { id: 'vf', name: 'VidaFácil', color: '#FB923C', sub: '8h/día · Firebase + IA', theme: 'proj-vf' },
+  { id: 'estrella', name: 'La Estrella de Medianoche', color: 'var(--nebula)', sub: 'YouTube · filosofía', theme: 'proj-estrella' },
+  { id: 'maxz', name: 'MaxziMedia', color: 'var(--ember)', sub: 'Productos digitales $10', theme: 'proj-maxz' },
+  { id: 'hotel', name: 'Hotel La Guaira', color: 'var(--aurora)', sub: 'Solo contenido y marketing', theme: 'proj-hotel' },
+  { id: 'size', name: 'Sizestreet', color: '#F5F5F0', sub: 'Streetwear · standby', theme: 'proj-size' },
+];
+let state = migrateState(loadState());
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return defaultState();
+}
+function defaultState() {
+  return {
+    tasks: {
+      inicio: [
+        { txt: 'Story + reel EducaLibros (IG + TikTok)', done: false, tag: 'gold' },
+        { txt: 'DM personalizado a 10 contactos cálidos', done: false, tag: 'gold' },
+        { txt: 'Lanzar campaña dropshipping (primera prueba)', done: false, tag: 'ember' },
+        { txt: 'Bloque 50 min foco profundo (sin interrupciones)', done: false, tag: 'stellar' },
+        { txt: 'Registrar TODOS los gastos del día', done: false, tag: 'muted' },
+        { txt: '15 min japonés', done: false, tag: 'nebula' },
+      ],
+      edu: [
+        { txt: 'Post/story del pack en IG + TikTok', done: false, tag: 'gold' },
+        { txt: 'DM personalizado a cada seguidor activo', done: false, tag: 'gold' },
+        { txt: 'Video filosófico La Estrella + CTA al pack', done: false, tag: 'nebula' },
+      ],
+      drop: [
+        { txt: 'Lanzar primera campaña (presupuesto definido)', done: false, tag: 'ember' },
+        { txt: 'Registrar gasto inicial y producto ganador', done: false, tag: 'gold' },
+        { txt: 'Revisar ROAS a las 24h', done: false, tag: 'muted' },
+      ],
+      vf: [
+        { txt: 'Tarea técnica principal del día', done: false, tag: 'gold' },
+        { txt: 'Bloque Pomodoro 50 min sin interrupciones', done: false, tag: 'stellar' },
+      ],
+      estrella: [
+        { txt: 'Idea o guion de próximo video', done: false, tag: 'nebula' },
+        { txt: 'Revisar comentarios + responder estratégicamente', done: false, tag: 'muted' },
+      ],
+      maxz: [
+        { txt: 'Idea creativa para ads de la plataforma', done: false, tag: 'ember' },
+        { txt: 'Revisar embudo · qué optimizar', done: false, tag: 'muted' },
+      ],
+      hotel: [
+        { txt: '1 post orgánico hoy', done: false, tag: 'gold' },
+        { txt: 'Plan de contenido semanal', done: false, tag: 'muted' },
+      ],
+      size: [
+        { txt: 'Definir 1 elemento de identidad (nombre, color, símbolo)', done: false, tag: 'muted' },
+      ],
+    },
+    habits: [
+      { id: 'yoga', icon: '🧘', name: 'Yoga 30 min', meta: '6:00 – 6:30 am', done: false },
+      { id: 'water1', icon: '💧', name: 'Primer vaso de agua', meta: 'Al despertar', done: false },
+      { id: 'goals', icon: '🎯', name: 'Leer metas del día', meta: 'Abrir cierre de anoche', done: false },
+      { id: 'jp', icon: '🇯🇵', name: 'Japonés 15 min', meta: 'Stimuler / Anki', done: false },
+      { id: 'en', icon: '🇺🇸', name: 'Inglés 15 min', meta: 'Conversación o lectura', done: false },
+      { id: 'ej', icon: '💪', name: 'Ejercicio 20+ min', meta: 'Calistenia / caminar', done: false },
+      { id: 'lect', icon: '📖', name: 'Lectura 10+ páginas', meta: 'Filosofía / negocio', done: false },
+      { id: 'cierre', icon: '🌙', name: 'Cierre del día', meta: '10 min antes de dormir', done: false },
+    ],
+    water: 0,
+    exps: [],
+    accounts: { 'Binance': 48, 'PayPal': 0, 'BdV': 0, 'Efectivo BsS': 0, 'JPY futuro': 0 },
+    japan: { total: 0, log: [] },
+    jpWeek: [false,false,false,false,false,false,false],
+    pages: { today: 0, activeBook: null, library: [] },
+    audioNotes: [],
+    cierres: [],
+    diario: [], vault: [], grat: [], dec: [], sophia: [], sources: [], shop: [],
+    selectedAI: 'gemini',
+    xp: 0,
+    activeProject: 'edu',
+    projects: DEFAULT_PROJECTS.map(p => ({ ...p })),
+  };
+}
+function migrateState(next) {
+  const base = defaultState();
+  next = { ...base, ...next };
+  next.tasks = { ...base.tasks, ...(next.tasks || {}) };
+  const known = Array.isArray(next.projects) && next.projects.length
+    ? next.projects
+    : DEFAULT_PROJECTS.map(p => ({ ...p }));
+  const used = new Set(Object.keys(next.tasks));
+  const makeId = (name, fallback) => {
+    const baseId = (name || fallback).toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || fallback;
+    let id = baseId, n = 2;
+    while (used.has(id)) id = `${baseId}-${n++}`;
+    used.add(id);
+    return id;
+  };
+  next.projects = known.map((p, i) => ({
+    id: p.id || makeId(p.name, `proyecto-${i + 1}`),
+    name: p.name || `Proyecto ${i + 1}`,
+    color: p.color || '#6EE7B7',
+    sub: p.sub || 'Nueva meta activa',
+    theme: p.theme || 'proj-custom',
+  }));
+  next.projects.forEach(p => { next.tasks[p.id] = next.tasks[p.id] || []; });
+  if (!next.projects.some(p => p.id === next.activeProject)) next.activeProject = next.projects[0]?.id || 'edu';
+  return next;
+}
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch (e) { console.warn('No se pudo guardar', e); }
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+const $ = id => document.getElementById(id);
+const ts = () => {
+  const d = new Date();
+  return d.toLocaleString('es-ES', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+};
+const todayKey = () => new Date().toISOString().slice(0,10);
+
+// Greeting
+function setGreeting() {
+  const h = new Date().getHours();
+  const greet = h < 6 ? 'Madrugada' : h < 12 ? 'Buen día' : h < 19 ? 'Buena tarde' : 'Buena noche';
+  $('greet').textContent = greet;
+  const D = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const M = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const now = new Date();
+  $('date').textContent = `${D[now.getDay()]}, ${now.getDate()} de ${M[now.getMonth()]} · ${now.getFullYear()}`;
+}
+
+// ============================================================
+// XP & LEVELS (philosophers)
+// ============================================================
+const LEVELS = [
+  { name: 'Tales', min: 0 },
+  { name: 'Heráclito', min: 500 },
+  { name: 'Epicuro', min: 1500 },
+  { name: 'Marco Aurelio', min: 3000 },
+  { name: 'Aristóteles', min: 6000 },
+  { name: 'Platón', min: 12000 },
+  { name: 'Epicteto', min: 25000 },
+  { name: 'Nietzsche', min: 50000 },
+  { name: 'Diógenes', min: 100000 },
+  { name: 'Sócrates', min: 200000 },
+];
+function currentLevel() {
+  let lvl = LEVELS[0], next = LEVELS[1];
+  for (let i = 0; i < LEVELS.length; i++) {
+    if (state.xp >= LEVELS[i].min) { lvl = LEVELS[i]; next = LEVELS[i+1] || LEVELS[i]; }
+  }
+  return { lvl, next };
+}
+function addXP(n) {
+  state.xp += n; save(); renderXP();
+}
+function renderXP() {
+  const { lvl, next } = currentLevel();
+  const range = next.min - lvl.min || 1;
+  const into = state.xp - lvl.min;
+  const pct = Math.min(100, Math.round(into / range * 100));
+  $('xp-num').textContent = pct + '%';
+  $('xp-lvl').textContent = lvl.name;
+  const c = 144;
+  $('xp-fg').setAttribute('stroke-dashoffset', c - (pct/100) * c);
+}
+
+// ============================================================
+// NAV
+// ============================================================
+const SECS = ['inicio','proyectos','finanzas','vida','japon','sophia','mente','academia','arq','promptlab','radar','calendar','compras'];
+function showSec(id, btn) {
+  SECS.forEach(s => $('sec-'+s)?.classList.toggle('active', s === id));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else {
+    // Default to Inicio when no nav btn (came from drawer)
+    const map = { inicio:0, proyectos:1, finanzas:2, vida:3 };
+    // For drawer items, don't activate any nav btn
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function showSub(group, id, btn) {
+  document.querySelectorAll(`#sec-${group === 'fin' ? 'finanzas' : group === 'vida' ? 'vida' : 'mente'} .subsec`).forEach(el => {
+    if (el.id.startsWith(group+'-')) el.classList.remove('active');
+  });
+  $(group+'-'+id)?.classList.add('active');
+  if (btn) {
+    btn.parentElement.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
+function toggleDrawer() {
+  const d = $('drawer'), b = $('drawer-bg');
+  const open = d.classList.toggle('open');
+  b.classList.toggle('open', open);
+  document.body.classList.toggle('drawer-lock', open);
+}
+
+// ============================================================
+// TASKS
+// ============================================================
+function renderTasks(key, listId) {
+  const ul = $(listId);
+  if (!ul) return;
+  const arr = state.tasks[key] || [];
+  ul.innerHTML = arr.map((t, i) => `
+    <li class="task">
+      <div class="chk ${t.done?'done':''}" onclick="toggleTask('${key}',${i})">${t.done?'✓':''}</div>
+      <span class="task-txt ${t.done?'done':''}">${escapeHTML(t.txt)}</span>
+      ${t.tag ? `<span class="tag ${t.tag}">${tagLabel(t.tag)}</span>` : ''}
+    </li>
+  `).join('');
+  updateTaskProgress(key);
+}
+function tagLabel(t) {
+  return { gold:'Hoy', ember:'Urgente', emerald:'Hecho', nebula:'Mente', stellar:'Foco', muted:'Diario' }[t] || t;
+}
+function updateTaskProgress(key) {
+  const arr = state.tasks[key] || [];
+  if (!arr.length) return;
+  const done = arr.filter(t => t.done).length;
+  const pct = Math.round(done / arr.length * 100);
+  const pctEl = $('pct-'+key), barEl = $('bar-'+key);
+  if (pctEl) pctEl.textContent = pct+'%';
+  if (barEl) barEl.style.width = pct+'%';
+}
+function toggleTask(key, i) {
+  const t = state.tasks[key][i];
+  t.done = !t.done;
+  if (t.done) addXP(15);
+  save();
+  renderTasks(key, key === 'inicio' ? 'tasks-inicio' : 'tasks-proj');
+}
+function addTask(key) {
+  const inp = $('in-'+key);
+  const val = inp.value.trim();
+  if (!val) return;
+  state.tasks[key] = state.tasks[key] || [];
+  state.tasks[key].push({ txt: val, done: false, tag: 'muted' });
+  inp.value = '';
+  save();
+  renderTasks(key, key === 'inicio' ? 'tasks-inicio' : 'tasks-proj');
+}
+function escapeHTML(s) { return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function slugProject(name) {
+  const base = (name || 'proyecto').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'proyecto';
+  let id = base, n = 2;
+  const used = new Set([...(state?.projects || []).map(p => p.id), ...Object.keys(state?.tasks || {})]);
+  while (used.has(id)) id = `${base}-${n++}`;
+  return id;
+}
+
+// ============================================================
+// PROJECTS
+// ============================================================
+function projectById(id) {
+  return state.projects.find(p => p.id === id) || state.projects[0];
+}
+function renderProjectTabs() {
+  const tabs = $('proj-tabs');
+  if (!tabs) return;
+  tabs.innerHTML = state.projects.map(p => `
+    <button class="subtab ${p.id === state.activeProject ? 'active' : ''}" data-proj="${p.id}">
+      ${escapeHTML(p.name)}
+    </button>
+  `).join('');
+  const sub = $('projects-sub');
+  if (sub) sub.textContent = `${state.projects.length} frentes. Una victoria por día.`;
+}
+function toggleProjectManager() {
+  $('project-manager')?.classList.toggle('open');
+  $('proj-name')?.focus();
+}
+function addProject() {
+  const nameEl = $('proj-name');
+  const subEl = $('proj-sub');
+  const colorEl = $('proj-color');
+  const name = nameEl.value.trim();
+  if (!name) return toast('＋', 'Ponle nombre al proyecto', 'Después puedes agregar tareas.');
+  const id = slugProject(name);
+  const project = {
+    id,
+    name,
+    sub: subEl.value.trim() || 'Nueva meta activa',
+    color: colorEl.value || '#6EE7B7',
+    theme: 'proj-custom',
+  };
+  state.projects.push(project);
+  state.tasks[id] = [];
+  state.activeProject = id;
+  nameEl.value = '';
+  subEl.value = '';
+  save();
+  renderProjectTabs();
+  renderProjectPane();
+  toast('＋', 'Proyecto agregado', project.name);
+}
+function deleteProject(id) {
+  if (state.projects.length <= 1) return toast('!', 'No puedes borrar el último proyecto', 'Crea otro antes de eliminar este.');
+  const p = projectById(id);
+  if (!confirm(`Eliminar "${p.name}" y sus tareas?`)) return;
+  state.projects = state.projects.filter(x => x.id !== id);
+  delete state.tasks[id];
+  if (state.activeProject === id) state.activeProject = state.projects[0].id;
+  save();
+  renderProjectTabs();
+  renderProjectPane();
+  toast('−', 'Proyecto eliminado', p.name);
+}
+function renderProjectPane() {
+  const k = state.activeProject;
+  const p = projectById(k);
+  const pane = $('proj-pane');
+  if (!p || !pane) return;
+  pane.className = p.theme;
+  pane.innerHTML = `
+    <div class="card" style="border-color:${p.color}33;background:linear-gradient(135deg,${p.color}08,transparent)">
+      <div class="card-row">
+        <div class="card-title-wrap">
+          <div class="dot" style="background:${p.color};color:${p.color}"></div>
+          <div>
+            <div class="card-title">${p.name}</div>
+            <div class="card-meta">${p.sub}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+          <button class="ghost-btn" onclick="askAI('Proyecto: ${escapeHTML(p.name).replace(/'/g,"\\'")}. Contexto: ${escapeHTML(p.sub).replace(/'/g,"\\'")}. Soy Reiner, dame el próximo paso concreto para mover este proyecto hoy.')">Agente</button>
+          <button class="danger-btn" onclick="deleteProject('${p.id}')">Eliminar</button>
+        </div>
+      </div>
+      <ul class="tasks" id="tasks-proj"></ul>
+      <div class="add-row">
+        <input class="txt" id="in-${k}" placeholder="Nueva tarea..." onkeydown="if(event.key==='Enter')addTask('${k}')">
+        <button onclick="addTask('${k}')">+</button>
+      </div>
+      <div class="prog">
+        <div class="prog-lbl"><span>Progreso</span><span id="pct-${k}">0%</span></div>
+        <div class="prog-track"><div class="prog-fill" id="bar-${k}" style="width:0%"></div></div>
+      </div>
+    </div>
+  `;
+  renderTasks(k, 'tasks-proj');
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('#proj-tabs .subtab');
+  if (!t) return;
+  document.querySelectorAll('#proj-tabs .subtab').forEach(b => b.classList.remove('active'));
+  t.classList.add('active');
+  state.activeProject = t.dataset.proj;
+  save();
+  renderProjectTabs();
+  renderProjectPane();
+});
+
+// ============================================================
+// HABITS
+// ============================================================
+function renderHabits() {
+  const wrap = $('habits-list');
+  if (!wrap) return;
+  wrap.innerHTML = state.habits.map((h, i) => `
+    <div class="habit ${h.done?'done':''}" onclick="toggleHabit(${i})">
+      <div class="habit-ico">${h.icon}</div>
+      <div class="habit-body">
+        <div class="habit-name">${h.name}</div>
+        <div class="habit-meta">${h.meta}</div>
+      </div>
+      <div class="habit-chk">${h.done?'✓':''}</div>
+    </div>
+  `).join('');
+  const done = state.habits.filter(h => h.done).length;
+  const pct = Math.round(done / state.habits.length * 100);
+  $('habits-pct').textContent = pct+'%';
+  $('habits-bar').style.width = pct+'%';
+}
+function toggleHabit(i) {
+  state.habits[i].done = !state.habits[i].done;
+  if (state.habits[i].done) addXP(10);
+  save(); renderHabits();
+}
+
+// ============================================================
+// WATER
+// ============================================================
+function renderWater() {
+  const g = $('water-grid');
+  if (!g) return;
+  g.innerHTML = Array.from({length:8}, (_, i) =>
+    `<div class="glass ${i < state.water ? 'full' : ''}" onclick="setWater(${i})">💧</div>`
+  ).join('');
+  $('water-count').textContent = `${state.water} / 8 vasos`;
+}
+function setWater(i) {
+  state.water = state.water === i+1 ? i : i+1;
+  if (state.water === 8) addXP(20);
+  save(); renderWater();
+}
+
+// ============================================================
+// FINANCE
+// ============================================================
+function addExp() {
+  const desc = $('exp-desc').value.trim();
+  const amt = parseFloat($('exp-amt').value);
+  if (!desc || isNaN(amt) || amt <= 0) return;
+  const cur = $('exp-cur').value;
+  const fx = parseFloat($('exp-fx').value) || 1;
+  const usd = cur === 'USD' ? amt : cur === 'BsS' ? amt / fx : amt / 150;
+  state.exps.unshift({
+    desc, amt, cur, fx, usd,
+    cat: $('exp-cat').value,
+    acc: $('exp-acc').value,
+    type: $('exp-type').value,
+    ts: ts()
+  });
+  $('exp-desc').value = '';
+  $('exp-amt').value = '';
+  save(); renderFin();
+}
+function renderFin() {
+  const today = todayKey();
+  const out = state.exps.filter(e => e.type === 'out').reduce((s,e) => s + e.usd, 0);
+  $('fin-spent').textContent = '$' + out.toFixed(0);
+  $('fin-count').textContent = state.exps.length + ' mov.';
+  const totalAcc = Object.values(state.accounts).reduce((s,v) => s + (parseFloat(v)||0), 0);
+  $('fin-capital').textContent = '$' + totalAcc.toFixed(0);
+  $('fin-avail').textContent = '$' + Math.max(0, 8 - out).toFixed(0);
+  // List
+  const list = $('exp-list');
+  if (state.exps.length === 0) {
+    list.innerHTML = '<div class="empty">Sin movimientos aún</div>';
+  } else {
+    list.innerHTML = state.exps.slice(0, 10).map(e => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)">
+        <div>
+          <div style="font-size:12.5px;font-weight:600;color:var(--ink)">${escapeHTML(e.desc)}</div>
+          <div style="font-size:10px;color:var(--ink-3);font-weight:500;margin-top:2px">${e.cat} · ${e.acc} · ${e.ts}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-weight:700;color:${e.type === 'in' ? 'var(--mint)' : 'var(--ember)'};font-family:'Fraunces',serif;font-size:15px">${e.type === 'in' ? '+' : '−'}${e.amt.toFixed(2)} ${e.cur}</div>
+          <div style="font-size:9px;color:var(--ink-4);font-weight:500">${e.cur !== 'USD' ? '≈ $' + e.usd.toFixed(2) : ''}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+  // Accounts list
+  const aList = $('accounts-list');
+  if (aList) {
+    aList.innerHTML = Object.entries(state.accounts).map(([name, bal]) => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)">
+        <div style="font-size:13px;font-weight:600;color:var(--ink)">${name}</div>
+        <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:500;color:var(--mint)">${name.includes('BsS') ? 'Bs.' : name.includes('JPY') ? '¥' : '$'}${parseFloat(bal||0).toFixed(2)}</div>
+      </div>
+    `).join('');
+  }
+  $('k-cap').textContent = '$' + totalAcc.toFixed(0);
+}
+function updateAccount() {
+  const name = $('acc-name').value;
+  const bal = parseFloat($('acc-bal').value);
+  if (isNaN(bal)) return;
+  state.accounts[name] = bal;
+  $('acc-bal').value = '';
+  save(); renderFin();
+}
+
+// ============================================================
+// JAPAN FUND
+// ============================================================
+function renderJapan() {
+  const amt = state.japan.total || 0;
+  $('japan-amount').textContent = '$' + amt.toFixed(0);
+  const pct = Math.min(100, amt / 10000 * 100);
+  $('japan-bar').style.width = pct + '%';
+  $('japan-pct').textContent = pct.toFixed(1) + '%' + (pct < 5 ? ' · arranque' : pct < 50 ? ' · construyendo' : pct < 90 ? ' · cerca' : ' · casi listo');
+  const log = $('japan-log');
+  if (log) {
+    log.innerHTML = (state.japan.log || []).slice(0, 8).map(l =>
+      `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:12px"><span style="color:var(--ink-2)">${l.ts}</span><span style="color:var(--nebula);font-weight:700">+$${l.amt.toFixed(2)}</span></div>`
+    ).join('') || '<div class="empty">Aún sin aportes. Cada dólar cuenta.</div>';
+  }
+  // Week sessions
+  const wk = $('jp-week');
+  if (wk) {
+    const dias = ['L','M','M','J','V','S','D'];
+    wk.innerHTML = state.jpWeek.map((d, i) => `
+      <div style="aspect-ratio:1;border-radius:10px;border:1px solid ${d ? 'var(--line-emerald)' : 'var(--line)'};background:${d ? 'rgba(167,139,250,0.08)' : 'var(--surface)'};display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:${d ? 'var(--nebula)' : 'var(--ink-3)'}">
+        <span>${dias[i]}</span>
+        <span style="font-size:14px;margin-top:2px">${d ? '✓' : '·'}</span>
+      </div>
+    `).join('');
+  }
+}
+function addJapan() {
+  const amt = parseFloat($('jap-amt').value);
+  if (isNaN(amt) || amt <= 0) return;
+  state.japan.total = (state.japan.total || 0) + amt;
+  state.japan.log = state.japan.log || [];
+  state.japan.log.unshift({ amt, ts: ts() });
+  $('jap-amt').value = '';
+  addXP(50);
+  save(); renderJapan();
+}
+function addJpSession() {
+  const dow = (new Date().getDay() + 6) % 7; // L=0 ... D=6
+  if (!state.jpWeek[dow]) {
+    state.jpWeek[dow] = true;
+    addXP(30);
+    save(); renderJapan();
+  }
+}
+
+// ============================================================
+// LECTURA · BOOKS
+// ============================================================
+function renderBook() {
+  $('pages-today').textContent = state.pages.today || 0;
+  const active = state.pages.activeBook;
+  const ba = $('book-active');
+  if (active) {
+    const lib = state.pages.library.find(b => b.title === active);
+    ba.innerHTML = `<div style="padding:14px;background:var(--deep);border-radius:12px;border:1px solid var(--line)">
+      <div style="font-family:'Fraunces',serif;font-size:17px;font-weight:500;color:var(--ink)">${escapeHTML(active)}</div>
+      <div style="font-size:11px;color:var(--ink-3);font-weight:500;margin-top:2px">${escapeHTML(lib?.author || '')} · ${lib?.totalPages || 0} pág. leídas</div>
+    </div>`;
+  } else {
+    ba.innerHTML = '<div class="empty">Sin libro activo. Agrega uno abajo.</div>';
+  }
+  const ll = $('library-list');
+  if (state.pages.library.length === 0) {
+    ll.innerHTML = '';
+  } else {
+    ll.innerHTML = state.pages.library.map(b => `
+      <div onclick="setActiveBook('${escapeHTML(b.title).replace(/'/g,"\\'")}')" style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);cursor:pointer">
+        <div>
+          <div style="font-size:12.5px;font-weight:600;color:var(--ink)">${escapeHTML(b.title)} ${b.title === state.pages.activeBook ? '<span class="tag emerald">activo</span>' : ''}</div>
+          <div style="font-size:10px;color:var(--ink-3);font-weight:500;margin-top:1px">${escapeHTML(b.author || '')}</div>
+        </div>
+        <div style="font-family:'Fraunces',serif;font-size:18px;color:var(--ink)">${b.totalPages || 0}</div>
+      </div>
+    `).join('');
+  }
+}
+function pages(n) { state.pages.today = Math.max(0, (state.pages.today||0) + n); save(); renderBook(); }
+function savePages() {
+  if (!state.pages.activeBook || !state.pages.today) return;
+  const b = state.pages.library.find(x => x.title === state.pages.activeBook);
+  if (b) { b.totalPages = (b.totalPages || 0) + state.pages.today; }
+  addXP(state.pages.today * 3);
+  state.pages.today = 0;
+  save(); renderBook();
+}
+function addBook() {
+  const t = $('book-title').value.trim();
+  if (!t) return;
+  state.pages.library.push({ title: t, author: $('book-author').value.trim(), totalPages: 0 });
+  if (!state.pages.activeBook) state.pages.activeBook = t;
+  $('book-title').value = '';
+  $('book-author').value = '';
+  save(); renderBook();
+}
+function setActiveBook(t) { state.pages.activeBook = t; save(); renderBook(); }
+
+// ============================================================
+// AUDIO
+// ============================================================
+function parseYTId(url) {
+  const m = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+  return m ? m[1] : null;
+}
+function saveAudioNote() {
+  const note = {
+    ideas: $('note-ideas').value,
+    frases: $('note-frases').value,
+    reflex: $('note-reflex').value,
+    aplic: $('note-aplic').value,
+    preg: $('note-preg').value,
+    acc: $('note-acc').value,
+    time: $('note-time').value,
+    cont: $('note-cont').value,
+    ts: ts()
+  };
+  if (!Object.values(note).some(v => v && v.length)) return;
+  state.audioNotes.unshift(note);
+  ['ideas','frases','reflex','aplic','preg','acc','time','cont'].forEach(k => $('note-'+k).value = '');
+  addXP(25);
+  save(); renderAudioNotes();
+}
+function delAudioNote(i) { state.audioNotes.splice(i,1); save(); renderAudioNotes(); }
+
+// ============================================================
+// CIERRE
+// ============================================================
+function saveCierre() {
+  const c = {
+    logre: $('c-logre').value,
+    pend: $('c-pend').value,
+    metas: [$('meta1').value, $('meta2').value, $('meta3').value].filter(Boolean),
+    grat: $('c-grat').value,
+    ts: ts()
+  };
+  if (!c.logre && !c.metas.length) return;
+  state.cierres.unshift(c);
+  ['c-logre','c-pend','meta1','meta2','meta3','c-grat'].forEach(id => $(id).value = '');
+  addXP(40);
+  save(); renderCierres();
+}
+function renderCierres() {
+  const list = $('cierre-list');
+  if (!list) return;
+  list.innerHTML = state.cierres.slice(0, 5).map((c, i) => `
+    <div class="entry">
+      <button class="entry-del" onclick="delEntry('cierres',${i})">×</button>
+      <div class="entry-meta">${c.ts}</div>
+      ${c.logre ? '<div class="entry-txt"><b>✓ Logré:</b> '+escapeHTML(c.logre)+'</div>' : ''}
+      ${c.metas.length ? '<div class="entry-txt" style="margin-top:6px"><b>Mañana:</b> '+c.metas.map(escapeHTML).join(' · ')+'</div>' : ''}
+      ${c.grat ? '<div class="entry-txt" style="margin-top:6px;color:var(--stardust)"><b>🙏</b> '+escapeHTML(c.grat)+'</div>' : ''}
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// MENTE · simple savers
+// ============================================================
+function saveMente(key, txtId) {
+  const v = $(txtId).value.trim();
+  if (!v) return;
+  state[key].unshift({ txt: v, ts: ts() });
+  $(txtId).value = '';
+  addXP(10);
+  save(); renderMente(key);
+}
+function renderMente(key) {
+  const list = $(key+'-list');
+  if (!list) return;
+  if (!state[key].length) { list.innerHTML = '<div class="empty">Sin entradas aún</div>'; return; }
+  list.innerHTML = state[key].slice(0, 8).map((e, i) => `
+    <div class="entry">
+      <button class="entry-del" onclick="delEntry('${key}',${i})">×</button>
+      <div class="entry-meta">${e.ts}</div>
+      <div class="entry-txt">${escapeHTML(e.txt)}</div>
+    </div>
+  `).join('');
+}
+function delEntry(key, i) { state[key].splice(i,1); save();
+  if (key === 'cierres') renderCierres();
+  else renderMente(key);
+}
+function saveGrat() {
+  const arr = ['1','2','3'].map(n => $('g-'+n).value.trim()).filter(Boolean);
+  if (!arr.length) return;
+  state.grat.unshift({ txt: arr.map((g,i) => (i+1)+'. '+g).join('\n'), ts: ts() });
+  ['g-1','g-2','g-3'].forEach(id => $(id).value = '');
+  addXP(15);
+  save(); renderMente('grat');
+}
+function saveDec() {
+  const t = $('dec-t').value.trim();
+  if (!t) return;
+  const txt = `${t}\n\n✓ Pros: ${$('dec-p').value}\n✗ Contras: ${$('dec-c').value}\n🧭 Intuición: ${$('dec-i').value}\n→ Decisión: ${$('dec-f').value}`;
+  state.dec.unshift({ txt, ts: ts() });
+  ['dec-t','dec-p','dec-c','dec-i','dec-f'].forEach(id => $(id).value = '');
+  addXP(20);
+  save(); renderMente('dec');
+}
+function saveSophia() {
+  const v = $('sophia-note').value.trim();
+  if (!v) return;
+  state.sophia.unshift({ txt: v, ts: ts() });
+  $('sophia-note').value = '';
+  save(); renderMente('sophia');
+}
+
+// ============================================================
+// RADAR sources (enhanced version below)
+// ============================================================
+
+// ============================================================
+// SHOPPING
+// ============================================================
+function addShop() {
+  const v = $('shop-in').value.trim();
+  if (!v) return;
+  state.shop.push({ name: v, bought: false, id: Date.now() });
+  $('shop-in').value = '';
+  save(); renderShop();
+}
+function renderShop() {
+  const list = $('shop-list');
+  if (!list) return;
+  if (!state.shop.length) { list.innerHTML = '<div class="empty">Lista vacía</div>'; return; }
+  const pending = state.shop.filter(i => !i.bought);
+  const bought = state.shop.filter(i => i.bought);
+  list.innerHTML = [
+    ...pending.map(i => shopRow(i)),
+    bought.length ? `<div style="font-size:10px;color:var(--ink-4);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:14px 0 6px">Comprado (${bought.length})</div>` : '',
+    ...bought.map(i => shopRow(i))
+  ].join('');
+}
+function shopRow(i) {
+  return `<div class="habit ${i.bought?'done':''}" onclick="toggleShop(${i.id})">
+    <div class="habit-ico">🛒</div>
+    <div class="habit-body"><div class="habit-name">${escapeHTML(i.name)}</div></div>
+    <div class="habit-chk">${i.bought?'✓':''}</div>
+  </div>`;
+}
+function toggleShop(id) {
+  const it = state.shop.find(x => x.id === id);
+  if (it) { it.bought = !it.bought; save(); renderShop(); }
+}
+
+// ============================================================
+// AI SELECTOR
+// ============================================================
+function setAI(ai) {
+  state.selectedAI = ai;
+  save();
+  document.querySelectorAll('.ai-pill').forEach(p => p.classList.toggle('active', p.dataset.ai === ai));
+}
+function askFromInput() {
+  const v = $('ai-prompt').value.trim();
+  if (!v) return;
+  askAI(v);
+  $('ai-prompt').value = '';
+}
+async function askAI(prompt) {
+  const modal = $('ai-modal');
+  const body = $('modal-body');
+  const title = $('modal-title');
+  const dot = $('modal-dot');
+  const colorMap = { claude: 'var(--stardust)', gemini: 'var(--stellar)', chatgpt: 'var(--mint)' };
+  const ai = state.selectedAI;
+  dot.style.background = colorMap[ai];
+  title.textContent = ai === 'claude' ? 'Claude · pensar' : ai === 'gemini' ? 'Gemini · responder' : 'ChatGPT · copy';
+  body.innerHTML = `<div style="font-size:12px;color:var(--ink-3);margin-bottom:10px">Tu pregunta:</div>
+    <div style="font-style:italic;color:var(--ink-2);margin-bottom:14px;padding:10px;background:var(--deep);border-radius:10px;font-size:12.5px">${escapeHTML(prompt)}</div>
+    <div class="loading">Consultando ${ai}...</div>`;
+  modal.classList.add('open');
+
+  if (ai !== 'gemini') {
+    body.innerHTML += `<div style="margin-top:14px;font-size:12px;color:var(--stardust)">⚠ Solo Gemini está conectado en esta fase. Cambia el selector a <b>Gemini</b> para obtener respuesta real, o copia tu prompt y pégalo en Claude/ChatGPT manualmente.</div>`;
+    return;
+  }
+
+  try {
+    const sys = 'Eres el agente personal de Reiner. Responde en español latinoamericano, conciso, directo, motivador. Usa markdown ligero. Contexto: emprendedor venezolano, meta Japón en 6 MESES con $10k acumulados y JLPT N5, capital actual $48, proyectos: EducaLibros, Dropshipping, VidaFácil, La Estrella de Medianoche, MaxziMedia, Hotel La Guaira, Sizestreet en standby. Estudia IA para magíster. Tiende a dispersarse: necesita foco brutal en 1-2 acciones por sesión.';
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${CONFIG.GEMINI_KEY}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        systemInstruction: { parts: [{ text: sys }] }
+      })
+    });
+    const data = await res.json();
+    const txt = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Sin respuesta.';
+    body.innerHTML = `<div style="font-size:12px;color:var(--ink-3);margin-bottom:10px">Tu pregunta:</div>
+      <div style="font-style:italic;color:var(--ink-2);margin-bottom:14px;padding:10px;background:var(--deep);border-radius:10px;font-size:12.5px">${escapeHTML(prompt)}</div>
+      <div style="font-size:12px;color:var(--mint);margin-bottom:8px;font-weight:700">Respuesta:</div>
+      <div>${md(txt)}</div>`;
+  } catch (e) {
+    body.innerHTML += `<div style="color:var(--ember);margin-top:10px">Error de conexión: ${e.message}</div>`;
+  }
+}
+function md(t) {
+  return t
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/^\* (.+)$/gm, '<li style="margin-left:18px">$1</li>')
+    .replace(/^- (.+)$/gm, '<li style="margin-left:18px">$1</li>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+}
+function closeModal() { $('ai-modal').classList.remove('open'); }
+
+// ============================================================
+// GEMINI CALL helper (raw text response)
+// ============================================================
+async function gemini(prompt, sys) {
+  try {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${CONFIG.GEMINI_KEY}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        systemInstruction: sys ? { parts: [{ text: sys }] } : undefined
+      })
+    });
+    const data = await res.json();
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  } catch (e) { return ''; }
+}
+
+// ============================================================
+// MOTOR DE DECISIONES — AI Pros/Contras
+// ============================================================
+async function aiProsCons() {
+  const dec = $('dec-t').value.trim();
+  if (!dec) { alert('Escribe primero la decisión.'); return; }
+  const p = $('dec-p'), c = $('dec-c');
+  p.value = 'Generando...'; c.value = 'Generando...';
+  const sys = 'Eres un consejero estratégico brutalmente honesto. Para la decisión que se te presente, devuelve EXACTAMENTE este formato JSON, sin nada más: {"pros":["...","..."],"contras":["...","..."]}. Cada lista con 4-5 puntos concretos y específicos.';
+  const raw = await gemini(`Decisión a evaluar: ${dec}\n\nContexto de Reiner: emprendedor venezolano, $48 capital, meta Japón en 12 meses, 7 proyectos activos, tendencia a dispersarse.`, sys);
+  try {
+    const m = raw.match(/\{[\s\S]*\}/);
+    const j = JSON.parse(m[0]);
+    p.value = j.pros.map(x => '✓ '+x).join('\n');
+    c.value = j.contras.map(x => '✗ '+x).join('\n');
+    addXP(5);
+  } catch (e) {
+    p.value = raw || 'Error generando respuesta';
+    c.value = '';
+  }
+}
+
+// ============================================================
+// ACADEMIA IA
+// ============================================================
+function saveAcadLog() {
+  const topic = $('acad-topic').value.trim();
+  const note = $('acad-note').value.trim();
+  if (!topic && !note) return;
+  state.academia = state.academia || { log: [], resources: [], totalMin: 0 };
+  state.academia.log.unshift({
+    topic, note,
+    area: $('acad-area').value,
+    min: parseInt($('acad-time').value) || 0,
+    ts: ts()
+  });
+  state.academia.totalMin += parseInt($('acad-time').value) || 0;
+  ['acad-topic','acad-note','acad-time'].forEach(id => $(id).value = '');
+  addXP(50);
+  save(); renderAcademia();
+}
+function addAcadRes() {
+  const name = $('acad-res-name').value.trim();
+  if (!name) return;
+  state.academia = state.academia || { log: [], resources: [], totalMin: 0 };
+  state.academia.resources.unshift({ name, link: $('acad-res-link').value.trim(), ts: ts() });
+  $('acad-res-name').value = ''; $('acad-res-link').value = '';
+  save(); renderAcademia();
+}
+function renderAcademia() {
+  state.academia = state.academia || { log: [], resources: [], totalMin: 0 };
+  // Progress: 1000h to "magíster" — 60,000 min
+  const pct = Math.min(100, state.academia.totalMin / 60000 * 100);
+  $('acad-pct').textContent = pct.toFixed(2) + '%';
+  $('acad-bar').style.width = Math.max(0.5, pct) + '%';
+  const log = $('acad-list');
+  if (log) log.innerHTML = state.academia.log.length === 0 ? '<div class="empty">Aún sin sesiones registradas</div>' :
+    state.academia.log.slice(0,8).map((l,i) => `
+      <div class="entry">
+        <button class="entry-del" onclick="delAcadLog(${i})">×</button>
+        <div class="entry-meta">${l.ts} · ${l.area} · ${l.min} min</div>
+        <div class="entry-txt"><b>${escapeHTML(l.topic)}</b>${l.note ? '<br>'+escapeHTML(l.note) : ''}</div>
+      </div>`).join('');
+  const res = $('acad-res-list');
+  if (res) res.innerHTML = state.academia.resources.length === 0 ? '<div class="empty">Sin recursos aún</div>' :
+    state.academia.resources.slice(0,10).map((r,i) => `
+      <div class="entry">
+        <button class="entry-del" onclick="delAcadRes(${i})">×</button>
+        <div class="entry-txt"><b>${escapeHTML(r.name)}</b>${r.link ? '<br><a href="'+escapeHTML(r.link)+'" target="_blank" style="color:var(--stellar);font-size:11px">'+escapeHTML(r.link)+'</a>' : ''}</div>
+      </div>`).join('');
+}
+function delAcadLog(i) { state.academia.log.splice(i,1); save(); renderAcademia(); }
+function delAcadRes(i) { state.academia.resources.splice(i,1); save(); renderAcademia(); }
+
+// ============================================================
+// ARQUITECTO DIGITAL — Clientes
+// ============================================================
+function showSubArq(id, btn) {
+  document.querySelectorAll('#sec-arq .subsec').forEach(el => el.classList.remove('active'));
+  $('arq-'+id)?.classList.add('active');
+  if (btn) {
+    btn.parentElement.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
+function addClient() {
+  const name = $('cli-name').value.trim();
+  if (!name) return;
+  state.clients = state.clients || [];
+  state.clients.unshift({
+    id: Date.now(),
+    name,
+    service: $('cli-service').value.trim(),
+    budget: parseFloat($('cli-budget').value) || 0,
+    collected: 0,
+    tasks: [],
+    notes: [],
+    ts: ts()
+  });
+  ['cli-name','cli-service','cli-budget'].forEach(id => $(id).value = '');
+  save(); renderClients();
+}
+function renderClients() {
+  state.clients = state.clients || [];
+  // Seed default: Hotel La Guaira
+  if (state.clients.length === 0) {
+    state.clients = [{
+      id: Date.now(), name: 'Hotel La Guaira', service: 'Contenido + marketing', budget: 0, collected: 0,
+      tasks: [{txt:'Plan de contenido semanal', done:false}, {txt:'1 post orgánico hoy', done:false}],
+      notes: [], ts: 'seed'
+    }];
+    save();
+  }
+  const list = $('clients-list');
+  if (!list) return;
+  list.innerHTML = state.clients.map(c => `
+    <div class="card" style="border-color:rgba(45,212,191,0.15)">
+      <div class="card-row">
+        <div class="card-title-wrap">
+          <div class="dot" style="background:var(--aurora)"></div>
+          <div>
+            <div class="card-title">${escapeHTML(c.name)}</div>
+            <div class="card-meta">${escapeHTML(c.service || 'sin servicio')}</div>
+          </div>
+        </div>
+        <button class="entry-del" onclick="delClient(${c.id})" style="position:static">×</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
+        <div style="background:var(--deep);padding:10px;border-radius:10px;text-align:center">
+          <div style="font-size:9px;color:var(--ink-3);font-weight:700;letter-spacing:0.5px">PRESUPUESTO</div>
+          <div style="font-family:'Fraunces',serif;font-size:18px;color:var(--ink);font-weight:500">$${c.budget||0}</div>
+        </div>
+        <div style="background:var(--deep);padding:10px;border-radius:10px;text-align:center">
+          <div style="font-size:9px;color:var(--mint);font-weight:700;letter-spacing:0.5px">COBRADO</div>
+          <div style="font-family:'Fraunces',serif;font-size:18px;color:var(--mint);font-weight:500">$${c.collected||0}</div>
+        </div>
+        <div style="background:var(--deep);padding:10px;border-radius:10px;text-align:center">
+          <div style="font-size:9px;color:var(--ember);font-weight:700;letter-spacing:0.5px">PENDIENTE</div>
+          <div style="font-family:'Fraunces',serif;font-size:18px;color:var(--ember);font-weight:500">$${Math.max(0,(c.budget||0)-(c.collected||0))}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:10px">
+        <input class="txt" id="cli-pay-${c.id}" type="number" placeholder="Cobrar $" style="padding:8px 12px">
+        <button class="ghost-btn" onclick="cobrarCliente(${c.id})">+ Pago</button>
+      </div>
+      <div class="lbl">Tareas</div>
+      <ul class="tasks">
+        ${(c.tasks||[]).map((t,i) => `
+          <li class="task">
+            <div class="chk ${t.done?'done':''}" onclick="toggleClientTask(${c.id},${i})">${t.done?'✓':''}</div>
+            <span class="task-txt ${t.done?'done':''}">${escapeHTML(t.txt)}</span>
+          </li>
+        `).join('')}
+      </ul>
+      <div class="add-row">
+        <input class="txt" id="cli-task-${c.id}" placeholder="Nueva tarea para ${escapeHTML(c.name)}..." onkeydown="if(event.key==='Enter')addClientTask(${c.id})">
+        <button onclick="addClientTask(${c.id})">+</button>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:10px">
+        <button class="chip" onclick="aiProposal(${c.id})">⚡ Propuesta IA</button>
+        <button class="chip" onclick="aiMessage(${c.id})">💬 Mensaje al cliente</button>
+      </div>
+    </div>
+  `).join('');
+  // Update capture client dropdown
+  const sel = $('cap-client');
+  if (sel) sel.innerHTML = '<option value="">— Asignar a cliente —</option>' + state.clients.map(c => `<option value="${c.id}">${escapeHTML(c.name)}</option>`).join('');
+}
+function delClient(id) {
+  if (!confirm('¿Eliminar cliente?')) return;
+  state.clients = state.clients.filter(c => c.id !== id);
+  save(); renderClients();
+}
+function cobrarCliente(id) {
+  const inp = $('cli-pay-'+id);
+  const amt = parseFloat(inp.value);
+  if (isNaN(amt) || amt <= 0) return;
+  const c = state.clients.find(x => x.id === id);
+  c.collected = (c.collected||0) + amt;
+  inp.value = '';
+  addXP(100);
+  save(); renderClients();
+}
+function addClientTask(id) {
+  const inp = $('cli-task-'+id);
+  const v = inp.value.trim();
+  if (!v) return;
+  const c = state.clients.find(x => x.id === id);
+  c.tasks = c.tasks || [];
+  c.tasks.push({ txt: v, done: false });
+  save(); renderClients();
+}
+function toggleClientTask(id, i) {
+  const c = state.clients.find(x => x.id === id);
+  c.tasks[i].done = !c.tasks[i].done;
+  if (c.tasks[i].done) addXP(20);
+  save(); renderClients();
+}
+async function aiProposal(id) {
+  const c = state.clients.find(x => x.id === id);
+  const pending = (c.tasks||[]).filter(t => !t.done).map(t => '- '+t.txt).join('\n');
+  const captures = (state.captures||[]).filter(x => x.client == id).map(x => '- '+x.note).join('\n');
+  const prompt = `Cliente: ${c.name}. Servicio: ${c.service}. Presupuesto: $${c.budget}.\n\nTareas pendientes:\n${pending||'(ninguna)'}\n\nCorrecciones capturadas:\n${captures||'(ninguna)'}\n\nGenera una propuesta de mejora estructurada y profesional para enviarle al cliente, lista para copiar.`;
+  askAI(prompt);
+}
+async function aiMessage(id) {
+  const c = state.clients.find(x => x.id === id);
+  const captures = (state.captures||[]).filter(x => x.client == id).map(x => '- '+x.note).join('\n');
+  const prompt = `Cliente: ${c.name}. Servicio: ${c.service}.\n\nCapturas recientes:\n${captures||'(ninguna)'}\n\nRedacta un mensaje breve, cálido y profesional para el cliente confirmando que recibí sus correcciones y dándole un siguiente paso claro. Listo para copiar y pegar.`;
+  askAI(prompt);
+}
+
+// Captura rápida
+function addCapture() {
+  const note = $('cap-note').value.trim();
+  if (!note) return;
+  state.captures = state.captures || [];
+  state.captures.unshift({ id: Date.now(), client: $('cap-client').value, note, ts: ts(), procesado: false });
+  $('cap-note').value = '';
+  save(); renderCaptures();
+}
+function renderCaptures() {
+  state.captures = state.captures || [];
+  const list = $('captures-list');
+  if (!list) return;
+  if (!state.captures.length) { list.innerHTML = '<div class="empty">Sin capturas rápidas</div>'; return; }
+  list.innerHTML = state.captures.map(c => {
+    const client = (state.clients||[]).find(x => x.id == c.client);
+    return `<div class="entry ${c.procesado?'':''}" style="${c.procesado?'opacity:.5':''}">
+      <button class="entry-del" onclick="delCapture(${c.id})">×</button>
+      <div class="entry-meta">${c.ts}${client ? ' · '+escapeHTML(client.name) : ''}</div>
+      <div class="entry-txt">${escapeHTML(c.note)}</div>
+      <button class="chip" onclick="markProcesado(${c.id})" style="margin-top:8px">${c.procesado?'↺ Reabrir':'✓ Procesado'}</button>
+    </div>`;
+  }).join('');
+}
+function delCapture(id) { state.captures = state.captures.filter(c => c.id !== id); save(); renderCaptures(); }
+function markProcesado(id) {
+  const c = state.captures.find(x => x.id === id);
+  c.procesado = !c.procesado;
+  if (c.procesado) addXP(15);
+  save(); renderCaptures();
+}
+
+// Novedades / Radar servicios
+function addNovedad() {
+  const note = $('arq-nov').value.trim();
+  if (!note) return;
+  state.novedades = state.novedades || [];
+  state.novedades.unshift({ note, ts: ts() });
+  $('arq-nov').value = '';
+  save(); renderNovedades();
+}
+function renderNovedades() {
+  state.novedades = state.novedades || [];
+  const list = $('novedades-list');
+  if (!list) return;
+  if (!state.novedades.length) { list.innerHTML = '<div class="empty">Sin novedades guardadas</div>'; return; }
+  list.innerHTML = state.novedades.slice(0,10).map((n,i) => `
+    <div class="entry">
+      <button class="entry-del" onclick="delNov(${i})">×</button>
+      <div class="entry-meta">${n.ts}</div>
+      <div class="entry-txt">${escapeHTML(n.note)}</div>
+    </div>`).join('');
+}
+function delNov(i) { state.novedades.splice(i,1); save(); renderNovedades(); }
+
+// Portfolio services
+function addService() {
+  const name = $('port-name').value.trim();
+  if (!name) return;
+  state.portfolio = state.portfolio || [];
+  state.portfolio.push({
+    id: Date.now(), name,
+    price: parseFloat($('port-price').value) || 0,
+    desc: $('port-desc').value.trim()
+  });
+  ['port-name','port-price','port-desc'].forEach(id => $(id).value = '');
+  save(); renderPortfolio();
+}
+function renderPortfolio() {
+  state.portfolio = state.portfolio || [];
+  const list = $('port-list');
+  if (!list) return;
+  if (!state.portfolio.length) { list.innerHTML = '<div class="empty">Sin servicios. Agrega el primero.</div>'; return; }
+  list.innerHTML = state.portfolio.map(s => `
+    <div class="entry">
+      <button class="entry-del" onclick="delService(${s.id})">×</button>
+      <div class="entry-meta">desde $${s.price}</div>
+      <div class="entry-txt"><b>${escapeHTML(s.name)}</b><br>${escapeHTML(s.desc||'')}</div>
+    </div>`).join('');
+}
+function delService(id) { state.portfolio = state.portfolio.filter(s => s.id !== id); save(); renderPortfolio(); }
+
+// ============================================================
+// PROMPT LAB V2
+// ============================================================
+let activeRoles = new Set();
+function toggleRole(btn) {
+  const r = btn.dataset.role;
+  if (activeRoles.has(r)) { activeRoles.delete(r); btn.style.background = 'transparent'; btn.style.color = 'var(--ink-2)'; btn.style.borderColor = 'var(--line)'; }
+  else { activeRoles.add(r); btn.style.background = 'rgba(167,139,250,0.12)'; btn.style.color = 'var(--nebula)'; btn.style.borderColor = 'rgba(167,139,250,0.4)'; }
+}
+async function refinePrompt() {
+  const base = $('pl-base').value.trim();
+  if (!base) { alert('Escribe primero el prompt base.'); return; }
+  const out = $('pl-out');
+  out.value = 'Refinando con roles: ' + (activeRoles.size ? [...activeRoles].join(', ') : 'general') + '...';
+  const roles = [...activeRoles].join(', ') || 'estratega general';
+  const sys = `Eres un ingeniero senior de prompts. Toma el prompt base del usuario y produces una VERSIÓN 2.0 dramáticamente más poderosa. Aplica simultáneamente las perspectivas de estos roles expertos: ${roles}. La V2 debe: 1) tener rol explícito definido, 2) instrucciones paso a paso, 3) formato de salida claro, 4) ejemplos si aplica, 5) restricciones críticas. Devuelve SOLO el prompt V2 listo para copiar y pegar, sin explicaciones previas ni encabezados.`;
+  const result = await gemini(base, sys);
+  out.value = result || 'Error al generar V2. Intenta de nuevo.';
+  if (result) {
+    state.promptLab = state.promptLab || [];
+    state.promptLab.unshift({ base, v2: result, roles: [...activeRoles], ts: ts() });
+    state.promptLab = state.promptLab.slice(0, 20);
+    addXP(30);
+    save(); renderPromptLab();
+  }
+}
+function copyPromptV2() {
+  const txt = $('pl-out').value;
+  if (!txt) return;
+  navigator.clipboard?.writeText(txt).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+function renderPromptLab() {
+  state.promptLab = state.promptLab || [];
+  const list = $('pl-list');
+  if (!list) return;
+  if (!state.promptLab.length) { list.innerHTML = '<div class="empty">Tus refinamientos aparecerán aquí</div>'; return; }
+  list.innerHTML = state.promptLab.slice(0,6).map((p,i) => `
+    <div class="entry">
+      <button class="entry-del" onclick="delPrompt(${i})">×</button>
+      <div class="entry-meta">${p.ts} · ${(p.roles||[]).join(', ') || 'general'}</div>
+      <div class="entry-txt" style="font-size:11px;color:var(--ink-3)"><b>Base:</b> ${escapeHTML(p.base.slice(0,80))}...</div>
+      <div class="entry-txt" style="margin-top:6px"><b>V2:</b> ${escapeHTML(p.v2.slice(0,140))}...</div>
+      <button class="chip" onclick="loadPrompt(${i})" style="margin-top:8px">↻ Cargar</button>
+    </div>`).join('');
+}
+function delPrompt(i) { state.promptLab.splice(i,1); save(); renderPromptLab(); }
+function loadPrompt(i) {
+  const p = state.promptLab[i];
+  $('pl-base').value = p.base;
+  $('pl-out').value = p.v2;
+}
+
+// ============================================================
+// ============================================================
+// AGENTE DIARIO · brief de la mañana
+// ============================================================
+async function generarBrief() {
+  const card = $('agente-diario');
+  const content = $('ad-content');
+  content.innerHTML = '<div class="loading">Analizando tu día...</div>';
+
+  // Contexto vivo
+  const hPend = state.habits.filter(h => !h.done).map(h => h.name);
+  const tHoy = (state.tasks.inicio || []).filter(t => !t.done).map(t => t.txt);
+  const jpSesionesSem = state.jpWeek.filter(Boolean).length;
+  const cap = Object.values(state.accounts).reduce((s,v) => s + (parseFloat(v)||0), 0);
+  const fondoJpn = state.japan?.total || 0;
+  const proyTareas = Object.entries(state.tasks).filter(([k]) => k!=='inicio').map(([k,arr]) => `${k}: ${arr.filter(t=>!t.done).length} pendientes`).join(' · ');
+  const clientes = (state.clients||[]).length;
+  const ctx = `Hábitos pendientes hoy: ${hPend.join(', ')||'ninguno'}.
+Tareas en Inicio: ${tHoy.join(' | ')||'ninguna'}.
+Sesiones japonés esta semana: ${jpSesionesSem}/5 mínimo.
+Capital actual: $${cap}. Fondo Japón: $${fondoJpn}/$10k.
+Estado proyectos: ${proyTareas}.
+Clientes Arquitecto Digital: ${clientes}.`;
+
+  const sys = 'Eres el Agente Diario de Reiner. Tu trabajo: leer su estado actual y devolver un brief estratégico breve y BRUTALMENTE accionable. Formato OBLIGATORIO:\n## ⚡ Tu hora de oro\n[2 líneas sobre dónde poner toda la energía en las próximas 2 horas]\n\n## 🎯 3 movimientos críticos\n1. [acción concreta y medible]\n2. [acción concreta y medible]\n3. [acción concreta y medible]\n\n## ⚠️ Alerta del día\n[1 cosa que NO debe pasar hoy]\n\n## 🧭 Frase para hoy\n[1 cita filosófica corta, real, de un filósofo, que conecte con su realidad]\n\nSé directo, sin paja, en español latinoamericano. Considera que tiene 6 meses para Japón con $10k acumulados.';
+
+  const result = await gemini(ctx, sys);
+  if (result) {
+    content.innerHTML = md(result);
+    state.lastBrief = { date: todayKey(), content: result };
+    save();
+    addXP(15);
+  } else {
+    content.innerHTML = '<p style="color:var(--ember)">No pude generar el brief. Verifica tu conexión.</p>';
+  }
+}
+function showLastBriefIfFresh() {
+  if (state.lastBrief && state.lastBrief.date === todayKey()) {
+    $('ad-content').innerHTML = md(state.lastBrief.content);
+  }
+}
+
+// ============================================================
+// DASHBOARD SEMANAL
+// ============================================================
+function maybeShowWeekly() {
+  // Visible siempre, pero auto-genera los domingos si no hay
+  const dash = $('weekly-dash');
+  if (!dash) return;
+  const isSunday = new Date().getDay() === 0;
+  const lastGen = state.lastWeekly?.date;
+  if (isSunday && lastGen !== todayKey()) {
+    dash.style.display = 'block';
+    $('weekly-content').innerHTML = '<div class="loading">Generando cierre semanal...</div>';
+    generarWeekly();
+  } else if (state.lastWeekly) {
+    dash.style.display = 'block';
+    $('weekly-content').innerHTML = md(state.lastWeekly.content);
+  }
+}
+async function generarWeekly() {
+  const ctx = `Semana cerrada de Reiner.
+XP acumulado total: ${state.xp}.
+Nivel actual: ${currentLevel().lvl.name}.
+Sesiones japonés: ${state.jpWeek.filter(Boolean).length}/7.
+Hábitos completados hoy: ${state.habits.filter(h=>h.done).length}/${state.habits.length}.
+Fondo Japón: $${state.japan?.total||0}.
+Capital: $${Object.values(state.accounts).reduce((s,v)=>s+(parseFloat(v)||0),0)}.
+Cierres registrados: ${state.cierres.length}.
+Decisiones tomadas: ${state.dec.length}.
+Ideas capturadas: ${state.vault.length}.
+Sesiones IA estudiadas: ${state.academia?.log?.length||0}.
+Clientes activos: ${(state.clients||[]).length}.
+Total movimientos financieros: ${state.exps.length}.`;
+  const sys = 'Eres el analista semanal de Reiner. Devuelve un cierre semanal en este formato exacto:\n## 📈 Lo que conquistaste\n[bullets con números]\n## 🪨 Lo que se quedó atrás\n[bullets honestos]\n## 🎯 La semana que viene\n[3 movimientos clave para los próximos 7 días alineados a Japón en 6 meses]\nSé directo, motivador pero brutalmente honesto. Español latino.';
+  const result = await gemini(ctx, sys);
+  if (result) {
+    state.lastWeekly = { date: todayKey(), content: result };
+    save();
+    $('weekly-content').innerHTML = md(result);
+  }
+}
+
+// ============================================================
+// RADAR · Brief de fuentes con RSS real
+// ============================================================
+async function fetchRSS(rssUrl) {
+  try {
+    const proxy = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+    const res = await fetch(proxy);
+    const data = await res.json();
+    return data?.items?.slice(0, 5).map(i => ({ title: i.title, pubDate: i.pubDate, link: i.link })) || [];
+  } catch (e) { return []; }
+}
+function ytChannelRSS(channelId) {
+  return `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
+}
+async function generarRadarBrief() {
+  const content = $('radar-brief-content');
+  content.innerHTML = '<div class="loading">Buscando novedades en tus fuentes...</div>';
+  const items = [];
+  for (const src of state.sources) {
+    let rssUrl = null;
+    if (src.channelId) rssUrl = ytChannelRSS(src.channelId);
+    else if (/\.xml|\/rss|\/feed/.test(src.url)) rssUrl = src.url;
+    if (rssUrl) {
+      const fetched = await fetchRSS(rssUrl);
+      fetched.forEach(f => items.push({ ...f, source: src.url, cat: src.cat || 'IA' }));
+    } else {
+      items.push({ title: '(sin RSS · solo URL guardado)', source: src.url, cat: src.cat || 'IA' });
+    }
+  }
+
+  if (!items.length) {
+    content.innerHTML = '<p style="color:var(--ink-3)">Sin fuentes con RSS válido. Agrega <code>channelId</code> a tus canales YouTube para activar el brief real.</p>';
+    return;
+  }
+
+  const titles = items.slice(0, 30).map(i => `[${i.cat}] ${i.title}`).join('\n');
+  const sys = 'Eres el curador de noticias de Reiner. Te paso títulos de las últimas publicaciones de sus fuentes. Devuelve un brief priorizado en este formato:\n## 🔥 Lo más relevante hoy\n[3 puntos clave que más le sirven, con razón breve por qué importa cada uno]\n\n## 💡 Una idea para implementar\n[1 idea concreta que puede aplicar a sus proyectos esta semana]\n\nPriorización: lo que tenga que ver con IA, disciplina, éxito, filosofía, Sócrates, agentes, marketing, ventas. Ignora ruido. Español latino, conciso.';
+  const result = await gemini(titles, sys);
+  if (result) {
+    content.innerHTML = md(result) + `<div style="margin-top:14px;font-size:10px;color:var(--ink-4)">Procesados ${items.length} ítems de ${state.sources.length} fuentes</div>`;
+    addXP(20);
+  } else {
+    content.innerHTML = '<p style="color:var(--ember)">Error generando brief.</p>';
+  }
+}
+
+// ============================================================
+// SOURCES · enhanced
+// ============================================================
+function addSource() {
+  const url = $('src-url').value.trim();
+  if (!url) return;
+  state.sources.unshift({
+    url, channelId: $('src-channelid').value.trim() || null,
+    kw: $('src-kw').value.trim(),
+    cat: $('src-cat').value,
+    ts: ts()
+  });
+  ['src-url','src-channelid','src-kw'].forEach(id => $(id).value = '');
+  save(); renderSources();
+}
+function renderSources() {
+  const list = $('src-list');
+  if (!list) return;
+  if (!state.sources.length) {
+    state.sources = [
+      { url:'https://www.youtube.com/@HiggsfieldAI', kw:'IA · video', cat:'IA' },
+      { url:'https://www.youtube.com/@la_inteligencia_artificial', kw:'IA · noticias', cat:'IA' },
+      { url:'https://www.youtube.com/@Andres_Bilbao', kw:'startups · disciplina', cat:'Negocios' },
+      { url:'https://www.youtube.com/@claude', kw:'Anthropic · IA', cat:'IA' },
+      { url:'https://www.youtube.com/@MorfeoAcademy', kw:'desarrollo personal', cat:'Filosofía' },
+      { url:'https://www.youtube.com/@MigueBaenaIA', kw:'IA práctica', cat:'IA' },
+      { url:'https://www.youtube.com/@TheWildProject', kw:'entrevistas · filosofía', cat:'Filosofía' },
+      { url:'https://www.youtube.com/@bencord', kw:'mente · disciplina', cat:'Disciplina' },
+      { url:'https://www.youtube.com/@daily-ecommerce', kw:'dropshipping · ecommerce', cat:'Negocios' },
+      { url:'https://www.youtube.com/@JuanADS', kw:'ads · marketing', cat:'Marketing' },
+      { url:'https://www.youtube.com/@AlexHormozi', kw:'ventas · negocios', cat:'Negocios' },
+    ];
+    save();
+  }
+  const filter = $('src-filter')?.value || '';
+  const filtered = filter ? state.sources.filter(s => s.cat === filter) : state.sources;
+  list.innerHTML = filtered.map((s, i) => {
+    const handle = (s.url.split('@')[1] || s.url).split(/[\/\?]/)[0];
+    const hasRSS = !!s.channelId || /\.xml|\/rss|\/feed/.test(s.url);
+    const realIndex = state.sources.indexOf(s);
+    return `<div class="entry">
+      <button class="entry-del" onclick="delEntry('sources',${realIndex})">×</button>
+      <div class="entry-meta">${s.cat || 'IA'} ${hasRSS ? '· <span style="color:var(--mint)">RSS activo</span>' : '· <span style="color:var(--ink-4)">solo URL</span>'}</div>
+      <div class="entry-txt"><b>@${escapeHTML(handle)}</b></div>
+      <div style="font-size:11px;color:var(--ink-3);font-weight:500;margin-top:4px">${escapeHTML(s.kw || 'sin keywords')}</div>
+    </div>`;
+  }).join('') || '<div class="empty">Sin fuentes en esa categoría</div>';
+}
+
+// ============================================================
+// VOICE INPUT · Web Speech API
+// ============================================================
+let recognizer = null;
+let currentVoiceTarget = null;
+function toggleVoice(targetId, btn) {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    toast('🎤', 'Tu navegador no soporta voz', 'Usa Chrome móvil o escritorio');
+    return;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (recognizer && currentVoiceTarget === targetId) {
+    recognizer.stop();
+    btn.classList.remove('recording');
+    recognizer = null;
+    return;
+  }
+  if (recognizer) { recognizer.stop(); document.querySelectorAll('.voice-btn').forEach(b => b.classList.remove('recording')); }
+  recognizer = new SR();
+  recognizer.lang = 'es-ES';
+  recognizer.continuous = true;
+  recognizer.interimResults = true;
+  currentVoiceTarget = targetId;
+  btn.classList.add('recording');
+  const target = $(targetId);
+  const baseText = target.value;
+  let interimText = '';
+  recognizer.onresult = e => {
+    interimText = '';
+    let finalText = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) finalText += t + ' ';
+      else interimText += t;
+    }
+    target.value = (baseText + ' ' + finalText + interimText).trim();
+  };
+  recognizer.onerror = ev => { console.warn('Voice error', ev); btn.classList.remove('recording'); };
+  recognizer.onend = () => { btn.classList.remove('recording'); recognizer = null; };
+  recognizer.start();
+  toast('🎤', 'Escuchando...', 'Toca de nuevo para detener');
+}
+
+// ============================================================
+// SEARCH GLOBAL
+// ============================================================
+function openSearch() { $('search-overlay').classList.add('open'); setTimeout(() => $('search-input').focus(), 80); }
+function closeSearch() { $('search-overlay').classList.remove('open'); }
+function runSearch(q) {
+  const res = $('search-results');
+  if (!q || q.length < 2) {
+    res.innerHTML = '<div class="search-empty">Empieza a escribir para buscar tareas, ideas, decisiones, clientes, libros, fuentes...</div>';
+    return;
+  }
+  const Q = q.toLowerCase();
+  const hi = txt => (txt||'').replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'), '<mark>$1</mark>');
+  const groups = [];
+
+  // Tasks
+  const taskMatches = [];
+  Object.entries(state.tasks).forEach(([k, arr]) => {
+    arr.forEach((t, i) => {
+      if (t.txt.toLowerCase().includes(Q)) taskMatches.push({ title: t.txt, meta: `Proyecto: ${k}${t.done?' · ✓':''}`, sec: k==='inicio'?'inicio':'proyectos', act: () => { showSec(k==='inicio'?'inicio':'proyectos'); closeSearch(); } });
+    });
+  });
+  if (taskMatches.length) groups.push({ name: 'Tareas', items: taskMatches });
+
+  // Mente entries
+  ['diario','vault','grat','dec','sophia'].forEach(k => {
+    const ms = (state[k]||[]).filter(e => (e.txt||'').toLowerCase().includes(Q)).map(e => ({
+      title: (e.txt||'').slice(0,80), meta: `${k} · ${e.ts}`, act: () => { showSec(k==='sophia'?'sophia':'mente'); closeSearch(); }
+    }));
+    if (ms.length) groups.push({ name: k.charAt(0).toUpperCase()+k.slice(1), items: ms.slice(0,5) });
+  });
+
+  // Clients
+  const cs = (state.clients||[]).filter(c => c.name.toLowerCase().includes(Q) || (c.service||'').toLowerCase().includes(Q)).map(c => ({
+    title: c.name, meta: c.service, act: () => { showSec('arq'); closeSearch(); }
+  }));
+  if (cs.length) groups.push({ name: 'Clientes', items: cs });
+
+  // Captures
+  const caps = (state.captures||[]).filter(c => c.note.toLowerCase().includes(Q)).map(c => ({
+    title: c.note.slice(0,80), meta: `Captura · ${c.ts}`, act: () => { showSec('arq'); closeSearch(); }
+  }));
+  if (caps.length) groups.push({ name: 'Capturas rápidas', items: caps });
+
+  // Library
+  const libs = (state.pages.library||[]).filter(b => b.title.toLowerCase().includes(Q) || (b.author||'').toLowerCase().includes(Q)).map(b => ({
+    title: b.title, meta: b.author, act: () => { showSec('vida'); closeSearch(); }
+  }));
+  if (libs.length) groups.push({ name: 'Biblioteca', items: libs });
+
+  // Sources
+  const srcs = (state.sources||[]).filter(s => s.url.toLowerCase().includes(Q) || (s.kw||'').toLowerCase().includes(Q)).map(s => ({
+    title: s.url, meta: s.kw, act: () => { showSec('radar'); closeSearch(); }
+  }));
+  if (srcs.length) groups.push({ name: 'Fuentes', items: srcs });
+
+  // Academia
+  const acs = (state.academia?.log||[]).filter(l => (l.topic||'').toLowerCase().includes(Q) || (l.note||'').toLowerCase().includes(Q)).map(l => ({
+    title: l.topic||'(sin tema)', meta: `${l.area} · ${l.ts}`, act: () => { showSec('academia'); closeSearch(); }
+  }));
+  if (acs.length) groups.push({ name: 'Academia IA', items: acs });
+
+  if (!groups.length) {
+    res.innerHTML = `<div class="search-empty">Sin resultados para "<b>${escapeHTML(q)}</b>"</div>`;
+    return;
+  }
+
+  res.innerHTML = groups.map((g,gi) => `
+    <div class="search-group">
+      <div class="search-group-title">${g.name} · ${g.items.length}</div>
+      ${g.items.map((it,i) => `
+        <div class="search-item" onclick="window.__searchActs[${gi}][${i}]()">
+          <div class="search-item-title">${hi(it.title)}</div>
+          <div class="search-item-meta">${hi(it.meta||'')}</div>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+  // Store actions globally for click handlers
+  window.__searchActs = groups.map(g => g.items.map(it => it.act));
+}
+
+// ============================================================
+// NOTIFICATIONS · smart engine
+// ============================================================
+function computeNotifications() {
+  const notifs = [];
+  const now = new Date();
+
+  // 1. Sesiones japonés
+  const sesJp = state.jpWeek.filter(Boolean).length;
+  if (sesJp < 3) notifs.push({ level:'urgent', icon:'🇯🇵', title:'Japonés en riesgo', msg:`Solo ${sesJp}/5 sesiones esta semana. Mínimo aceptable: 3.` });
+
+  // 2. Hábitos pendientes pasada cierta hora
+  const h = now.getHours();
+  if (h >= 19) {
+    const pend = state.habits.filter(x => !x.done).length;
+    if (pend > 2) notifs.push({ level:'warn', icon:'🧘', title:'Hábitos sin cerrar', msg:`${pend} hábitos pendientes y ya son las ${h}:00. Cierra lo que puedas.` });
+  }
+
+  // 3. Agua baja
+  if (h >= 16 && state.water < 4) notifs.push({ level:'warn', icon:'💧', title:'Hidratación baja', msg:`${state.water}/8 vasos. Recupera al menos 2 más antes de dormir.` });
+
+  // 4. Cierre del día sin hacer
+  const lastCierre = state.cierres[0];
+  if (lastCierre) {
+    const days = Math.floor((Date.now() - new Date(lastCierre.ts).getTime()) / 86400000);
+    if (days >= 2) notifs.push({ level:'warn', icon:'🌙', title:'Sin cierre hace días', msg:`Tu último cierre fue hace ${days} días. El sistema necesita tu honestidad nocturna.` });
+  } else if (state.cierres.length === 0) {
+    notifs.push({ level:'info', icon:'🌙', title:'Primer cierre pendiente', msg:'Cierra tu primer día con honestidad y mañana arrancarás con metas claras.' });
+  }
+
+  // 5. Clientes con tareas viejas
+  (state.clients||[]).forEach(c => {
+    const pendT = (c.tasks||[]).filter(t => !t.done).length;
+    if (pendT >= 3) notifs.push({ level:'warn', icon:'👤', title:`${c.name} acumula tareas`, msg:`${pendT} pendientes en este cliente. Considera procesar correcciones.` });
+  });
+
+  // 6. Capturas sin procesar
+  const caps = (state.captures||[]).filter(c => !c.procesado).length;
+  if (caps >= 5) notifs.push({ level:'info', icon:'📥', title:'Capturas acumuladas', msg:`${caps} notas rápidas sin procesar. Tarde de revisión.` });
+
+  // 7. Fondo Japón estancado
+  const fondoLog = state.japan?.log || [];
+  if (fondoLog.length === 0) notifs.push({ level:'info', icon:'🇯🇵', title:'Fondo Japón en cero', msg:'Aún no has aportado al fondo. El primer dólar es el más importante.' });
+
+  // 8. Academia IA inactiva
+  const lastAc = state.academia?.log?.[0];
+  if (lastAc) {
+    const days = Math.floor((Date.now() - new Date(lastAc.ts).getTime()) / 86400000);
+    if (days >= 3) notifs.push({ level:'warn', icon:'🎓', title:'IA estancada', msg:`Hace ${days} días sin sesión de Academia. Magíster requiere consistencia.` });
+  }
+
+  return notifs;
+}
+function refreshNotifBadge() {
+  const n = computeNotifications().length;
+  const b = $('notif-badge');
+  if (n > 0) { b.textContent = n; b.style.display = 'flex'; }
+  else { b.style.display = 'none'; }
+}
+function openNotif() {
+  const list = $('notif-list');
+  const notifs = computeNotifications();
+  list.innerHTML = notifs.length ? notifs.map(n => `
+    <div class="notif ${n.level}">
+      <div class="notif-icon">${n.icon}</div>
+      <div class="notif-body">
+        <div class="notif-title">${n.title}</div>
+        <div class="notif-msg">${n.msg}</div>
+      </div>
+    </div>
+  `).join('') : '<div class="empty">Todo en orden. Sigue así.</div>';
+  $('notif-modal').classList.add('open');
+}
+function closeNotif() { $('notif-modal').classList.remove('open'); }
+
+// ============================================================
+// CALENDAR
+// ============================================================
+let calDate = new Date();
+calDate.setDate(1);
+function renderCalendar() {
+  const wrap = $('cal-grid');
+  if (!wrap) return;
+  const M = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  $('cal-month').textContent = M[calDate.getMonth()] + ' ' + calDate.getFullYear();
+
+  const y = calDate.getFullYear(), m = calDate.getMonth();
+  const first = new Date(y, m, 1);
+  const lastDate = new Date(y, m+1, 0).getDate();
+  const startDow = (first.getDay() + 6) % 7; // L=0...D=6
+  const today = new Date();
+  const todayKey2 = today.toISOString().slice(0,10);
+
+  const dows = ['L','M','M','J','V','S','D'];
+  let html = dows.map(d => `<div class="cal-dow">${d}</div>`).join('');
+
+  // Prev month padding
+  const prevLast = new Date(y, m, 0).getDate();
+  for (let i = startDow - 1; i >= 0; i--) {
+    html += `<div class="cal-day muted"><span class="cal-day-num">${prevLast - i}</span></div>`;
+  }
+
+  for (let d = 1; d <= lastDate; d++) {
+    const dateKey = new Date(y, m, d).toISOString().slice(0,10);
+    const events = (state.events || []).filter(e => e.date === dateKey);
+    const isToday = dateKey === todayKey2;
+    const colorMap = { content:'var(--nebula)', client:'var(--aurora)', deadline:'var(--ember)', learning:'var(--stellar)', japan:'var(--stardust)' };
+    const dots = events.slice(0,3).map(e => `<span style="background:${colorMap[e.type]||'var(--mint)'}"></span>`).join('');
+    html += `<div class="cal-day ${isToday?'today':''} ${events.length?'has-events':''}" onclick="showDayEvents('${dateKey}')">
+      <span class="cal-day-num">${d}</span>
+      <div class="cal-dots">${dots}</div>
+    </div>`;
+  }
+  wrap.innerHTML = html;
+}
+function calNav(dir) {
+  calDate.setMonth(calDate.getMonth() + dir);
+  renderCalendar();
+}
+function addEvent() {
+  const title = $('ev-title').value.trim();
+  const date = $('ev-date').value;
+  if (!title || !date) return;
+  state.events = state.events || [];
+  state.events.push({
+    id: Date.now(), title, date,
+    type: $('ev-type').value,
+    project: $('ev-project').value
+  });
+  ['ev-title'].forEach(id => $(id).value = '');
+  save(); renderCalendar();
+  toast('📅', 'Evento agregado', title);
+}
+function showDayEvents(dateKey) {
+  const events = (state.events || []).filter(e => e.date === dateKey);
+  if (!events.length) { $('ev-day-card').style.display = 'none'; return; }
+  const card = $('ev-day-card');
+  const D = new Date(dateKey + 'T00:00:00');
+  $('ev-day-title').textContent = D.toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long' });
+  const colorMap = { content:'var(--nebula)', client:'var(--aurora)', deadline:'var(--ember)', learning:'var(--stellar)', japan:'var(--stardust)' };
+  const iconMap = { content:'📹', client:'👤', deadline:'⚡', learning:'🎓', japan:'🇯🇵' };
+  $('ev-day-list').innerHTML = events.map(e => `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)">
+      <div style="font-size:18px">${iconMap[e.type]||'•'}</div>
+      <div style="flex:1">
+        <div style="font-weight:600;color:var(--ink)">${escapeHTML(e.title)}</div>
+        <div style="font-size:10px;color:var(--ink-3);margin-top:1px">${e.type}${e.project?' · '+e.project:''}</div>
+      </div>
+      <button class="entry-del" onclick="delEvent(${e.id})" style="position:static">×</button>
+    </div>
+  `).join('');
+  card.style.display = 'block';
+}
+function delEvent(id) {
+  state.events = state.events.filter(e => e.id !== id);
+  save(); renderCalendar(); $('ev-day-card').style.display = 'none';
+}
+
+// ============================================================
+// AUDIOLIBRO · timestamps clickeables (YouTube IFrame API)
+// ============================================================
+let ytPlayer = null;
+let ytReady = false;
+// Load YT API
+(function loadYT() {
+  if (window.YT) return;
+  const tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+})();
+window.onYouTubeIframeAPIReady = () => { ytReady = true; };
+
+function loadAudio() {
+  const url = $('audio-url').value.trim();
+  if (!url) return;
+  const id = parseYTId(url);
+  if (!id) { alert('Link inválido. Usa una URL de YouTube.'); return; }
+  $('audio-player').innerHTML = `<div id="yt-iframe"></div>`;
+  const init = () => {
+    ytPlayer = new YT.Player('yt-iframe', {
+      height: '200', width: '100%', videoId: id,
+      playerVars: { 'rel': 0, 'modestbranding': 1, 'playsinline': 1 }
+    });
+  };
+  if (ytReady) init();
+  else { const wait = setInterval(() => { if (ytReady) { clearInterval(wait); init(); } }, 200); }
+  $('audio-notes-area').style.display = 'block';
+  state.lastAudio = { id, url };
+  save();
+}
+function tsToSeconds(ts) {
+  // "24:35" or "1:24:35"
+  const parts = ts.split(':').map(n => parseInt(n) || 0);
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  return 0;
+}
+function jumpTo(ts) {
+  if (!ytPlayer || !ytPlayer.seekTo) { toast('⏱', 'Reproductor no listo', 'Carga el video primero'); return; }
+  ytPlayer.seekTo(tsToSeconds(ts), true);
+  ytPlayer.playVideo();
+  toast('⏱', 'Saltando a ' + ts, '');
+}
+// Helper: convertir timestamps en texto a links clickeables
+function linkifyTimestamps(txt) {
+  return (txt||'').replace(/(\d{1,2}:\d{2}(?::\d{2})?)/g, (m) => `<span class="ts-link" onclick="jumpTo('${m}')">${m}</span>`);
+}
+// Override renderAudioNotes to use timestamps
+function renderAudioNotes() {
+  const list = $('audio-notes-list');
+  if (!list) return;
+  list.innerHTML = state.audioNotes.slice(0, 5).map((n, i) => `
+    <div class="entry">
+      <button class="entry-del" onclick="delAudioNote(${i})">×</button>
+      <div class="entry-meta">${n.ts} ${n.time ? '· <span class="ts-link" onclick="jumpTo(\''+n.time.split(' ')[0]+'\')">'+n.time+'</span>' : ''}</div>
+      ${n.ideas ? '<div class="entry-txt"><b>💡</b> '+linkifyTimestamps(escapeHTML(n.ideas))+'</div>' : ''}
+      ${n.frases ? '<div class="entry-txt" style="margin-top:6px"><b>📜</b> '+linkifyTimestamps(escapeHTML(n.frases))+'</div>' : ''}
+      ${n.aplic ? '<div class="entry-txt" style="margin-top:6px"><b>🎯</b> '+linkifyTimestamps(escapeHTML(n.aplic))+'</div>' : ''}
+      ${n.acc ? '<div class="entry-txt" style="margin-top:6px"><b>⚡</b> '+linkifyTimestamps(escapeHTML(n.acc))+'</div>' : ''}
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// THEME (dark / light / auto)
+// ============================================================
+function setTheme(mode) {
+  state.theme = mode;
+  save();
+  applyTheme();
+  document.querySelectorAll('.theme-opt').forEach(b => b.classList.toggle('active', b.dataset.theme === mode));
+  toast('🎨', 'Tema actualizado', mode === 'auto' ? 'Auto según hora' : (mode === 'light' ? 'Bosque iluminado' : 'Cósmico nocturno'));
+}
+function applyTheme() {
+  const mode = state.theme || 'dark';
+  if (mode === 'light') document.body.classList.add('light');
+  else if (mode === 'dark') document.body.classList.remove('light');
+  else {
+    const h = new Date().getHours();
+    if (h >= 7 && h < 19) document.body.classList.add('light');
+    else document.body.classList.remove('light');
+  }
+  // Update theme-color meta
+  const tc = document.querySelector('meta[name=theme-color]');
+  if (tc) tc.setAttribute('content', document.body.classList.contains('light') ? '#F7FBF5' : '#0A1410');
+}
+
+// ============================================================
+// IMPORT
+// ============================================================
+let importedState = null;
+function openImport() { $('import-modal').classList.add('open'); toggleDrawer(); }
+function closeImport() { $('import-modal').classList.remove('open'); importedState = null; $('import-preview').style.display='none'; $('import-actions').hidden = true; }
+function handleImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const obj = JSON.parse(ev.target.result);
+      importedState = obj;
+      const counts = Object.entries(obj).map(([k,v]) => `<b>${k}</b>: ${Array.isArray(v) ? v.length+' items' : typeof v === 'object' && v !== null ? Object.keys(v).length+' campos' : String(v).slice(0,30)}`).join(' · ');
+      $('import-preview').innerHTML = `<div class="alert emerald"><div>Archivo válido. Contenido:<br>${counts}</div></div>`;
+      $('import-preview').style.display = 'block';
+      $('import-actions').hidden = false;
+    } catch (err) {
+      $('import-preview').innerHTML = `<div class="alert ember"><div><b>Error:</b> archivo inválido. ${err.message}</div></div>`;
+      $('import-preview').style.display = 'block';
+    }
+  };
+  reader.readAsText(file);
+}
+function confirmImport(mode) {
+  if (!importedState) return;
+  if (mode === 'replace') {
+    if (!confirm('Esto BORRARÁ todos tus datos actuales. ¿Estás seguro?')) return;
+    state = migrateState({ ...defaultState(), ...importedState });
+  } else {
+    // Merge: arrays concat, objects merge, scalars from import win
+    state = migrateState(mergeStates(state, importedState));
+  }
+  save();
+  closeImport();
+  toast('✅', 'Importado correctamente', 'Recargando datos...');
+  setTimeout(() => init(), 500);
+}
+function mergeStates(a, b) {
+  const out = { ...a };
+  for (const k in b) {
+    if (Array.isArray(b[k]) && Array.isArray(a[k])) out[k] = [...a[k], ...b[k]];
+    else if (typeof b[k] === 'object' && b[k] !== null && typeof a[k] === 'object' && a[k] !== null) out[k] = { ...a[k], ...b[k] };
+    else out[k] = b[k];
+  }
+  return out;
+}
+
+// ============================================================
+// TOAST + LEVEL UP
+// ============================================================
+function toast(icon, title, sub) {
+  const wrap = $('toast-wrap');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<div class="toast-icon">${icon}</div><div class="toast-body"><div class="toast-title">${title}</div>${sub?'<div class="toast-sub">'+sub+'</div>':''}</div>`;
+  wrap.appendChild(t);
+  setTimeout(() => { t.classList.add('dismiss'); setTimeout(() => t.remove(), 300); }, 3200);
+}
+
+const LEVEL_QUOTES = {
+  'Tales': 'Conócete a ti mismo. El principio de todo está en el agua del comienzo.',
+  'Heráclito': 'Nadie se baña dos veces en el mismo río. Tú ya no eres el de ayer.',
+  'Epicuro': 'No lo que tenemos, sino lo que disfrutamos, es lo que constituye nuestra abundancia.',
+  'Marco Aurelio': 'Tienes poder sobre tu mente, no sobre los eventos. Date cuenta y hallarás fuerza.',
+  'Aristóteles': 'Somos lo que repetidamente hacemos. La excelencia, entonces, no es un acto sino un hábito.',
+  'Platón': 'El precio de la apatía hacia los asuntos públicos es ser gobernado por hombres malvados.',
+  'Epicteto': 'No son las cosas lo que perturba a los hombres, sino los juicios que se forman de ellas.',
+  'Nietzsche': 'Quien tiene un porqué para vivir, puede soportar casi cualquier cómo.',
+  'Diógenes': 'Tengo todo lo que poseo conmigo. La libertad es ligereza.',
+  'Sócrates': 'Solo sé que no sé nada. Y en esa humildad, la sabiduría se desnuda.'
+};
+const LEVEL_ICONS = { 'Tales':'🌊','Heráclito':'🔥','Epicuro':'🌿','Marco Aurelio':'⚔','Aristóteles':'📜','Platón':'🏛','Epicteto':'⚖','Nietzsche':'⚡','Diógenes':'🏺','Sócrates':'☉' };
+
+let lastLevel = null;
+const origAddXP = addXP;
+addXP = function(n) {
+  const before = currentLevel().lvl.name;
+  state.xp += n; save(); renderXP();
+  const after = currentLevel().lvl.name;
+  if (before !== after && lastLevel !== after) {
+    lastLevel = after;
+    setTimeout(() => showLvlup(after), 300);
+  }
+};
+function showLvlup(name) {
+  $('lvlup-icon').textContent = LEVEL_ICONS[name] || '✨';
+  $('lvlup-name').textContent = name;
+  $('lvlup-quote').textContent = '"' + (LEVEL_QUOTES[name] || '') + '"';
+  $('lvlup').classList.add('open');
+  // Haptic if available
+  if (navigator.vibrate) navigator.vibrate([50, 30, 100]);
+}
+function closeLvlup() { $('lvlup').classList.remove('open'); }
+function showLevelInfo() {
+  const { lvl, next } = currentLevel();
+  const need = next.min - state.xp;
+  toast(LEVEL_ICONS[lvl.name]||'✨', `${lvl.name} · ${state.xp} XP`, need > 0 ? `Faltan ${need} XP para ${next.name}` : 'Nivel máximo alcanzado');
+}
+
+// ============================================================
+// EXPORT ALL
+// ============================================================
+function exportAll() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `santuario-backup-${todayKey()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ============================================================
+// OFFLINE
+// ============================================================
+function checkConn() {
+  const banner = $('offline-banner');
+  banner.classList.toggle('show', !navigator.onLine);
+}
+window.addEventListener('online', checkConn);
+window.addEventListener('offline', checkConn);
+
+// ============================================================
+// SERVICE WORKER
+// ============================================================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      // Check for updates every minute when tab is active
+      setInterval(() => reg.update().catch(()=>{}), 60000);
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing;
+        if (!nw) return;
+        nw.addEventListener('statechange', () => {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+            // Hay versión nueva esperando
+            toast('🔄', 'Nueva versión disponible', 'Toca para actualizar');
+            const tw = document.getElementById('toast-wrap');
+            const last = tw?.lastChild;
+            if (last) {
+              last.style.cursor = 'pointer';
+              last.onclick = () => { nw.postMessage('SKIP_WAITING'); location.reload(); };
+            }
+          }
+        });
+      });
+    }).catch(() => {});
+    // Cuando el SW toma control, recarga
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshing) return;
+      refreshing = true;
+      location.reload();
+    });
+  });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+  setGreeting();
+  renderXP();
+  setAI(state.selectedAI || 'gemini');
+  renderTasks('inicio', 'tasks-inicio');
+  renderProjectTabs();
+  renderProjectPane();
+  renderHabits();
+  renderWater();
+  renderFin();
+  renderJapan();
+  renderBook();
+  renderAudioNotes();
+  renderCierres();
+  ['diario','vault','grat','dec','sophia'].forEach(renderMente);
+  renderSources();
+  renderShop();
+  renderAcademia();
+  renderClients();
+  renderCaptures();
+  renderNovedades();
+  renderPortfolio();
+  renderPromptLab();
+  renderCalendar();
+  checkConn();
+  applyTheme();
+  // Marca tema activo en drawer
+  document.querySelectorAll('.theme-opt').forEach(b => b.classList.toggle('active', b.dataset.theme === (state.theme||'dark')));
+  // Brief del día si ya existe
+  showLastBriefIfFresh();
+  // Dashboard semanal si aplica
+  maybeShowWeekly();
+  // Notificaciones badge
+  refreshNotifBadge();
+  setInterval(refreshNotifBadge, 60000); // cada minuto
+
+  // Search input listener
+  const si = $('search-input');
+  if (si) {
+    si.addEventListener('input', e => runSearch(e.target.value));
+    si.addEventListener('keydown', e => { if (e.key === 'Escape') closeSearch(); });
+  }
+  // Search overlay click outside
+  $('search-overlay')?.addEventListener('click', e => { if (e.target.id === 'search-overlay') closeSearch(); });
+  // Notif modal click outside
+  $('notif-modal')?.addEventListener('click', e => { if (e.target.id === 'notif-modal') closeNotif(); });
+  $('import-modal')?.addEventListener('click', e => { if (e.target.id === 'import-modal') closeImport(); });
+  // Drag-drop import
+  const fd = $('file-drop');
+  if (fd) {
+    ['dragenter','dragover'].forEach(ev => fd.addEventListener(ev, e => { e.preventDefault(); fd.classList.add('over'); }));
+    ['dragleave','drop'].forEach(ev => fd.addEventListener(ev, e => { e.preventDefault(); fd.classList.remove('over'); }));
+    fd.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) { $('import-file').files = e.dataTransfer.files; handleImport({ target: { files: [f] } }); } });
+    fd.addEventListener('click', () => $('import-file').click());
+  }
+  // Set default date in event picker = today
+  const ed = $('ev-date');
+  if (ed) ed.value = todayKey();
+  // Keyboard shortcut: Cmd/Ctrl+K opens search
+  document.addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
+  });
+}
+init();
+
+// ============================================================
+// DEBUG PANEL — temporal, sacar cuando se resuelva el bug de scroll
+// ============================================================
+window.__jsErrors = [];
+window.addEventListener('error', e => {
+  window.__jsErrors.push(`${e.message} @ ${e.filename}:${e.lineno}:${e.colno}`);
+});
+function showDebugPanel() {
+  const html = document.documentElement, body = document.body;
+  const csHtml = getComputedStyle(html), csBody = getComputedStyle(body);
+  const blockers = [...document.querySelectorAll('body *')].filter(el => {
+    const cs = getComputedStyle(el);
+    if (cs.position !== 'fixed' || cs.display === 'none') return false;
+    const r = el.getBoundingClientRect();
+    return r.width >= window.innerWidth * 0.8 && r.height >= window.innerHeight * 0.8 && cs.pointerEvents !== 'none';
+  }).map(el => `${el.tagName}.${[...el.classList].join('.')}#${el.id} z=${getComputedStyle(el).zIndex}`);
+  const report = [
+    'SANTUARIO DEBUG — ' + new Date().toISOString(),
+    'UA: ' + navigator.userAgent,
+    'standalone (PWA): ' + (window.matchMedia('(display-mode: standalone)').matches),
+    'scrollingElement: ' + (document.scrollingElement ? document.scrollingElement.tagName : 'null'),
+    'html scrollHeight/clientHeight: ' + html.scrollHeight + '/' + html.clientHeight,
+    'body scrollHeight/clientHeight: ' + body.scrollHeight + '/' + body.clientHeight,
+    'window.innerHeight: ' + window.innerHeight,
+    'html touch-action: ' + csHtml.touchAction + ' | overscroll-behavior-y: ' + csHtml.overscrollBehaviorY,
+    'body touch-action: ' + csBody.touchAction + ' | overscroll-behavior-y: ' + csBody.overscrollBehaviorY,
+    'body classes: ' + body.className,
+    'elementos fixed full-screen activos (posibles bloqueadores): ' + (blockers.length ? blockers.join(' | ') : 'ninguno'),
+    'SW controller: ' + (navigator.serviceWorker?.controller ? navigator.serviceWorker.controller.scriptURL : 'ninguno'),
+    'JS errors: ' + (window.__jsErrors.length ? window.__jsErrors.join(' | ') : 'ninguno')
+  ].join('\n');
+  let ta = document.getElementById('debug-output');
+  if (!ta) {
+    const overlay = document.createElement('div');
+    overlay.id = 'debug-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.92);padding:16px;display:flex;flex-direction:column;gap:10px;';
+    overlay.innerHTML = '<div style="color:#fff;font:600 14px system-ui">Debug — mantené presionado el texto para copiar, mandámelo</div><textarea id="debug-output" readonly style="flex:1;width:100%;background:#111;color:#0f0;font:11px monospace;padding:10px;border-radius:8px;border:1px solid #444;"></textarea><button id="debug-close" style="padding:14px;border-radius:8px;border:none;background:#10B981;color:#000;font-weight:700;">Cerrar</button>';
+    document.body.appendChild(overlay);
+    document.getElementById('debug-close').onclick = () => overlay.remove();
+    ta = document.getElementById('debug-output');
+  }
+  ta.value = report;
+  ta.focus();
+  ta.select();
+}
+const dbgBtn = document.createElement('button');
+dbgBtn.textContent = '🐛';
+dbgBtn.id = 'debug-fab';
+dbgBtn.style.cssText = 'position:fixed;bottom:96px;left:10px;z-index:99998;width:40px;height:40px;border-radius:50%;border:1px solid #444;background:rgba(0,0,0,.6);color:#fff;font-size:18px;opacity:.5;';
+dbgBtn.onclick = showDebugPanel;
+document.body.appendChild(dbgBtn);
+</script>
+</body>
+</html>
