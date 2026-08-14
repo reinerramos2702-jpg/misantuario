@@ -211,3 +211,60 @@ método preventivo del Bloque 4):**
 **Pendiente:** ninguno específico de este bloque.
 
 **Bloque 5: CERRADO.** Deploy en producción, smoke test OK, D1 limpia, todo commiteado local.
+
+---
+
+## Resumen general de la sesión — buenos días, Reiner 👋
+
+Cerré 3 bloques sólidos esta noche (Bloque 3, 4 y 5 — el techo que pediste en la regla 5),
+todos verificados end-to-end contra el Worker y la D1 reales, y desplegados en producción
+(`https://misantuario.reinerramos2702.workers.dev`) uno por uno, con smoke test después de
+cada deploy. Ninguno rompió nada — no hubo que hacer ningún `git revert`.
+
+**Lo que ya está viviendo en producción ahora mismo:**
+- **IA real conectada** (Bloque 3): `askAI()` y `gemini()` — que alimentan Consulta rápida,
+  Brief diario, Pros/Contras, Prompt Lab V2 y Radar IA, además de todos los botones de IA
+  sueltos por la app — ahora pasan por un endpoint seguro del Worker (`/api/ai`) en vez de
+  pegarle a Gemini directo desde el navegador con la key expuesta. Esa exposición de key
+  (`CONFIG.GEMINI_KEY` visible en el HTML público) ya no existe.
+- **Sistema Maestro** (Bloque 4): Vómito Mental, 3 Territorios (RAI Agency / Content Engine /
+  Dominio Técnico IA), El Único Avión, Revisión diaria de 5 min.
+- **Diario expandido** (Bloque 4): Apertura del día (3 prioridades + pregunta) y Cierre del
+  día · Diario (revisión emocional), sin tocar la Entrada libre que ya tenías.
+- **Bloques de Foco** (Bloque 5): timer real de 90/120 min con tracker semanal, y Post-Mortem
+  semanal de 3 preguntas.
+- **Academia IA** (Bloque 5): currículo de 90 días en 3 bloques con código de color 🔴🟡🟢.
+
+**Lo único que falta para que la IA responda de verdad (no es un bug, es una decisión que
+solo tú puedes tomar):** configurar los secrets del Worker. Ya tengo el valor real de
+`GEMINI_KEY` (es el mismo que ya estaba público en tu código, no es nuevo) pero el
+clasificador de seguridad de la sesión bloqueó que yo mismo lo configurara — corre esto
+cuando quieras desde la raíz del repo:
+```
+npx wrangler secret put GEMINI_KEY --name misantuario
+```
+`CLAUDE_KEY` y `OPENAI_KEY` nunca existieron en el código — solo agrégalas si quieres que
+Claude/ChatGPT funcionen también en el selector de "Consulta rápida" (Gemini ya cubre Brief,
+Pros/Contras, Prompt Lab y Radar IA en cuanto pongas ese secret).
+
+**Lo otro pendiente, heredado desde el Bloque 2 y sin cambios:** el push a GitHub sigue
+bloqueado — tu Personal Access Token no tiene el scope `workflow`, así que rechaza cualquier
+push que toque `.github/workflows/deploy.yml`. Esto NO afectó nada de lo que hice esta noche
+porque desplegué directo con `wrangler deploy` cada vez (mismo mecanismo que ya usaba este
+proyecto antes de tener este repo/CI). Pero el repo de GitHub está desactualizado: **43
+commits locales sin subir**. Para arreglarlo: regenera el PAT con el scope `workflow`
+marcado (GitHub → Settings → Developer settings → Personal access tokens → el token que usa
+git en esta máquina) y luego `git push origin main` — o dímelo y lo hago yo.
+
+**No toqué datos financieros reales tuyos.** Sí encontré y limpié dos veces el mismo efecto
+secundario de mis propias pruebas (perfiles de Chrome limpios disparando la migración
+automática y subiendo saldos por defecto a la D1 real) — ambas veces pregunté antes de borrar
+y until confirmaste. La D1 real está en 0/0/0 filas ahora mismo, lista para que tus datos
+reales suban solos la primera vez que abras la app desde tu navegador.
+
+**No llegué a los Bloques 6 y 7** (Creatividad/Dieta de Input/Journaling, y Hardware
+Biológico/Polimatía/Finanzas expandidas/Kanban Arquitecto Digital) — quedan en la cola tal
+cual los definiste, sin tocar, para cuando quieras seguir.
+
+Todo el detalle técnico de cada bloque (decisiones, qué verifiqué, qué encontré) está arriba
+en este mismo documento, bloque por bloque.
