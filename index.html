@@ -2849,6 +2849,16 @@ function askFromInput() {
   askAI(v);
   $('ai-prompt').value = '';
 }
+async function callAI(provider, prompt, system) {
+  const res = await fetch('/api/ai', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ provider, prompt, system })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) { const err = new Error(data.error || ('HTTP ' + res.status)); err.status = res.status; throw err; }
+  return data.text || '';
+}
 async function askAI(prompt) {
   const modal = $('ai-modal');
   const body = $('modal-body');
@@ -2863,30 +2873,19 @@ async function askAI(prompt) {
     <div class="loading">Consultando ${ai}...</div>`;
   modal.classList.add('open');
 
-  if (ai !== 'gemini') {
-    body.innerHTML += `<div style="margin-top:14px;font-size:12px;color:var(--stardust)">⚠ Solo Gemini está conectado en esta fase. Cambia el selector a <b>Gemini</b> para obtener respuesta real, o copia tu prompt y pégalo en Claude/ChatGPT manualmente.</div>`;
-    return;
-  }
-
   try {
     const sys = 'Eres el agente personal de Reiner. Responde en español latinoamericano, conciso, directo, motivador. Usa markdown ligero. Contexto: emprendedor venezolano, meta Japón en 6 MESES con $10k acumulados y JLPT N5, capital actual $48, proyectos: EducaLibros, VidaFácil, La Estrella de Medianoche, MaxziMedia, Arquitecto Digital (clientes freelance), Sizestreet en standby. Estudia IA para magíster. Tiende a dispersarse: necesita foco brutal en 1-2 acciones por sesión.';
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${CONFIG.GEMINI_KEY}`;
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        systemInstruction: { parts: [{ text: sys }] }
-      })
-    });
-    const data = await res.json();
-    const txt = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Sin respuesta.';
+    const txt = await callAI(ai, prompt, sys);
     body.innerHTML = `<div style="font-size:12px;color:var(--ink-3);margin-bottom:10px">Tu pregunta:</div>
       <div style="font-style:italic;color:var(--ink-2);margin-bottom:14px;padding:10px;background:var(--deep);border-radius:10px;font-size:12.5px">${escapeHTML(prompt)}</div>
       <div style="font-size:12px;color:var(--mint);margin-bottom:8px;font-weight:700">Respuesta:</div>
-      <div>${md(txt)}</div>`;
+      <div>${md(txt || 'Sin respuesta.')}</div>`;
   } catch (e) {
-    body.innerHTML += `<div style="color:var(--ember);margin-top:10px">Error de conexión: ${e.message}</div>`;
+    if (e.status === 501) {
+      body.innerHTML += `<div style="margin-top:14px;font-size:12px;color:var(--stardust)">⚠ Este proveedor aún no tiene su clave configurada en el servidor. Cambia a Gemini o pídele al usuario que la agregue.</div>`;
+    } else {
+      body.innerHTML += `<div style="color:var(--ember);margin-top:10px">Error de conexión: ${e.message}</div>`;
+    }
   }
 }
 function md(t) {
