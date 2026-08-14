@@ -8,10 +8,17 @@ const CACHE_NAME = 'santuario-v1';
 const CORE_ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (event) => {
-  self.skipWaiting();
+  // NO self.skipWaiting() aquí a propósito: index.html ya tiene su propio flujo de
+  // "nueva versión disponible · toca para actualizar" que espera a que el usuario confirme
+  // (le hace postMessage('SKIP_WAITING') al SW instalado) antes de activar la nueva versión.
+  // Si activáramos de una vez, ese toast quedaría huérfano.
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS)).catch(() => {})
   );
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -53,8 +60,8 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'Santuario';
   const options = {
     body: data.body || '',
-    icon: data.icon || './icon.svg',
-    badge: data.icon || './icon.svg',
+    icon: data.icon || './assets/santuario-icon.svg',
+    badge: data.icon || './assets/santuario-icon.svg',
     tag: data.tag || 'santuario',
     vibrate: [80, 40, 80],
     data: { url: data.url || './' },
