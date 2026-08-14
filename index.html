@@ -3554,6 +3554,7 @@ function romperBloque(razon) {
   resetFocoUI();
   renderFocoTracker();
   toast('×', 'Bloque roto', razon ? escapeHTML(razon) : 'Sin razón especificada');
+  focusModeStop();
 }
 function renderFocoTracker() {
   state.foco = state.foco || { bloques: [], postmortems: [] };
