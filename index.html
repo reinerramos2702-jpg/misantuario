@@ -3041,6 +3041,50 @@ function saveSophia() {
 }
 
 // ============================================================
+// SOPHIA — Progreso de fases (independiente del sistema de XP diario)
+// ============================================================
+const SOPHIA_FASES = [
+  { n: 1, years: 'Años 1–2', desc: 'Capital base · ingresos sostenidos · Japón', color: 'var(--mint)' },
+  { n: 2, years: 'Años 3–4', desc: 'Capital expansivo · networking global', color: 'var(--aurora)' },
+  { n: 3, years: 'Años 5–6', desc: 'Adquisición de terreno', color: 'var(--stellar)' },
+  { n: 4, years: 'Años 7–8', desc: 'Construcción del castillo-academia', color: 'var(--stardust)' },
+  { n: 5, years: 'Años 9–10', desc: 'Apertura Sophia · primera generación', color: 'var(--nebula)' },
+];
+function renderSophiaProgress() {
+  const listEl = $('sophia-fases-list');
+  if (!listEl) return;
+  const sp = state.sophiaProgress || (state.sophiaProgress = { currentPhase: 0, log: [] });
+  const pctEl = $('sophia-prog-pct'), barEl = $('sophia-prog-bar');
+  if (pctEl) pctEl.textContent = `Fase ${sp.currentPhase}/5`;
+  if (barEl) barEl.style.width = (sp.currentPhase / 5 * 100) + '%';
+  listEl.innerHTML = SOPHIA_FASES.map((f, i) => {
+    const done = sp.currentPhase >= f.n;
+    const isNext = sp.currentPhase === f.n - 1;
+    const borderStyle = i < SOPHIA_FASES.length - 1 ? 'border-bottom:1px solid var(--line);' : '';
+    const btn = isNext
+      ? `<button class="save-btn" style="width:auto;margin:8px 0 0;padding:8px 14px;font-size:11px" onclick="marcarFaseCompletada(${f.n})">Marcar Fase ${f.n} completada</button>`
+      : '';
+    const check = done ? '<span style="color:var(--mint);font-weight:700;margin-left:6px">✓</span>' : '';
+    return `
+      <div style="padding:10px 0;${borderStyle}opacity:${done || isNext ? '1' : '0.5'}">
+        <div><b style="color:${f.color}">Fase ${f.n} · ${f.years}</b> · ${f.desc}${check}</div>
+        ${btn}
+      </div>
+    `;
+  }).join('');
+}
+function marcarFaseCompletada(n) {
+  const sp = state.sophiaProgress || (state.sophiaProgress = { currentPhase: 0, log: [] });
+  if (sp.currentPhase !== n - 1) return; // solo se puede marcar la fase inmediata siguiente, en orden
+  const ok = confirm(`¿Confirmas que la Fase ${n} está completada? Esto representa años de trabajo real, no se puede deshacer fácilmente.`);
+  if (!ok) return;
+  sp.currentPhase = n;
+  sp.log.push({ fase: n, ts: ts() });
+  save();
+  renderSophiaProgress();
+}
+
+// ============================================================
 // RADAR sources (enhanced version below)
 // ============================================================
 
