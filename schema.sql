@@ -25,3 +25,12 @@ CREATE TABLE IF NOT EXISTS proyectos (
   cobrado REAL,
   estado TEXT
 );
+
+-- Bloque 6: suscripciones de Web Push, una fila por dispositivo/navegador suscrito.
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  endpoint TEXT UNIQUE,
+  p256dh TEXT,
+  auth TEXT,
+  created_at TEXT
+);
