@@ -1056,6 +1056,24 @@ body.light .hdr h1 {
       <button class="save-btn" onclick="generarBrief()" style="margin-top:14px">⚡ Generar brief con IA</button>
     </div>
 
+    <!-- PUSH · Banner de consentimiento no intrusivo (oculto por defecto, JS decide mostrarlo) -->
+    <div class="card" id="push-banner" style="display:none">
+      <div class="card-row">
+        <div class="card-title-wrap">
+          <div class="dot" style="background:var(--mint);color:var(--mint)"></div>
+          <div>
+            <div class="card-title">Notificaciones del Santuario</div>
+            <div class="card-meta">Avisos silenciosos para lo que de verdad importa</div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:12.5px;color:var(--ink-2);line-height:1.6;margin-top:4px">Activa notificaciones para enterarte a tiempo si el japonés queda en riesgo, si falta tu primer cierre o si el fondo Japón sigue en cero.</div>
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <button class="save-btn" style="margin-top:0;flex:1" onclick="activatePushFromBanner()">Activar notificaciones</button>
+        <button class="ghost-btn" onclick="dismissPushBanner()">Ahora no</button>
+      </div>
+    </div>
+
     <!-- DASHBOARD SEMANAL (visible siempre) -->
     <div class="card" id="weekly-dash" style="display:none">
       <div class="card-row">
