@@ -2444,7 +2444,7 @@ async function apiFetch(path, opts) {
 }
 function accountSlug(name) {
   return (name || 'cuenta').toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'cuenta';
 }
 function accountMoneda(name) {
@@ -2521,6 +2521,11 @@ function updateAccount() {
   state.accounts[name] = bal;
   $('acc-bal').value = '';
   save(); renderFin();
+  apiFetch('/api/cuentas/' + accountSlug(name), {
+    method: 'PUT',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ saldo: bal, nombre: name, moneda: accountMoneda(name) })
+  });
 }
 
 // ============================================================
