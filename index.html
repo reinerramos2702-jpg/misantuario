@@ -2096,8 +2096,19 @@ function migrateState(next) {
   const base = defaultState();
   next = { ...base, ...next };
   next.tasks = { ...base.tasks, ...(next.tasks || {}) };
+
+  // Retirados: Hotel La Guaira y Dropshipping (proyectos cerrados) — limpia estado ya guardado.
+  const RETIRED_IDS = ['drop', 'hotel'];
+  RETIRED_IDS.forEach(id => { delete next.tasks[id]; });
+  if (Array.isArray(next.tasks.inicio)) {
+    next.tasks.inicio = next.tasks.inicio.filter(t => !/dropshipping/i.test(t.txt || ''));
+  }
+  if (Array.isArray(next.clients)) {
+    next.clients = next.clients.filter(c => c.name !== 'Hotel La Guaira');
+  }
+
   const known = Array.isArray(next.projects) && next.projects.length
-    ? next.projects
+    ? next.projects.filter(p => !RETIRED_IDS.includes(p.id))
     : DEFAULT_PROJECTS.map(p => ({ ...p }));
   const used = new Set(Object.keys(next.tasks));
   const makeId = (name, fallback) => {
