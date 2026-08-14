@@ -1456,6 +1456,104 @@ body.light .hdr h1 {
   </section>
 
   <!-- ============================================================
+       SEC: SISTEMA MAESTRO
+       ============================================================ -->
+  <section class="sec" id="sec-maestro">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Sistema <em>Maestro</em></div>
+        <div class="sec-sub">Fricciones · territorios · el único avión · revisión diaria</div>
+      </div>
+    </div>
+
+    <div class="subtabs">
+      <button class="subtab active" onclick="showSubMaestro('vomito',this)">Vómito mental</button>
+      <button class="subtab" onclick="showSubMaestro('terr',this)">3 Territorios</button>
+      <button class="subtab" onclick="showSubMaestro('avion',this)">El único avión</button>
+      <button class="subtab" onclick="showSubMaestro('revision',this)">Revisión diaria</button>
+    </div>
+
+    <!-- Vómito mental -->
+    <div class="subsec active" id="maestro-vomito">
+      <div class="card">
+        <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--ember)"></div><div class="card-title">Vómito mental</div></div></div>
+        <div class="card-meta">Todo lo que ocupa espacio en tu cabeza, fuera — sin filtro</div>
+        <textarea class="txt" id="fric-txt" placeholder="Suéltalo aquí, sin editar..." rows="4" style="margin-top:8px"></textarea>
+        <button class="save-btn" onclick="addFriccion()">Guardar</button>
+        <div id="fric-list" style="margin-top:14px"></div>
+      </div>
+    </div>
+
+    <!-- 3 Territorios -->
+    <div class="subsec" id="maestro-terr">
+      <div class="card">
+        <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--mint)"></div><div class="card-title">RAI Agency</div></div></div>
+        <input class="txt" id="terr-0-obj" placeholder="Objetivo (6 meses)" style="margin-bottom:8px">
+        <input class="txt" id="terr-0-kpi" placeholder="KPI" style="margin-bottom:8px">
+        <input class="txt" id="terr-0-prog" type="number" min="0" max="100" placeholder="Progreso %" style="margin-bottom:8px">
+        <div class="prog">
+          <div class="prog-lbl"><span>Progreso</span><span id="terr-0-pct">0%</span></div>
+          <div class="prog-track"><div class="prog-fill" id="terr-0-bar" style="width:0%"></div></div>
+        </div>
+        <button class="save-btn" onclick="saveTerritorio(0)">Guardar</button>
+      </div>
+      <div class="card">
+        <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--stellar)"></div><div class="card-title">Content Engine</div></div></div>
+        <input class="txt" id="terr-1-obj" placeholder="Objetivo (6 meses)" style="margin-bottom:8px">
+        <input class="txt" id="terr-1-kpi" placeholder="KPI" style="margin-bottom:8px">
+        <input class="txt" id="terr-1-prog" type="number" min="0" max="100" placeholder="Progreso %" style="margin-bottom:8px">
+        <div class="prog">
+          <div class="prog-lbl"><span>Progreso</span><span id="terr-1-pct">0%</span></div>
+          <div class="prog-track"><div class="prog-fill" id="terr-1-bar" style="width:0%"></div></div>
+        </div>
+        <button class="save-btn" onclick="saveTerritorio(1)">Guardar</button>
+      </div>
+      <div class="card">
+        <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--nebula)"></div><div class="card-title">Dominio Técnico IA</div></div></div>
+        <input class="txt" id="terr-2-obj" placeholder="Objetivo (6 meses)" style="margin-bottom:8px">
+        <input class="txt" id="terr-2-kpi" placeholder="KPI" style="margin-bottom:8px">
+        <input class="txt" id="terr-2-prog" type="number" min="0" max="100" placeholder="Progreso %" style="margin-bottom:8px">
+        <div class="prog">
+          <div class="prog-lbl"><span>Progreso</span><span id="terr-2-pct">0%</span></div>
+          <div class="prog-track"><div class="prog-fill" id="terr-2-bar" style="width:0%"></div></div>
+        </div>
+        <button class="save-btn" onclick="saveTerritorio(2)">Guardar</button>
+      </div>
+    </div>
+
+    <!-- El único avión -->
+    <div class="subsec" id="maestro-avion">
+      <div class="card">
+        <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--gold)"></div><div class="card-title">El único avión</div></div></div>
+        <div class="card-meta">Un solo proyecto crítico en el aire a la vez</div>
+        <input class="txt" id="av-proyecto" placeholder="Proyecto" style="margin-top:8px;margin-bottom:8px">
+        <input class="txt" id="av-deadline" type="date" style="margin-bottom:8px">
+        <textarea class="txt" id="av-bloqueantes" placeholder="Bloqueantes" rows="3"></textarea>
+        <button class="save-btn" onclick="saveAvion()">Guardar</button>
+        <div class="card-meta" style="margin-top:14px">Todo lo demás es backlog explícito.</div>
+      </div>
+    </div>
+
+    <!-- Revisión diaria -->
+    <div class="subsec" id="maestro-revision">
+      <div class="card">
+        <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--stardust)"></div><div class="card-title">Revisión diaria (5 min)</div></div></div>
+        <div class="checklist" style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+          <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--ink-2)"><input type="checkbox" id="rev-c1"> Reviso mis 3 prioridades de hoy</label>
+          <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--ink-2)"><input type="checkbox" id="rev-c2"> ¿Sigue siendo correcto mi Único Avión?</label>
+          <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--ink-2)"><input type="checkbox" id="rev-c3"> Vacío fricciones mentales (Vómito Mental)</label>
+          <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--ink-2)"><input type="checkbox" id="rev-c4"> Reviso métricas rápidas de los 3 Territorios</label>
+          <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--ink-2)"><input type="checkbox" id="rev-c5"> Defino la próxima acción concreta</label>
+        </div>
+        <button class="save-btn" onclick="completarRevision()">Completar revisión</button>
+        <div class="card-meta" style="margin-top:14px">Cierre del día → ya lo tienes en Vida · Cierre.</div>
+        <button class="ghost-btn" onclick="showSec('vida')" style="width:100%;padding:10px;margin-top:8px">Ir a Vida · Cierre</button>
+        <div id="rev-list" style="margin-top:14px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
        SEC: MENTE
        ============================================================ -->
   <section class="sec" id="sec-mente">
