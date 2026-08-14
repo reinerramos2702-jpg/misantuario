@@ -1,7 +1,6 @@
 name = "misantuario"
 main = "worker/index.js"
 compatibility_date = "2024-09-23"
-compatibility_flags = ["nodejs_compat"]
 account_id = "f3905ca6c195909711f212d3b72524a2"
 
 [vars]
