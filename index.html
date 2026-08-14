@@ -3311,6 +3311,200 @@ function showSubMaestro(id, btn) {
     btn.classList.add('active');
   }
 }
+
+// ============================================================
+// BLOQUES DE FOCO — timer + tracker + post-mortem
+// ============================================================
+function showSubFoco(id, btn) {
+  document.querySelectorAll('#sec-foco .subsec').forEach(el => el.classList.remove('active'));
+  $('foco-'+id)?.classList.add('active');
+  if (btn) {
+    btn.parentElement.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
+
+// Estado del timer en variables JS normales — NO en `state` (no debe persistir ni disparar save() cada tick)
+let focoInterval = null;
+let focoRemaining = 0;   // segundos restantes
+let focoDuracionMin = 0;
+let focoActive = false;
+let focoPaused = false;
+
+function fmtFocoClock(sec) {
+  sec = Math.max(0, Math.round(sec));
+  const m = Math.floor(sec / 60), s = sec % 60;
+  return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+}
+function updateFocoClockDisplay() {
+  const el = $('foco-clock');
+  if (el) el.textContent = fmtFocoClock(focoRemaining);
+}
+function focoTick() {
+  focoRemaining--;
+  updateFocoClockDisplay();
+  if (focoRemaining <= 0) {
+    clearInterval(focoInterval);
+    focoInterval = null;
+    completarBloque();
+  }
+}
+function iniciarBloque() {
+  if (focoActive) return;
+  const durEl = document.querySelector('input[name="foco-dur"]:checked');
+  focoDuracionMin = durEl ? parseInt(durEl.value, 10) : 90;
+  focoRemaining = focoDuracionMin * 60;
+  focoActive = true;
+  focoPaused = false;
+  $('foco-config').style.display = 'none';
+  $('foco-btns-idle').style.display = 'none';
+  $('foco-btns-active').style.display = 'flex';
+  $('foco-romper-wrap').style.display = 'none';
+  $('foco-btn-pause').textContent = 'Pausar';
+  $('foco-status').textContent = `En foco · ${focoDuracionMin} min`;
+  updateFocoClockDisplay();
+  clearInterval(focoInterval);
+  focoInterval = setInterval(focoTick, 1000);
+}
+function pausarBloque() {
+  if (!focoActive || focoPaused) return;
+  clearInterval(focoInterval);
+  focoInterval = null;
+  focoPaused = true;
+  $('foco-btn-pause').textContent = 'Reanudar';
+  $('foco-status').textContent = 'Pausado';
+}
+function reanudarBloque() {
+  if (!focoActive || !focoPaused) return;
+  focoPaused = false;
+  $('foco-btn-pause').textContent = 'Pausar';
+  $('foco-status').textContent = `En foco · ${focoDuracionMin} min`;
+  clearInterval(focoInterval);
+  focoInterval = setInterval(focoTick, 1000);
+}
+function toggleFocoPause() {
+  if (focoPaused) reanudarBloque(); else pausarBloque();
+}
+function resetFocoUI() {
+  clearInterval(focoInterval);
+  focoInterval = null;
+  focoActive = false;
+  focoPaused = false;
+  focoRemaining = 0;
+  const cfg = $('foco-config'); if (cfg) cfg.style.display = '';
+  const idle = $('foco-btns-idle'); if (idle) idle.style.display = 'flex';
+  const active = $('foco-btns-active'); if (active) active.style.display = 'none';
+  const romper = $('foco-romper-wrap'); if (romper) romper.style.display = 'none';
+  const clock = $('foco-clock'); if (clock) clock.textContent = '—:—';
+  const status = $('foco-status'); if (status) status.textContent = 'Listo para iniciar';
+  const nota = $('foco-nota'); if (nota) nota.value = '';
+  const razon = $('foco-razon'); if (razon) razon.value = '';
+}
+function cancelarBloque() {
+  resetFocoUI();
+}
+function completarBloque() {
+  if (!focoActive) return;
+  clearInterval(focoInterval);
+  focoInterval = null;
+  const nota = $('foco-nota') ? $('foco-nota').value.trim() : '';
+  state.foco = state.foco || { bloques: [], postmortems: [] };
+  state.foco.bloques.unshift({ ts: ts(), fecha: todayKey(), duracionMin: focoDuracionMin, estado: 'completado', nota });
+  resetFocoUI();
+  addXP(30);
+  renderFocoTracker();
+  toast('✓', 'Bloque completado', nota ? escapeHTML(nota) : `${focoDuracionMin} min de foco`);
+}
+function mostrarRomper() {
+  const active = $('foco-btns-active'); if (active) active.style.display = 'none';
+  const romper = $('foco-romper-wrap'); if (romper) romper.style.display = 'block';
+}
+function cancelarRomperUI() {
+  const romper = $('foco-romper-wrap'); if (romper) romper.style.display = 'none';
+  const active = $('foco-btns-active'); if (active) active.style.display = 'flex';
+}
+function confirmarRomper() {
+  const razon = $('foco-razon') ? $('foco-razon').value.trim() : '';
+  romperBloque(razon);
+}
+function romperBloque(razon) {
+  if (!focoActive) return;
+  clearInterval(focoInterval);
+  focoInterval = null;
+  const nota = $('foco-nota') ? $('foco-nota').value.trim() : '';
+  state.foco = state.foco || { bloques: [], postmortems: [] };
+  state.foco.bloques.unshift({ ts: ts(), fecha: todayKey(), duracionMin: focoDuracionMin, estado: 'roto', nota, razon });
+  save();
+  resetFocoUI();
+  renderFocoTracker();
+  toast('×', 'Bloque roto', razon ? escapeHTML(razon) : 'Sin razón especificada');
+}
+function renderFocoTracker() {
+  state.foco = state.foco || { bloques: [], postmortems: [] };
+  const el = $('foco-tracker');
+  if (!el) return;
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 7);
+  const cutoffKey = cutoff.toISOString().slice(0, 10);
+  const recientes = state.foco.bloques.filter(b => (b.fecha || '') >= cutoffKey);
+  const completados = recientes.filter(b => b.estado === 'completado');
+  const rotos = recientes.filter(b => b.estado === 'roto');
+  const promedio = completados.length
+    ? Math.round(completados.reduce((s, b) => s + (b.duracionMin || 0), 0) / completados.length)
+    : 0;
+  const razonesHtml = rotos.slice(0, 5).map(b => `
+    <div class="entry" style="margin-bottom:8px">
+      <div class="entry-meta">${escapeHTML(b.fecha || '')} · ${b.duracionMin || 0} min</div>
+      <div class="entry-txt">${escapeHTML(b.razon || 'Sin razón especificada')}</div>
+    </div>`).join('');
+  el.innerHTML = `
+    <div class="mission-kpi" style="grid-template-columns:repeat(3,1fr)">
+      <div class="kpi"><div class="kpi-val" style="color:var(--mint)">${completados.length}</div><div class="kpi-lbl">Completados</div></div>
+      <div class="kpi"><div class="kpi-val" style="color:var(--ember)">${rotos.length}</div><div class="kpi-lbl">Rotos</div></div>
+      <div class="kpi"><div class="kpi-val" style="color:var(--stellar)">${promedio}m</div><div class="kpi-lbl">Prom. bloque</div></div>
+    </div>
+    <div class="card-meta" style="margin:14px 0 8px">Razones de ruptura recientes</div>
+    ${razonesHtml || '<div class="empty">Sin rupturas recientes</div>'}
+  `;
+}
+
+// Post-mortem semanal
+function savePostMortem() {
+  const roi = $('pm-roi').value.trim();
+  const ruptura = $('pm-ruptura').value.trim();
+  const automatizar = $('pm-automatizar').value.trim();
+  const accion = $('pm-accion').value.trim();
+  if (!roi && !ruptura && !automatizar && !accion) return;
+  state.foco = state.foco || { bloques: [], postmortems: [] };
+  state.foco.postmortems.unshift({ ts: ts(), roi, ruptura, automatizar, accion });
+  ['pm-roi','pm-ruptura','pm-automatizar','pm-accion'].forEach(id => { $(id).value = ''; });
+  addXP(25);
+  renderPostMortems();
+  toast('✓', 'Post-mortem guardado', accion || 'Semana registrada');
+}
+function renderPostMortems() {
+  state.foco = state.foco || { bloques: [], postmortems: [] };
+  const el = $('pm-list');
+  if (!el) return;
+  el.innerHTML = state.foco.postmortems.length === 0 ? '<div class="empty">Aún sin post-mortems registrados</div>' :
+    state.foco.postmortems.slice(0, 5).map((p, i) => `
+      <div class="entry">
+        <button class="entry-del" onclick="delPostMortem(${i})">×</button>
+        <div class="entry-meta">${escapeHTML(p.ts)}</div>
+        <div class="entry-txt">
+          ${p.roi ? '<b>ROI máximo:</b> ' + escapeHTML(p.roi) + '<br>' : ''}
+          ${p.ruptura ? '<b>Ruptura:</b> ' + escapeHTML(p.ruptura) + '<br>' : ''}
+          ${p.automatizar ? '<b>Automatizar:</b> ' + escapeHTML(p.automatizar) + '<br>' : ''}
+          ${p.accion ? '<b>Acción próxima semana:</b> ' + escapeHTML(p.accion) : ''}
+        </div>
+      </div>`).join('');
+}
+function delPostMortem(i) {
+  state.foco.postmortems.splice(i, 1);
+  save();
+  renderPostMortems();
+}
+
 function addClient() {
   const name = $('cli-name').value.trim();
   if (!name) return;
