@@ -1809,6 +1809,85 @@ body.light .hdr h1 {
   </section>
 
   <!-- ============================================================
+       SEC: BLOQUES DE FOCO
+       ============================================================ -->
+  <section class="sec" id="sec-foco">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Bloques de <em>Foco</em></div>
+        <div class="sec-sub">Concentración profunda · sin distracciones</div>
+      </div>
+    </div>
+
+    <div class="subtabs">
+      <button class="subtab active" onclick="showSubFoco('timer',this)">Bloques de Foco</button>
+      <button class="subtab" onclick="showSubFoco('post',this)">Post-Mortem semanal</button>
+    </div>
+
+    <!-- Timer + tracker -->
+    <div class="subsec active" id="foco-timer">
+      <div class="card">
+        <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--stellar)"></div><div class="card-title">Bloque de concentración</div></div></div>
+
+        <div id="foco-config">
+          <div style="display:flex;gap:16px;margin-bottom:10px">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-2);cursor:pointer">
+              <input type="radio" name="foco-dur" value="90" checked> 90 min
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-2);cursor:pointer">
+              <input type="radio" name="foco-dur" value="120"> 120 min
+            </label>
+          </div>
+          <input class="txt" id="foco-nota" placeholder="¿En qué vas a enfocarte? (opcional)" style="margin-bottom:8px">
+        </div>
+
+        <div style="text-align:center;margin:20px 0">
+          <div id="foco-clock" style="font-family:'Fraunces',serif;font-size:52px;font-weight:400;color:var(--ink);letter-spacing:1px">—:—</div>
+          <div class="card-meta" id="foco-status" style="margin-top:6px;font-size:11px">Listo para iniciar</div>
+        </div>
+
+        <div id="foco-btns-idle" style="display:flex;gap:8px">
+          <button class="save-btn" onclick="iniciarBloque()" style="margin:0">Iniciar bloque</button>
+        </div>
+
+        <div id="foco-btns-active" style="display:none;gap:8px;flex-wrap:wrap">
+          <button class="ghost-btn" id="foco-btn-pause" onclick="toggleFocoPause()" style="flex:1;padding:10px 0">Pausar</button>
+          <button class="save-btn" onclick="completarBloque()" style="flex:1;margin:0">Completar bloque</button>
+          <button class="danger-btn" onclick="mostrarRomper()" style="flex:1;padding:10px 0">Romper bloque</button>
+          <button class="ghost-btn" onclick="cancelarBloque()" style="flex:1;padding:10px 0">Cancelar</button>
+        </div>
+
+        <div id="foco-romper-wrap" style="display:none;margin-top:12px">
+          <input class="txt" id="foco-razon" placeholder="¿Por qué se rompió el bloque?" style="margin-bottom:8px">
+          <div style="display:flex;gap:8px">
+            <button class="danger-btn" style="flex:1;padding:10px 0" onclick="confirmarRomper()">Confirmar ruptura</button>
+            <button class="ghost-btn" style="flex:1;padding:10px 0" onclick="cancelarRomperUI()">Volver</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--mint)"></div><div class="card-title">Tracker semanal</div></div></div>
+        <div class="card-meta" style="margin-bottom:10px">Últimos 7 días</div>
+        <div id="foco-tracker"></div>
+      </div>
+    </div>
+
+    <!-- Post-Mortem semanal -->
+    <div class="subsec" id="foco-post">
+      <div class="card">
+        <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--nebula)"></div><div class="card-title">Post-Mortem semanal</div></div></div>
+        <textarea class="txt" id="pm-roi" placeholder="¿Qué bloque/tarea tuvo el máximo ROI esta semana?" rows="3" style="margin-bottom:8px"></textarea>
+        <textarea class="txt" id="pm-ruptura" placeholder="¿Dónde se rompió la concentración?" rows="3" style="margin-bottom:8px"></textarea>
+        <textarea class="txt" id="pm-automatizar" placeholder="¿Qué proceso repetido 3+ veces debo automatizar?" rows="3" style="margin-bottom:8px"></textarea>
+        <input class="txt" id="pm-accion" placeholder="Acción concreta para la próxima semana" style="margin-bottom:8px">
+        <button class="save-btn" onclick="savePostMortem()">Guardar post-mortem</button>
+        <div id="pm-list" style="margin-top:14px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
        SEC: ARQUITECTO DIGITAL
        ============================================================ -->
   <section class="sec" id="sec-arq">
