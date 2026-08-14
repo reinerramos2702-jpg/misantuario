@@ -2428,6 +2428,28 @@ function setWater(i) {
 // ============================================================
 // FINANCE
 // ============================================================
+// D1 (Cloudflare Worker) es la fuente de verdad; localStorage sigue
+// siendo el caché/fallback offline. apiFetch nunca lanza: si el Worker
+// no responde (offline, aún no desplegado, etc.) devuelve null y el
+// flujo local sigue intacto.
+async function apiFetch(path, opts) {
+  try {
+    const res = await fetch(path, opts);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
+  } catch (e) {
+    console.warn('D1 no disponible, usando solo localStorage:', e.message);
+    return null;
+  }
+}
+function accountSlug(name) {
+  return (name || 'cuenta').toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'cuenta';
+}
+function accountMoneda(name) {
+  return name.includes('BsS') ? 'BsS' : name.includes('JPY') ? 'JPY' : 'USD';
+}
 function addExp() {
   const desc = $('exp-desc').value.trim();
   const amt = parseFloat($('exp-amt').value);
@@ -2435,16 +2457,24 @@ function addExp() {
   const cur = $('exp-cur').value;
   const fx = parseFloat($('exp-fx').value) || 1;
   const usd = cur === 'USD' ? amt : cur === 'BsS' ? amt / fx : amt / 150;
+  const cat = $('exp-cat').value;
+  const acc = $('exp-acc').value;
+  const type = $('exp-type').value;
+  const movTs = ts();
   state.exps.unshift({
     desc, amt, cur, fx, usd,
-    cat: $('exp-cat').value,
-    acc: $('exp-acc').value,
-    type: $('exp-type').value,
-    ts: ts()
+    cat, acc, type,
+    ts: movTs
   });
   $('exp-desc').value = '';
   $('exp-amt').value = '';
   save(); renderFin();
+  // Write-through a D1, sin bloquear el flujo local (apiFetch ya atrapa sus propios errores).
+  apiFetch('/api/movimientos', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ fecha: todayKey(), descripcion: desc, monto: amt, moneda: cur, cuenta: acc, categoria: cat, tipo: type, ts: movTs })
+  });
 }
 function renderFin() {
   const today = todayKey();
