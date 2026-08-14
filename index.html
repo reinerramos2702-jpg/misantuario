@@ -2108,6 +2108,16 @@ function defaultState() {
     xp: 0,
     activeProject: 'edu',
     projects: DEFAULT_PROJECTS.map(p => ({ ...p })),
+    sistemaMaestro: {
+      fricciones: [],
+      territorios: [
+        { nombre: 'RAI Agency', objetivo: '', kpi: '', progreso: 0 },
+        { nombre: 'Content Engine', objetivo: '', kpi: '', progreso: 0 },
+        { nombre: 'Dominio Técnico IA', objetivo: '', kpi: '', progreso: 0 }
+      ],
+      avion: { proyecto: '', deadline: '', bloqueantes: '' },
+      revisiones: []
+    },
   };
 }
 function migrateState(next) {
