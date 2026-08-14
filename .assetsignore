@@ -1,0 +1,13 @@
+.git
+.github
+.claude
+.wrangler
+worker
+node_modules
+*.md
+wrangler.toml
+.gitignore
+.assetsignore
+schema.sql
+package.json
+package-lock.json
