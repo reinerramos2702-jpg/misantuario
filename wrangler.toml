@@ -4,6 +4,11 @@ compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 account_id = "f3905ca6c195909711f212d3b72524a2"
 
+[vars]
+# Pública por diseño (VAPID public key) — se envía tal cual al navegador para suscribirse a
+# push, no es un secret. La privada (VAPID_PRIVATE_KEY) SÍ va como wrangler secret, nunca aquí.
+VAPID_PUBLIC_KEY = "BLt81jD16BvryXA9JFZxnR9ODgE4nBTkOHam407tnGnXazBFLUHFcjLn9BzrBkssd4aZ_ogT7RpuPhQ82tMV1yg"
+
 [assets]
 directory = "."
 binding = "ASSETS"
