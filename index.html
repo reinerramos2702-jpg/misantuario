@@ -4829,6 +4829,106 @@ if ('serviceWorker' in navigator) {
 }
 
 // ============================================================
+// WEB PUSH
+// ============================================================
+const VAPID_PUBLIC_KEY = 'BLt81jD16BvryXA9JFZxnR9ODgE4nBTkOHam407tnGnXazBFLUHFcjLn9BzrBkssd4aZ_ogT7RpuPhQ82tMV1yg';
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; i++) outputArray[i] = rawData.charCodeAt(i);
+  return outputArray;
+}
+
+async function subscribeToPush() {
+  try {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+    });
+    await fetch('/api/push/subscribe', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(sub.toJSON())
+    });
+  } catch (e) {
+    console.warn('No se pudo suscribir a push', e);
+  }
+}
+
+function dismissPushBanner() {
+  const card = $('push-banner');
+  if (card) card.style.display = 'none';
+}
+
+async function activatePushFromBanner() {
+  try {
+    const perm = await Notification.requestPermission();
+    dismissPushBanner();
+    if (perm === 'granted') {
+      await subscribeToPush();
+      toast('🔔', 'Notificaciones activadas', 'Te avisaremos de lo importante');
+    }
+  } catch (e) {
+    console.warn('No se pudo pedir permiso de notificaciones', e);
+  }
+}
+
+function maybeAskPushPermission() {
+  if (typeof Notification === 'undefined') return;
+  if (Notification.permission !== 'default') return;
+  if ((state.appOpens || 0) < 3) return;
+  if (localStorage.getItem('santuario_push_asked_session')) return;
+  localStorage.setItem('santuario_push_asked_session', '1');
+  const card = $('push-banner');
+  if (card) card.style.display = '';
+}
+
+function slugify(str) {
+  return String(str).toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+async function checkAndPushCriticalAlerts() {
+  if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+  const targets = ['Japonés en riesgo', 'Primer cierre pendiente', 'Fondo Japón en cero'];
+  const notifs = computeNotifications().filter(n => targets.includes(n.title));
+  for (const n of notifs) {
+    const key = `santuario_pushed_${slugify(n.title)}_${todayKey()}`;
+    if (localStorage.getItem(key)) continue;
+    try {
+      const res = await fetch('/api/push/send', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ title: n.title, body: n.msg, tag: 'alert-' + slugify(n.title) })
+      });
+      if (res.ok) localStorage.setItem(key, '1');
+    } catch (e) {
+      console.warn('No se pudo enviar push crítico', e);
+    }
+  }
+}
+
+async function testPush() {
+  try {
+    const res = await fetch('/api/push/send', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ title: 'Prueba', body: 'Si ves esto, Web Push funciona 🎉' })
+    });
+    if (res.ok) toast('✅', 'Push enviado', 'Revisa tus notificaciones');
+    else toast('⚠️', 'No se pudo enviar', 'HTTP ' + res.status);
+  } catch (e) {
+    toast('⚠️', 'No se pudo enviar', 'Error de red');
+  }
+}
+
+// ============================================================
 // INIT
 // ============================================================
 function init() {
