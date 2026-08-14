@@ -2354,6 +2354,8 @@ function migrateState(next) {
   }));
   next.projects.forEach(p => { next.tasks[p.id] = next.tasks[p.id] || []; });
   if (!next.projects.some(p => p.id === next.activeProject)) next.activeProject = next.projects[0]?.id || 'edu';
+  next.sophiaProgress = { ...base.sophiaProgress, ...(next.sophiaProgress || {}) };
+  if (!Array.isArray(next.sophiaProgress.log)) next.sophiaProgress.log = [];
   return next;
 }
 function save() {
