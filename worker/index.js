@@ -290,7 +290,7 @@ async function handleAI(request, env) {
         },
         body: JSON.stringify({ model: 'gpt-4o-mini', messages })
       });
-      if (!res.ok) return json({ error: `OpenAI HTTP ${res.status}` }, 502);
+      if (!res.ok) return json({ error: `OpenAI HTTP ${res.status}${await upstreamErrorDetail(res)}` }, 502);
       const data = await res.json();
       const text = data?.choices?.[0]?.message?.content || '';
       return json({ text });
