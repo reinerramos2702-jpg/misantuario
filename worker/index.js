@@ -271,7 +271,7 @@ async function handleAI(request, env) {
           messages: [{ role: 'user', content: prompt }]
         })
       });
-      if (!res.ok) return json({ error: `Claude HTTP ${res.status}` }, 502);
+      if (!res.ok) return json({ error: `Claude HTTP ${res.status}${await upstreamErrorDetail(res)}` }, 502);
       const data = await res.json();
       const text = data?.content?.[0]?.text || '';
       return json({ text });
