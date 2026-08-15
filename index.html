@@ -4856,6 +4856,136 @@ function mergeStates(a, b) {
 }
 
 // ============================================================
+// CREATIVIDAD
+// ============================================================
+function ensureCreativ() {
+  state.creatividad = state.creatividad || { piezas: [], analogias: [] };
+  return state.creatividad;
+}
+const PIEZA_TIPO_LBL = { tweet: 'Tweet', articulo: 'Artículo', codigo: 'Código', diseno: 'Diseño' };
+const PIEZA_ESTADO_ORDEN = ['iniciada', 'finalizada', 'publicada'];
+const PIEZA_ESTADO_LBL = { iniciada: 'Iniciada', finalizada: 'Finalizada', publicada: 'Publicada' };
+function addPieza() {
+  const c = ensureCreativ();
+  const tipo = $('pieza-tipo').value;
+  const txt = $('pieza-txt').value.trim();
+  if (!txt) return;
+  c.piezas.unshift({ id: Date.now(), tipo, txt, estado: 'iniciada', ts: ts() });
+  $('pieza-txt').value = '';
+  addXP(10);
+  save(); renderCreativ();
+}
+function cyclePiezaEstado(id) {
+  const c = ensureCreativ();
+  const p = c.piezas.find(x => x.id === id);
+  if (!p) return;
+  const idx = PIEZA_ESTADO_ORDEN.indexOf(p.estado);
+  p.estado = PIEZA_ESTADO_ORDEN[(idx + 1) % PIEZA_ESTADO_ORDEN.length];
+  save(); renderCreativ();
+}
+function delPieza(id) {
+  const c = ensureCreativ();
+  c.piezas = c.piezas.filter(x => x.id !== id);
+  save(); renderCreativ();
+}
+function addAnalogia() {
+  const c = ensureCreativ();
+  const v = $('analogia-txt').value.trim();
+  if (!v) return;
+  c.analogias.unshift({ txt: v, ts: ts() });
+  $('analogia-txt').value = '';
+  addXP(5);
+  save(); renderCreativ();
+}
+function delAnalogia(i) {
+  const c = ensureCreativ();
+  c.analogias.splice(i, 1);
+  save(); renderCreativ();
+}
+function renderCreativ() {
+  const c = ensureCreativ();
+  const wrap = $('piezas-list');
+  if (wrap) {
+    if (!c.piezas.length) wrap.innerHTML = '<div class="empty">Sin piezas aún</div>';
+    else wrap.innerHTML = c.piezas.map(p => `
+      <div class="entry">
+        <button class="entry-del" onclick="delPieza(${p.id})">×</button>
+        <div class="entry-meta">${PIEZA_TIPO_LBL[p.tipo] || p.tipo} · ${p.ts}</div>
+        <div class="entry-txt">${escapeHTML(p.txt)}</div>
+        <button class="chip" style="margin-top:8px" onclick="cyclePiezaEstado(${p.id})">${PIEZA_ESTADO_LBL[p.estado] || p.estado} · toca para avanzar</button>
+      </div>
+    `).join('');
+  }
+  const total = c.piezas.length;
+  const done = c.piezas.filter(p => p.estado === 'finalizada' || p.estado === 'publicada').length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+  const pctEl = $('creativ-pct');
+  if (pctEl) { pctEl.textContent = pct + '%'; pctEl.style.color = pct >= 70 ? 'var(--mint)' : 'var(--ember)'; }
+  const bar = $('creativ-bar');
+  if (bar) { bar.style.width = pct + '%'; bar.style.background = pct >= 70 ? 'linear-gradient(90deg, var(--forest), var(--emerald), var(--mint))' : 'var(--ember)'; }
+  const al = $('analogias-list');
+  if (al) {
+    if (!c.analogias.length) al.innerHTML = '<div class="empty">Sin analogías aún</div>';
+    else al.innerHTML = c.analogias.map((a, i) => `
+      <div class="entry">
+        <button class="entry-del" onclick="delAnalogia(${i})">×</button>
+        <div class="entry-meta">${a.ts}</div>
+        <div class="entry-txt">${escapeHTML(a.txt)}</div>
+      </div>
+    `).join('');
+  }
+}
+
+// ============================================================
+// DIETA DE INPUT
+// ============================================================
+function ensureDieta() {
+  state.dietaInput = state.dietaInput || { log: [] };
+  return state.dietaInput;
+}
+const DIETA_LIMITES = {
+  twitter: { min: 15, periodo: 'dia', lbl: 'Twitter/X' },
+  youtube: { min: 120, periodo: 'mes', lbl: 'YouTube' },
+  discord: { min: 20, periodo: 'dia', lbl: 'Discord' },
+};
+function registrarInput(plataforma) {
+  const d = ensureDieta();
+  const inp = $('dieta-' + plataforma);
+  const minutos = parseInt(inp.value) || 0;
+  if (!minutos) return;
+  d.log.push({ plataforma, minutos, fecha: todayKey(), ts: ts() });
+  inp.value = '';
+  save(); renderDieta();
+}
+function dietaTotal(plataforma) {
+  const d = ensureDieta();
+  const cfg = DIETA_LIMITES[plataforma];
+  const hoy = todayKey();
+  if (cfg.periodo === 'dia') {
+    return d.log.filter(e => e.plataforma === plataforma && e.fecha === hoy).reduce((s, e) => s + e.minutos, 0);
+  }
+  const mes = hoy.slice(0, 7);
+  return d.log.filter(e => e.plataforma === plataforma && e.fecha.slice(0, 7) === mes).reduce((s, e) => s + e.minutos, 0);
+}
+function renderDieta() {
+  ensureDieta();
+  Object.keys(DIETA_LIMITES).forEach(p => {
+    const cfg = DIETA_LIMITES[p];
+    const total = dietaTotal(p);
+    const pct = Math.min(100, Math.round(total / cfg.min * 100));
+    const over = total > cfg.min;
+    const bar = $('dieta-' + p + '-bar');
+    if (bar) { bar.style.width = pct + '%'; bar.style.background = over ? 'var(--ember)' : 'linear-gradient(90deg, var(--forest), var(--emerald), var(--mint))'; }
+    const lbl = $('dieta-' + p + '-lbl');
+    if (lbl) {
+      const periodoTxt = cfg.periodo === 'dia' ? 'min hoy' : 'min este mes';
+      lbl.textContent = `${total} / ${cfg.min} ${periodoTxt}`;
+      lbl.style.color = over ? 'var(--ember)' : 'var(--ink-3)';
+    }
+  });
+}
+
+// ============================================================
 // TOAST + LEVEL UP
 // ============================================================
 function toast(icon, title, sub) {
