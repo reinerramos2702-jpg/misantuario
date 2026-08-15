@@ -25,7 +25,12 @@ OS personal único del usuario (Reiner). Dashboard gamificado que rastrea hábit
 3. Design: Fidelidad strict al tema actual (colores CSS vars), sin breaking changes visuales
 4. Privacidad: Datos nunca salen de localhost/PWA, no analytics
 5. Despliegue: Automatizado — SOLO Git push → GitHub Actions → Wrangler deploy
-6. Performance: Sub-2s load, < 50KB bundle (sin comprometer UI)
+6. Performance: Sub-2s load, < 50KB bundle (sin comprometer UI) — **superado desde el
+   Bloque 9**: `index.html` gzip real ≈ 67KB (283KB sin comprimir, ~5820 líneas) tras sumar
+   los módulos GOD NODE. Sigue cargando rápido en la práctica (un solo archivo estático,
+   sin build step, cache-first vía `sw.js`), pero el número ya no cumple el budget original
+   tal cual — decisión pendiente del usuario si vale la pena minificar/dividir o si el budget
+   se actualiza para reflejar el alcance real de la app hoy.
 
 **Workflow futuro:**
 - [ ] Primer skill: automatizar estructura de despliegue (GitHub Actions template)
