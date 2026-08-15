@@ -134,8 +134,26 @@ async function handleApi(request, env, url) {
     return json({ ok: true });
   }
 
+  if (pathname === '/api/ai' && method === 'OPTIONS') {
+    // Preflight de CORS — solo lo dispara el navegador para llamadas cross-origin (el propio
+    // frontend, same-origin, nunca lo necesita). Responder 204 con los headers correctos.
+    return new Response(null, { status: 204, headers: aiCorsHeaders(request, url) });
+  }
   if (pathname === '/api/ai' && method === 'POST') {
-    return handleAI(request, env);
+    const cors = aiCorsHeaders(request, url);
+    const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+    const rl = await checkAiRateLimit(env, ip);
+    if (!rl.allowed) {
+      return json(
+        { error: 'Demasiadas solicitudes de IA en poco tiempo. Espera unos minutos e intenta de nuevo.' },
+        429,
+        { ...cors, 'Retry-After': String(rl.retryAfter) }
+      );
+    }
+    const res = await handleAI(request, env);
+    const merged = new Headers(res.headers);
+    for (const [k, v] of Object.entries(cors)) merged.set(k, v);
+    return new Response(res.body, { status: res.status, headers: merged });
   }
 
   if (pathname === '/api/push/subscribe' && method === 'POST') {
