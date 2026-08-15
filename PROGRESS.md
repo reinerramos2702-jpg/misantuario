@@ -268,3 +268,110 @@ cual los definiste, sin tocar, para cuando quieras seguir.
 
 Todo el detalle técnico de cada bloque (decisiones, qué verifiqué, qué encontré) está arriba
 en este mismo documento, bloque por bloque.
+
+---
+
+## Bloque 6 — Fixes críticos de UX + Notificaciones + Sistema XP dual
+
+**Nota de continuidad importante:** el usuario redefinió el Bloque 6 con un alcance nuevo
+(los "Bloques 6/7" viejos mencionados arriba — Creatividad/Dieta de Input/Journaling,
+Hardware Biológico/Polimatía — quedan reemplazados por este plan, no se tocaron). Al arrancar
+encontré que **7 de los 9 puntos ya estaban implementados y desplegados en producción**
+(`push_subscriptions` en D1 real, `sw.js`, VAPID, comentarios de código fechados "Bloque 6"),
+evidencia de trabajo previo de una sesión anterior que no llegó a documentarse aquí. Verifiqué
+cada uno contra el código real (no asumí) antes de darlo por cerrado:
+
+1. **Estado de las keys de IA** — verificado con `wrangler secret list --name misantuario`
+   (solo lectura, sin tocar nada): únicamente `VAPID_PRIVATE_KEY` está configurada como
+   secret. **`GEMINI_KEY`, `CLAUDE_KEY` y `OPENAI_KEY` siguen sin configurar** — brief/consulta
+   rápida seguirán devolviendo 501 hasta que el usuario las ponga (confirmado, no lo intento
+   arreglar por otra vía, tal como pidió). **Aviso de nombres:** el usuario preguntó por
+   `ANTHROPIC_KEY`, pero el Worker (`worker/index.js`) espera el secret con el nombre
+   `CLAUDE_KEY`, no `ANTHROPIC_KEY` — si configura uno con el nombre equivocado, seguirá
+   fallando en silencio (501 "CLAUDE_KEY no configurado"). Comando exacto para las 3:
+   `npx wrangler secret put GEMINI_KEY --name misantuario` (y lo mismo con `CLAUDE_KEY` /
+   `OPENAI_KEY`).
+2. **Buscador global** — ✅ ya implementado (`openSearch()`/`runSearch()`, overlay con
+   `search-input`, atajo Cmd/Ctrl+K). Busca en vivo sobre tareas, ideas, decisiones (Sophia +
+   Mente), clientes de Arquitecto Digital, libros y fuentes del Radar, con resaltado de
+   coincidencia y navegación directa a la sección. No requirió cambios.
+3. **Toast → snackbar deslizable** — ✅ ya implementado (`toast()` con pointer events, swipe
+   horizontal >70px descarta, auto-dismiss a los 3.2s / 2.2s tras interacción, no bloquea
+   pantalla). No requirió cambios.
+4. **Notificaciones push reales** — ✅ infraestructura completa ya en producción: `sw.js`
+   (evento `push` con sonido/vibración del sistema, `notificationclick` con foco/apertura),
+   VAPID (`VAPID_PUBLIC_KEY` en `wrangler.toml`, `VAPID_PRIVATE_KEY` ya como secret), tabla
+   `push_subscriptions` en D1 real (confirmada con `wrangler d1 execute --remote`),
+   `/api/push/subscribe`, `/api/push/unsubscribe`, `/api/push/send` en el Worker, y
+   `checkAndPushCriticalAlerts()` dispara push deduplicado por día exactamente para "Japonés
+   en riesgo", "Primer cierre pendiente" y "Fondo Japón en cero". Banner de consentimiento no
+   intrusivo (`#push-banner`) que se ofrece tras 3 aperturas de la app. **Nota iOS ya
+   documentada en el propio flujo:** Web Push en iOS solo funciona con la PWA agregada a
+   pantalla de inicio (iOS 16.4+) — limitación de la plataforma, no hay workaround, tal como
+   pidió el usuario que se le avisara en vez de intentar rodearla.
+   **Bug real que sí encontré y arreglé:** `wrangler deploy` avisaba que no podía resolver el
+   import `node:crypto` que usa `@block65/webcrypto-web-push` (la librería de firma VAPID) —
+   no rompía el deploy porque `push_subscriptions` estaba vacía (nada disparaba esa ruta de
+   código todavía), pero habría fallado en runtime la primera vez que existiera una
+   suscripción real. Arreglado agregando `compatibility_flags = ["nodejs_compat"]` a
+   `wrangler.toml` (cumple el mínimo de `compatibility_date` que ya tenía el proyecto).
+   Redeployado, warning desaparecido, `/api/push/send` sigue devolviendo 200. También dejé
+   commiteado el swap de dependencia `web-push` → `@block65/webcrypto-web-push` en
+   `package.json`/`package-lock.json` que había quedado sin commitear de la sesión anterior
+   (el paquete `web-push` de Node no corre en el runtime de Workers; este sí).
+5. **Racha de hábitos** — ✅ ya implementado (`checkDailyReset()` cuenta días consecutivos con
+   el 100% de la rutina diaria completa, badge en Vida → Hábitos con animación al subir). No
+   requirió cambios.
+6. **Feedback háptico** — ✅ ya implementado: `vibrate()` (Vibration API, no-op seguro si el
+   navegador no la soporta) en `toggleTask()` (marcar checkbox) y vibración extra +
+   toast especial cuando el Checklist crítico de Inicio (la Misión Activa del día) llega a
+   100%. No requirió cambios.
+7. **Modo Focus** — ✅ ya implementado: `body.focus-mode` oculta header/nav/mission/offline-banner
+   y deja solo la tarjeta del timer centrada a pantalla completa (`focusModeEnter/Exit/Stop`),
+   con botón flotante para volver al modo focus sin perder el bloque en curso. No requirió
+   cambios.
+8. **Sistema XP dual** — ✅ ya implementado: el track diario (Tales→Heráclito→...) sigue
+   intacto, sin tocar. "Progreso Sophia" es un track 100% separado (`state.sophiaProgress`,
+   independiente de `state.xp`) con las 5 Fases (`SOPHIA_FASES`), barra de progreso propia, y
+   botón "Marcar Fase N completada" que solo habilita la fase inmediata siguiente en orden, con
+   confirmación explícita (`confirm()` nativo, a propósito — es una acción rara e irreversible
+   que representa años de trabajo real, no amerita un modal custom). No requirió cambios.
+9. **Actualizar Misión Activa** — ⚠️ este sí faltaba, lo hice yo: cambié `mission-lbl`
+   ("Misión activa · 72h" → "· 1 mes"), `mission-txt` ("Primera venta EducaLibros y primer
+   cliente de Arquitecto Digital" → "Primera venta y primer cliente de RAI Agency"), el KPI
+   "Plazo" (72h → "1m", mismo formato que el KPI "Japón" que ya mostraba "6m") y el prompt del
+   botón "Plan" del Checklist crítico (mismo texto viejo, lo dejé coherente con el nuevo). No
+   encontré lógica de countdown real atada a esas 72h (era texto estático en 3 lugares) —
+   nada que ajustar ahí más allá del texto. **A propósito no toqué** la tarjeta separada
+   "Roadmap 12 meses" (menciona "Mes 1 · primera venta EducaLibros · primer cliente
+   Arquitecto Digital" en su propio texto) ni el prompt de sistema de IA que lista los
+   proyectos activos (`EducaLibros, ..., Arquitecto Digital`) — el pedido fue específicamente
+   "Actualizar Misión Activa", ambos son secciones distintas y "Arquitecto Digital" sigue
+   siendo un módulo real de la app (clientes freelance), no algo a borrar.
+
+**Verificación de producción (no local, contra la URL real):**
+- `GET /` → 200, contiene "Misión activa · 1 mes" y "Primera venta y primer cliente de
+  RAI Agency" (confirma el deploy, no solo el archivo local).
+- `GET /manifest.json`, `/sw.js` → 200. `/api/movimientos`, `/api/cuentas`, `/api/proyectos`
+  → 200 (nada roto).
+- `POST /api/ai` provider gemini sin key → 501 esperado (sin cambios, sigue documentado).
+- `POST /api/push/send` → 200 `{"sent":0,"total":0,...}` (sin suscripciones reales todavía,
+  comportamiento correcto).
+- D1 real: `push_subscriptions` confirmada como tabla existente vía
+  `wrangler d1 execute --remote` (solo lectura, sin insertar/borrar nada).
+
+**Deploy:** `npx wrangler deploy` (dos veces: fix de texto, luego fix de `nodejs_compat`).
+Push a GitHub sigue bloqueado por el mismo problema heredado del Bloque 2 (PAT sin scope
+`workflow`, ver encabezado del documento) — confirmé que sigue así intentando `git push
+origin main` de verdad, mismo error exacto. **91 commits locales sin subir.** Todo commiteado
+localmente (incluye el commit del swap de dependencia que quedó pendiente de antes).
+
+**Pendiente / bloqueado — necesita al usuario:**
+- Configurar `GEMINI_KEY`, `CLAUDE_KEY` (no `ANTHROPIC_KEY`), `OPENAI_KEY` como secrets del
+  Worker — bloqueado por el clasificador de seguridad, no por falta de la key en el caso de
+  Gemini. Comandos arriba en el punto 1.
+- Push a GitHub bloqueado por el PAT — regenerar con scope `workflow` y correr
+  `git push origin main`, o pedírmelo explícitamente en el chat.
+
+**Bloque 6: CERRADO.** Deploy en producción, smoke test OK contra la URL real, D1 solo
+consultada (no modificada), todo commiteado local.
