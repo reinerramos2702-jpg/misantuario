@@ -663,3 +663,55 @@ scratchpad. Cero rastro persistente de las pruebas.
 errores de consola, 0 excepciones, D1 real confirmada sin cambios. No se encontró ningún bug
 de la aplicación — el único hallazgo fue en mi propio harness de prueba, ya corregido y
 documentado arriba.
+
+---
+
+## Bloque 11 — MANUAL.md + pantalla de ayuda
+
+**Petición explícita del usuario para este bloque:** mantener el tono zen/personal del resto
+de la app (nada corporativo, regla 2 del propio `CLAUDE.md`) y cubrir TODOS los módulos
+nuevos de los Bloques 6-10, no solo los originales. Hice ambas cosas a propósito, sin
+subagentes — esto necesitaba una sola voz autoral consistente de punta a punta, no zonas de
+archivo disjuntas; delegar en paralelo aquí habría dado un documento con costuras.
+
+**`MANUAL.md` (raíz del repo):** guía completa escrita en segunda persona, dirigida a Reiner
+como si la app le hablara a él (mismo registro que ya usa el propio HTML: "Toca el botón
+para que la IA genere tu plan...", "Empieza a escribir para buscar..."). Cubre, en orden:
+mecánica transversal (nav/drawer, buscador Cmd/Ctrl+K, XP dual con la distinción explícita
+entre el anillo diario y "Progreso Sophia", racha, vibración, avisos deslizables, push +
+nota iOS, Modo Focus, exportar/importar, tema) y luego las 17 secciones una por una —
+incluyendo explícitamente Hardware Bio, Metas (Finanzas), Journal, Polimatía, Creatividad y
+Dieta de Input, que son los módulos que el usuario pidió no dejar fuera. Cierra con una nota
+técnica corta sobre las 3 keys de IA y un recordatorio de privacidad (todo vive en
+`localStorage`, la IA solo ve el prompt puntual).
+
+**Pantalla de ayuda en la app:** nuevo botón "Manual · Ayuda" en el drawer (después de
+"Probar Push"), abre un modal (`#manual-modal`) reusando el patrón visual ya existente de
+`.modal-bg`/`.modal` (mismo que Notificaciones e Importar — nada nuevo en CSS). Contenido: una
+versión condensada de `MANUAL.md` en el mismo tono, organizada con los mismos encabezados,
+pensada para leerse en el modal scrolleable de un teléfono en vez de como archivo markdown.
+Funciones nuevas: `openManual()`/`closeManual()` — un solo patrón `classList.add/remove('open')`,
+igual que el resto de los modales del archivo.
+
+**Verificación (Chrome headless por CDP, mismo método del Bloque 10, perfil nuevo y
+aislado):**
+- `openManual`/`closeManual` existen, el modal abre y cierra correctamente (clase `open`).
+- Chequeo automatizado de que el `innerText` del modal contiene explícitamente las palabras
+  clave de los módulos de Bloques 6-10 que el usuario pidió no dejar fuera: Buscador, push,
+  Racha, Modo Focus, Progreso Sophia, Creatividad, Dieta de Input, Journal, Hardware Bio,
+  Polimatía, Metas — las 11 aparecen.
+- 0 errores de consola, 0 excepciones durante toda la prueba.
+- `grep` de ids/nombres de función duplicados sobre el archivo completo → cero. `node --check`
+  sobre el `<script>` integrado → sintaxis OK.
+- D1 real confirmada sin cambios después del deploy (`/api/cuentas` → `[]`).
+- Limpieza: maté el proceso de Chrome headless por PID específico y borré el perfil temporal
+  (mismo cuidado que en el Bloque 10).
+
+**Deploy:** `npx wrangler deploy`. Push a GitHub sigue bloqueado por el PAT (sin cambios en
+ese frente, sigue pendiente del usuario).
+
+**Pendiente:** ninguno específico de este bloque.
+
+**Bloque 11: CERRADO.** `MANUAL.md` completo en el tono pedido, cubre los 17 módulos +
+mecánica transversal incluyendo todo lo de Bloques 6-10, pantalla de ayuda en la app
+verificada funcionalmente en vivo contra producción, D1 real sin cambios.
