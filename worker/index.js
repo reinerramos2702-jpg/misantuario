@@ -256,7 +256,7 @@ async function handleAI(request, env) {
       // recomienda el alias rotativo "gemini-flash-latest", que siempre apunta al flash
       // vigente sin que el código se rompa cada vez que Google retira una versión fechada.
       // Confirmado disponible contra la key real vía /v1beta/models (Bloque 12, post-cierre).
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${env.GEMINI_KEY}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=${env.GEMINI_KEY}`;
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
