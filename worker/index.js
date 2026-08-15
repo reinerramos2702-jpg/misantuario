@@ -262,7 +262,11 @@ async function handleAI(request, env) {
   try {
     if (p === 'gemini') {
       if (!env.GEMINI_KEY) return json({ error: 'GEMINI_KEY no configurado' }, 501);
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${env.GEMINI_KEY}`;
+      // "gemini-2.5-flash" (versión fija) dejó de estar disponible para keys nuevas — Google
+      // recomienda el alias rotativo "gemini-flash-latest", que siempre apunta al flash
+      // vigente sin que el código se rompa cada vez que Google retira una versión fechada.
+      // Confirmado disponible contra la key real vía /v1beta/models (Bloque 12, post-cierre).
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${env.GEMINI_KEY}`;
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
