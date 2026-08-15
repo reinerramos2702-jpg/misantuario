@@ -2570,6 +2570,19 @@ function defaultState() {
     creatividad: { piezas: [], analogias: [] },
     dietaInput: { log: [] },
     sophiaProgress: { currentPhase: 0, log: [] },
+    bioHW: {
+      sueno: [],
+      batchCooking: {
+        weekKey: null,
+        items: [
+          { id: 'menu', label: 'Planificar menú semana', done: false },
+          { id: 'lista', label: 'Lista de compras', done: false },
+          { id: 'proteinas', label: 'Cocinar proteínas en batch', done: false },
+          { id: 'porcionar', label: 'Porcionar en containers', done: false },
+          { id: 'congelar', label: 'Congelar lo que no se usa esta semana', done: false }
+        ]
+      }
+    },
     // Racha de hábitos: habitsDate se deja en null a propósito (no usar todayKey() aquí —
     // esa const se declara más abajo en el script y todavía no existe en este punto de la
     // ejecución; checkDailyReset() la fija con el valor real la primera vez que corre, ya
