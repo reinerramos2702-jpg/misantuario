@@ -230,6 +230,18 @@ async function handlePushSend(request, env) {
   return json({ sent: outcomes.filter(o => o.ok).length, total: outcomes.length, outcomes });
 }
 
+// Cuando Gemini/Claude/OpenAI responden con error, su body trae el motivo real (modelo
+// inválido, cuota agotada, key revocada, etc.) — nunca incluye la key en sí, solo describe
+// qué estuvo mal con la petición. Antes esto se perdía y el frontend solo veía "HTTP 400/403"
+// sin contexto. Truncado a 200 caracteres para no inflar el toast de error.
+async function upstreamErrorDetail(res) {
+  try {
+    const txt = await res.text();
+    if (!txt) return '';
+    return ' — ' + txt.slice(0, 200);
+  } catch { return ''; }
+}
+
 async function handleAI(request, env) {
   let body;
   try { body = await request.json(); } catch { return json({ error: 'JSON inválido' }, 400); }
