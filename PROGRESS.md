@@ -715,3 +715,210 @@ ese frente, sigue pendiente del usuario).
 **Bloque 11: CERRADO.** `MANUAL.md` completo en el tono pedido, cubre los 17 módulos +
 mecánica transversal incluyendo todo lo de Bloques 6-10, pantalla de ayuda en la app
 verificada funcionalmente en vivo contra producción, D1 real sin cambios.
+
+---
+
+## Bloque 12 — Cierre final v1.0
+
+### 1. PWA / offline — probado con red desconectada de verdad
+
+No me quedé en "se puede instalar". Usé Chrome headless por CDP con
+`Network.emulateNetworkConditions({offline:true})` (desconexión real a nivel de red, no un
+mock) sobre un perfil nuevo: cargué la app online una vez (para que el service worker se
+registrara y activara), la desconecté de la red, y **recargué la página con la red
+desconectada de verdad**. Resultado: la app carga completa desde el cache del SW (título,
+`state`, todas las secciones en el DOM), `toggleTask()`/`setWater()` (100% localStorage)
+siguen funcionando sin tronar, y confirmé que `/api/*` **sí falla offline como se espera**
+(el propio `sw.js` nunca cachea `/api/*` a propósito — comportamiento correcto, no un bug).
+Reconecté la red después y la app volvió a cargar normal. 10/10 checks en verde.
+
+### 2. Seguridad en /api/ai — CORS + rate limit por IP
+
+**CORS:** nueva función `aiCorsHeaders()` en `worker/index.js` — solo hace eco de
+`Access-Control-Allow-Origin` cuando el header `Origin` de la petición coincide EXACTO con el
+origen del propio Worker (el frontend siempre le pega con fetch relativo desde el mismo
+origen). Cualquier otro sitio que intente leerlo desde JS de navegador queda bloqueado por el
+navegador mismo. Nueva rama `OPTIONS` para el preflight. **Aclaración importante que dejo
+anotada:** CORS por sí solo NO evita que alguien le pegue directo al endpoint por curl/server
+(CORS es una restricción que solo cumplen los navegadores) — por eso el rate limit es la
+protección real contra abuso, independientemente de quién llame.
+
+**Rate limit:** tabla nueva `ai_rate_limit` en D1 (`schema.sql`, aplicada ya a la D1 real vía
+`wrangler d1 execute --remote` — cambio puramente aditivo, no toca datos existentes),
+ventana fija de 10 minutos, **30 solicitudes por IP** (`CF-Connecting-IP`). Al excederse:
+`429` con `Retry-After` y un mensaje claro. Agregué también el caso `e.status === 429` en el
+frontend (`askAI()`) con un aviso amigable, mismo patrón que el 501 de "provider no
+configurado".
+
+**Verificado en vivo contra producción (no en teoría):**
+- Petición same-origin real → `Access-Control-Allow-Origin` presente y correcto.
+- Petición cross-origin simulada (`Origin: https://evil.example.com`) → sin ese header
+  (bloqueado del lado navegador).
+- Preflight `OPTIONS` responde `204` con los headers correctos en ambos casos.
+- **33 peticiones reales seguidas** (gratis — sin `GEMINI_KEY` configurada, cada una
+  responde 501 sin llegar a tocar la API real de Gemini) → las primeras 30 pasan, de la 31
+  en adelante `429` con `Retry-After`. Confirmé en D1 real que el contador quedó exactamente
+  en 30, nunca se pasó. Limpié esa fila de prueba después.
+
+### 3. Pregunta de privacidad — hecha y respondida antes de tocar nada
+
+Antes de escribir una sola línea sobre esto, encontré y te mostré los 2 lugares reales que
+mandan cifras financieras a Gemini: el system prompt fijo de "Consulta rápida" (`"capital
+actual $48"`, un valor congelado desde que se escribió) y el Brief diario
+(`generarBrief()`, que manda tu capital total real y el saldo real del fondo Japón,
+calculados en vivo). Te pregunté con las 3 opciones (dejar igual / redondear-anonimizar /
+quitar del todo) y **respondiste "Dejarlo como está"**. No toqué ningún código de estos dos
+puntos — decisión tuya, respetada tal cual, documentada aquí para que quede el porqué.
+
+### 4. Backup — confirmado, sin tocar R2 (como pediste)
+
+No activé R2, no lo mencioné como pendiente en ningún lado de este documento salvo esta única
+línea confirmando que no se tocó. Verifiqué el export manual de punta a punta de verdad —no
+solo "la función existe"—: usé `Browser.setDownloadBehavior` de CDP para capturar el archivo
+que realmente descarga el botón "Exportar" del drawer. Resultado: descarga
+`santuario-backup-2026-08-15.json`, JSON válido, **39 claves de estado**, incluyendo
+explícitamente todos los módulos nuevos de Bloques 4-8 (`sistemaMaestro`, `foco`,
+`creatividad`, `polimatia`, `finExpandida`, `dietaInput`, `sophiaProgress`, `bioHW`,
+`journal` vía el array `diario`/`vault`/etc. — journal específicamente confirmado presente).
+Sigue funcionando al 100%.
+
+### 5. Ícono PWA — pulido para iOS y Android
+
+**Bug real que encontré:** `<link rel="apple-touch-icon" href="...santuario-icon.svg">` —
+iOS Safari **no soporta SVG** para el ícono de pantalla de inicio, así que ese link nunca
+funcionó de verdad en iPhone (probablemente caía a una captura en blanco o ícono genérico).
+Tampoco había PNGs para el `maskable` de Android — el manifest solo tenía un SVG con
+`"purpose": "any maskable"` combinado, que Google desaconseja (los dos propósitos tienen
+requisitos de diseño distintos: "any" puede tener esquinas propias, "maskable" debe llenar
+el lienzo completo edge-to-edge porque el SO aplica su propia máscara).
+
+**Arreglo:** generé 3 PNG nuevos (180×180 para `apple-touch-icon`, 192×192 y 512×512 para
+`maskable`) renderizando el mismo diseño SVG **sin las esquinas redondeadas propias** (el
+contenido ya vivía dentro de la zona segura del 80% central, no hizo falta rediseñar nada,
+solo quitar el `rx` del rectángulo de fondo) — usando Chrome headless por CDP
+(`Page.captureScreenshot`), sin instalar ninguna herramienta de imágenes. El SVG original
+(con esquinas redondeadas) se queda tal cual para `favicon`/ícono "any". Actualicé
+`manifest.json` (3 entradas: SVG `any`, PNG 192 `maskable`, PNG 512 `maskable`) y el
+`apple-touch-icon` de `index.html` para apuntar al PNG nuevo. Verifiqué visualmente cada PNG
+generado (se ven correctos, sin recortes) antes de commitear, y confirmé los 5 assets
+(`manifest.json` + 4 íconos) responden `200` en producción.
+
+### 6. Cierre v1.0
+
+**Smoke test completo de punta a punta** (Chrome headless por CDP, no solo los módulos
+nuevos): recorrí las **17 secciones** vía `showSec()`, **23 subtabs** de Finanzas/Vida/
+Mente/Sistema Maestro/Foco/Arquitecto Digital, **28 funciones `render*()`** llamadas
+directamente, el Manual, el buscador, los 5 assets del ícono PWA, y las 3 rutas `/api/*` de
+lectura. **80/80 checks en verde, 0 errores de consola, 0 excepciones.** D1 real confirmada
+sin cambios antes y después (`/api/cuentas` → `[]`).
+
+**GitHub Actions — no pude confirmarlo con una ejecución real, y lo digo con honestidad en
+vez de asumir que funciona:** el Action nunca ha corrido ni una sola vez porque el push sigue
+bloqueado desde el Bloque 2 (mismo PAT sin scope `workflow` — lo reintenté ahora mismo,
+mismo error exacto, **134 commits locales sin subir**). Revisé el YAML (`.github/workflows/
+deploy.yml`) de nuevo: sigue bien formado, la migración de `schema.sql` sigue siendo
+idempotente, y nada de lo que toqué en este bloque modifica ese archivo. Pero "revisado y
+bien formado" no es lo mismo que "confirmado funcionando" — eso solo se sabe con una
+ejecución real, y esa ejecución solo pasa cuando resuelvas el punto del PAT.
+
+**Tag `v1.0`:** creado localmente (`git tag -a v1.0`), con mensaje de cierre resumiendo todo
+el alcance de la sesión. Intenté `git push origin v1.0` — mismo bloqueo del PAT (el tag
+apunta a commits que incluyen el workflow, así que hereda la misma restricción). El tag
+existe en tu repo local, listo para subir en cuanto el PAT tenga el scope correcto:
+`git push origin main --tags`.
+
+**Push final a GitHub:** intentado, sigue bloqueado. Nada nuevo que decir aquí que no esté ya
+documentado en cada bloque anterior — es el mismo problema desde el Bloque 2, sin cambios.
+
+**Deploy de código:** cada cambio de este bloque (worker CORS+rate-limit, `schema.sql`,
+frontend, iconos, manifest) ya está en producción vía `wrangler deploy` directo, verificado
+en vivo bloque por punto arriba.
+
+**Bloque 12: CERRADO**, con 2 pendientes que solo tú puedes resolver (PAT de GitHub y las 3
+API keys) — ninguno de los dos es nuevo, ambos vienen documentados desde bloques anteriores.
+
+---
+
+## CIERRE v1.0 — resumen de toda la sesión (Bloques 6-12)
+
+### Qué se construyó
+
+**Bloque 6 — Fixes de UX + notificaciones + XP dual:** encontré que la mayoría ya estaba
+hecho de una sesión previa no documentada (buscador global, snackbar deslizable, push real
+con VAPID+D1+SW, racha de hábitos, haptic feedback, Modo Focus, XP dual/Progreso Sophia) —
+verifiqué cada uno contra el código real, arreglé un bug real de `nodejs_compat` en
+`wrangler.toml` que habría roto el envío de push en el primer uso real, y actualicé el texto
+de la Misión Activa (RAI Agency en vez de EducaLibros/Arquitecto Digital, plazo 1 mes en vez
+de 72h).
+
+**Bloque 7 — GOD NODE Fase 3:** Creatividad (tracker de piezas + banco de analogías), Dieta
+de Input (límites Twitter/YouTube/Discord + lista negra), Journaling Cornell/Zettelkasten
+dentro de Mente. 2 agentes en paralelo, zonas disjuntas, verificación estática exhaustiva.
+
+**Bloque 8 — GOD NODE Fase 4:** Hardware Biológico (sueño con cálculo de horas cruzando
+medianoche + batch cooking semanal), Polimatía (disciplina trimestral + lectura
+interdisciplinaria), Finanzas expandida (3 metas de ahorro + reglas de dinero + fuentes de
+ingreso RAI Agency/MediGo/Content Engine, sin tocar el proyecto Vida Fácil real). Encontré y
+arreglé un bug real de "primera carga" del Journal del Bloque 7 antes de desplegar.
+
+**Bloque 9 — Cierre técnico:** confirmé el bloqueo del PAT (no lo pude resolver, es
+credencial del usuario), documenté el tamaño real de `index.html` (67KB gzip, ya por encima
+del budget de 50KB que el propio `CLAUDE.md` se había puesto — decisión de minificar o
+actualizar el budget queda para el usuario), auditoría de limpieza de código (resultado:
+limpio, no hizo falta arreglar nada), revisé el Action de deploy (bien formado, no pude
+confirmar su ejecución real por el mismo bloqueo del PAT).
+
+**Bloque 10 — QA completo:** encontré una vía para probar en vivo sin la extensión de Chrome
+(headless por CDP directo) — 43 checks funcionales reales contra producción, 0 errores. Un
+solo hallazgo, y era de mi propio harness de prueba (reuso de perfil entre corridas), no de
+la app — documentado con el proceso completo de investigación.
+
+**Bloque 11 — Manual + ayuda:** `MANUAL.md` completo en tono zen/personal, cubre los 17
+módulos + mecánica transversal incluyendo todo lo de Bloques 6-10. Modal de ayuda en la app
+(`Manual · Ayuda` en el drawer), mismo patrón visual que los modales existentes.
+
+**Bloque 12 — Cierre v1.0:** offline probado con red real desconectada (no solo
+instalabilidad), CORS + rate limit por IP en `/api/ai` (30/10min, verificado con 33
+peticiones reales), pregunta de privacidad hecha y respondida (dejar como está, sin cambios
+de código), export manual confirmado funcionando de punta a punta (39 claves de estado, sin
+tocar R2), íconos PWA arreglados de verdad (el `apple-touch-icon` apuntaba a un SVG que iOS
+nunca soportó — ahora son PNG full-bleed correctos para iOS y Android), smoke test de las 17
+secciones + 23 subtabs + 28 funciones render (80/80 en verde), tag `v1.0` creado localmente.
+
+### Qué quedó fuera de scope (a propósito, no descuido)
+
+- **R2 / backup automático** — explícitamente descartado por el usuario en este bloque. No
+  se activó, no se pagó, no se menciona como pendiente futuro. El export manual sigue siendo
+  el mecanismo de respaldo.
+- **Anonimización de datos financieros hacia Gemini** — preguntado explícitamente, el usuario
+  eligió dejarlo como está. No es un punto pendiente, es una decisión tomada.
+- Todo lo demás pedido en el Bloque 12 se completó.
+
+### Pendiente real (2 puntos, ambos credenciales del usuario, sin cambios desde bloques
+anteriores)
+
+1. **Push a GitHub bloqueado** — el Personal Access Token no tiene el scope `workflow`.
+   **134 commits + el tag `v1.0` esperando en local.** Arreglo: GitHub → Settings →
+   Developer settings → Personal access tokens → regenerar con el scope `workflow` marcado
+   → `git push origin main --tags`. Mientras tanto, todo el código SÍ está en producción
+   real (desplegado directo con `wrangler deploy` en cada bloque) — el repo de GitHub está
+   desactualizado, pero la app que usas cada día tiene todo esto ya viviendo.
+2. **`GEMINI_KEY` / `CLAUDE_KEY` / `OPENAI_KEY` sin configurar como secrets del Worker** —
+   bloqueado por el clasificador de seguridad de la sesión, no por falta de la key en el caso
+   de Gemini (ya la tengo, es la misma que ya estaba pública en el código antes del Bloque 3).
+   `npx wrangler secret put GEMINI_KEY --name misantuario` (y lo mismo para `CLAUDE_KEY`/
+   `OPENAI_KEY`) desde la raíz del repo, o dímelo en el chat y lo corro yo.
+
+Como consecuencia directa del punto 2: no pude confirmar con una ejecución real de GitHub
+Actions que el deploy automático "funciona sin fallos" — nunca ha corrido. Revisé el YAML y
+está bien formado, pero eso no es lo mismo que una confirmación real.
+
+### Estado real de producción ahora mismo
+
+`https://misantuario.reinerramos2702.workers.dev` — todo lo de Bloques 6-12 está desplegado
+y verificado en vivo (no solo "debería funcionar"): 80/80 checks del smoke test final en
+verde, D1 real limpia (`cuentas`/`movimientos`/`proyectos` en `[]`, `push_subscriptions` y
+`ai_rate_limit` con solo datos operativos, ninguno de prueba dejado atrás), offline
+confirmado con red real desconectada, export manual confirmado, CORS+rate-limit de `/api/ai`
+verificados con tráfico real, íconos PWA correctos para iOS y Android. **No toqué tus datos
+financieros reales ni una vez en toda esta sesión.**
