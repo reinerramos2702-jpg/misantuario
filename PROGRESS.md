@@ -543,7 +543,7 @@ nada:**
   palabra "todo" en español, no marcadores).
 - Archivos sueltos en la raíz del repo (el bug de rutas bash/Windows de agentes de bloques
   anteriores) → cero, raíz del repo limpia.
-- Selectores CSS duplicados → uno (`​.card`, dos veces): revisado, no es un bug — la segunda
+- Selectores CSS duplicados → uno (`.card`, dos veces): revisado, no es un bug — la segunda
   declaración (`.card { overflow: hidden; }`) es un override aditivo intencional, no una
   redefinición redundante. No toqué nada.
 - Nombres de función/const duplicados en todo el script → cero (ya verificado en el cierre de
