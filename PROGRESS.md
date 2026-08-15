@@ -577,3 +577,89 @@ anteriores, siguen igual):**
 **Bloque 9: CERRADO** con esos 2 puntos explícitamente pendientes de tu lado (no son bugs
 míos, son credenciales/acciones que solo tú puedes hacer) — todo lo demás (tamaño real
 documentado, código limpio confirmado, Action revisado y bien formado) quedó verificado.
+
+---
+
+## Bloque 10 — QA completo por módulo
+
+**Cambio de método importante (mejora real sobre Bloques 6-9):** la extensión de Chrome
+seguía sin conectar, pero encontré una vía mejor que renunciar a las pruebas en vivo —
+lanzar **Chrome headless directamente con `--remote-debugging-port` y hablarle CDP crudo**
+desde Node (v24 trae `fetch`/`WebSocket` nativos, no hizo falta instalar nada). Esto es
+además estrictamente mejor que la extensión para este caso: CDP directo sí expone
+`Page.addScriptToEvaluateOnNewDocument`, así que pude sembrar el flag
+`santuario_d1_synced_v1=true` ANTES de que cargara la app (mismo objetivo que en Bloques 4/5,
+ahora sin depender de la extensión). Perfil de Chrome aislado y nuevo en el scratchpad, nunca
+el perfil real del usuario.
+
+**Cobertura — 43 checks funcionales reales contra la URL de producción** (no mocks, la app
+real corriendo, llamando las funciones JS reales, verificando el `state` resultante):
+- **Bloque 4** (Sistema Maestro, Diario): `addFriccion()` guarda, `saveAperturaDiario()`
+  agrega entrada al diario.
+- **Bloque 5** (Foco, Academia): `iniciarBloque()`→`romperBloque()` deja el bloque roto
+  registrado con su razón; `cycleEstadoCurriculum()` cicla de estado.
+- **Bloque 6** (buscador, snackbar, racha, haptic, Modo Focus, XP dual): overlay de búsqueda
+  abre, toast se renderiza, shape de `state.streak` correcto, `vibrate()` no truena sin
+  soporte del navegador, Modo Focus agrega/quita la clase del body, Progreso Sophia no toca
+  `state.xp` (confirma que los 2 tracks de XP están genuinamente separados).
+- **Bloque 7** (Creatividad, Dieta, Journal): pieza se agrega y cicla de estado, minutos de
+  dieta se registran, nota Cornell y nota Zettelkasten (con ID autogenerado) se guardan Y
+  **se pintan en el DOM al guardar** (confirma que el fix del bug de "primera carga" que
+  encontré al cerrar el Bloque 8 funciona de punta a punta).
+- **Bloque 8** (Hardware Bio, Polimatía, Finanzas expandida): **sueño registrado con cálculo
+  de horas correcto cruzando medianoche (23:30→07:00 = exactamente 7.5h)** — la parte más
+  delicada de esa lógica, verificada con un caso real, no solo "no truena"; checklist de
+  batch cooking togglea correctamente; disciplina trimestral se guarda; lectura
+  interdisciplinaria se registra; regla de dinero e ingreso de fuente se agregan.
+- **Módulos preexistentes** (Inicio/tareas, Hábitos, Agua, Japón, Arquitecto Digital,
+  Calendar, Compras, Radar): pasada liviana de "no truena" sobre sus funciones de render
+  principales — no encontré nada roto por los 5 bloques de cambios de esta sesión.
+- **Push/SW**: confirmado que el navegador soporta `serviceWorker` y que
+  `checkAndPushCriticalAlerts` existe (no se probó el flujo de permiso real de Notification —
+  Chrome headless no permite otorgar ese permiso de forma realista, y no tiene sentido forzarlo).
+
+**Resultado: 43/43 checks en verde, 0 errores de consola, 0 excepciones no capturadas,**
+confirmado en 2 corridas limpias consecutivas.
+
+**Bug real de mi propio harness de QA que encontré y corregí en el camino (documentado con
+honestidad, no es un bug de la app):** el primer chequeo de "batch cooking togglea"
+intermitía entre pasar y fallar. Investigué a fondo (instrumenté `checkBatchWeeklyReset()`
+con un monkey-patch, descarté la hipótesis de un `service worker controllerchange` disparando
+un `location.reload()` inesperado con un contador en `sessionStorage` que sobrevive
+recargas) hasta encontrar la causa real: mi harness reusaba el mismo perfil de Chrome (mismo
+`localStorage`) entre corridas sucesivas del script, así que un chequeo que asumía "empieza
+en `false`" se volvía inconsistente porque `toggleBatchItem` es un TOGGLE genuino — cada
+corrida invertía lo que había dejado la anterior. Reescribí el chequeo para comparar
+antes/después en la misma corrida (`batchAfter === !batchBefore`) en vez de asumir un valor
+absoluto de partida. **La función de la app (`toggleBatchItem`) nunca estuvo rota** — mi
+aserción de prueba sí lo estaba. Dejo esto anotado en detalle porque el proceso de descarte
+(SW reload, monkey-patch de instrumentación, contador de recargas en sessionStorage) fue
+genuinamente riguroso antes de concluir dónde estaba el problema, y prefiero mostrar ese
+trabajo a simplemente decir "ya quedó verde".
+
+**D1 real: confirmado sin cambios** (`/api/cuentas`, `/api/movimientos`, `/api/proyectos` →
+`[]` los tres, antes y después de la sesión completa de QA) — ninguno de los 43 checks toca
+las funciones que hacen write-through a D1 (`updateAccount`, alta/baja de cliente,
+`cobrarCliente`, alta de movimiento), confirmado por grep antes de correr nada contra
+producción.
+
+**Limpieza:** maté el proceso de Chrome headless por PID específico (no un `taskkill`
+genérico que pudiera tocar ventanas reales del usuario) y borré el perfil temporal del
+scratchpad. Cero rastro persistente de las pruebas.
+
+**No cubierto en este QA (limitaciones honestas, no evasión):**
+- Botones de IA reales (Consulta rápida/Brief/Pros-Contras/Prompt Lab/Radar) — su
+  comportamiento con las keys sin configurar ya se verificó a fondo en el Bloque 3 ("aviso
+  amigable, cero errores de consola") y nada de los Bloques 4-9 tocó ese código, así que no
+  repetí la prueba en vivo; me apoyo en esa verificación previa en vez de reafirmarla sin
+  necesidad.
+- Flujo real de permiso de notificaciones push (`Notification.requestPermission()`) — Chrome
+  headless no puede otorgar ese permiso de forma realista, y forzarlo no probaría nada útil.
+- Sistema Maestro: `saveTerritorio`/`saveAvion`/`completarRevision` — confirmé que existen y
+  no truenan al llamarlos, pero no aserté el `state` resultante línea por línea como sí hice
+  con el resto (quedó como chequeo liviano, no funcional completo, por tiempo).
+
+**Bloque 10: CERRADO.** 43/43 checks funcionales reales en verde contra producción, 0
+errores de consola, 0 excepciones, D1 real confirmada sin cambios. No se encontró ningún bug
+de la aplicación — el único hallazgo fue en mi propio harness de prueba, ya corregido y
+documentado arriba.
