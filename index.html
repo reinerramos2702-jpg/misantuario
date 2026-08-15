@@ -1281,6 +1281,84 @@ body.light .hdr h1 {
         <div id="japan-log" style="margin-top:14px"></div>
       </div>
     </div>
+
+    <!-- Metas -->
+    <div class="subsec" id="fin-metas">
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title-wrap">
+            <div class="dot" style="background:var(--stellar)"></div>
+            <div><div class="card-title">Metas de ahorro</div><div class="card-meta">Corto · medio · largo plazo</div></div>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div class="entry-meta">Corto plazo</div>
+          <input class="txt" id="meta-corto-nombre" placeholder="Nombre de la meta" style="margin-bottom:8px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <input class="txt" id="meta-corto-objetivo" type="number" placeholder="Objetivo $" step="0.01">
+            <input class="txt" id="meta-corto-actual" type="number" placeholder="Actual $" step="0.01">
+          </div>
+          <button class="save-btn" onclick="saveMeta('corto')">Guardar</button>
+          <div class="prog" style="margin-top:10px">
+            <div class="prog-lbl"><span id="meta-corto-lbl">Corto plazo</span><span id="meta-corto-pct">0%</span></div>
+            <div class="prog-track"><div class="prog-fill" id="meta-corto-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div class="entry-meta">Medio plazo</div>
+          <input class="txt" id="meta-medio-nombre" placeholder="Nombre de la meta" style="margin-bottom:8px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <input class="txt" id="meta-medio-objetivo" type="number" placeholder="Objetivo $" step="0.01">
+            <input class="txt" id="meta-medio-actual" type="number" placeholder="Actual $" step="0.01">
+          </div>
+          <button class="save-btn" onclick="saveMeta('medio')">Guardar</button>
+          <div class="prog" style="margin-top:10px">
+            <div class="prog-lbl"><span id="meta-medio-lbl">Medio plazo</span><span id="meta-medio-pct">0%</span></div>
+            <div class="prog-track"><div class="prog-fill" id="meta-medio-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div class="entry-meta">Largo plazo</div>
+          <input class="txt" id="meta-largo-nombre" placeholder="Nombre de la meta" style="margin-bottom:8px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <input class="txt" id="meta-largo-objetivo" type="number" placeholder="Objetivo $" step="0.01">
+            <input class="txt" id="meta-largo-actual" type="number" placeholder="Actual $" step="0.01">
+          </div>
+          <button class="save-btn" onclick="saveMeta('largo')">Guardar</button>
+          <div class="prog" style="margin-top:10px">
+            <div class="prog-lbl"><span id="meta-largo-lbl">Largo plazo</span><span id="meta-largo-pct">0%</span></div>
+            <div class="prog-track"><div class="prog-fill" id="meta-largo-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title-wrap">
+            <div class="dot" style="background:var(--mint)"></div>
+            <div class="card-title">Reglas de dinero fijas</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input class="txt" id="regla-txt" placeholder="Nueva regla de dinero...">
+          <button class="save-btn" style="margin-top:0" onclick="addRegla()">Agregar</button>
+        </div>
+        <div id="reglas-list" style="margin-top:14px"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title-wrap">
+            <div class="dot" style="background:var(--ember)"></div>
+            <div><div class="card-title">Fuentes de ingreso</div><div class="card-meta">Presupuesto por fuente · acumulado del mes</div></div>
+          </div>
+        </div>
+        <div id="ingresos-list"></div>
+      </div>
+    </div>
   </section>
 
   <!-- ============================================================
