@@ -1,6 +1,11 @@
 name = "misantuario"
 main = "worker/index.js"
 compatibility_date = "2024-09-23"
+# nodejs_compat: @block65/webcrypto-web-push (Bloque 6, envío de Web Push real) importa
+# "node:crypto" como fallback interno; sin este flag, wrangler deploy avisa que no puede
+# resolver ese import y la firma VAPID fallaría en runtime la primera vez que exista una
+# suscripción real que enviar (antes no se notaba porque push_subscriptions estaba vacía).
+compatibility_flags = ["nodejs_compat"]
 account_id = "f3905ca6c195909711f212d3b72524a2"
 
 [vars]
