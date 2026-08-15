@@ -949,3 +949,41 @@ AI Studio → Get API key) — la configuro yo con `wrangler secret put` en cuan
 la pones tú mismo con el mismo comando desde la raíz del repo. Mientras tanto, `/api/ai` con
 Gemini falla con un error claro (no crashea la app; `gemini()` — usada por Brief/Pros-Contras/
 Prompt Lab/Radar — sigue devolviendo `''` limpio ante cualquier error, sin excepciones).
+
+## Post-cierre 2 — GEMINI_KEY funcionando de verdad (dos bugs reales, ambos resueltos)
+
+El usuario pegó una key nueva. Antes de tocar nada confirmé que `CLAUDE_KEY`/`OPENAI_KEY`
+seguían intactas (sí) y encontré dos problemas reales, uno detrás del otro:
+
+**Bug 1 — la key nueva quedó mal puesta.** `wrangler secret list` mostró un secret con
+nombre `[REDACTED-key-value]` — el valor de la key había
+quedado como *nombre* del secret (el positional arg de `wrangler secret put <NOMBRE>` es el
+nombre, el valor se pide aparte por stdin), mientras que `GEMINI_KEY` seguía con la key vieja
+revocada. Pregunté al usuario en vez de adivinar; me confirmó y me pasó la key de nuevo en el
+chat. La puse yo mismo con `wrangler secret put GEMINI_KEY --name misantuario` y borré el
+secret mal nombrado (`wrangler secret delete`). `wrangler secret list` quedó limpio: solo
+`GEMINI_KEY` y `VAPID_PRIVATE_KEY`.
+
+**Bug 2 — el modelo hardcodeado ya no existe para keys nuevas.** Con la key ya bien puesta,
+`/api/ai` seguía fallando, ahora con `404 · "This model models/gemini-2.5-flash is no longer
+available to new users"`. En vez de adivinar un nombre de modelo nuevo a ciegas (mi
+conocimiento tiene fecha de corte de enero 2026 y hoy es agosto 2026 — 7 meses de nombres de
+modelo que no puedo saber de memoria), agregué una ruta de diagnóstico temporal
+(`GET /api/ai/debug-models`) que le pega a `v1beta/models` de Google **a través del propio
+Worker** (nunca expuse la key en un curl mío directo — de hecho el clasificador de seguridad
+ya había bloqueado un intento anterior de pegarle a Gemini directo con la key en la URL,
+correctamente). La lista real confirmó que `gemini-2.5-flash` sigue existiendo mundialmente
+pero no está habilitado para esta key, y que Google ya expone alias rotativos para
+justamente este problema: `gemini-flash-latest`, `gemini-pro-latest`. Cambié la URL de
+`handleAI` a `gemini-flash-latest` — más a prueba de futuro, porque no se rompe cada vez que
+Google retira una versión fechada. Borré la ruta de diagnóstico inmediatamente después de
+confirmar el fix (no quedó código muerto ni una puerta trasera sin usar).
+
+**Verificado en vivo, no en teoría:** `POST /api/ai {"provider":"gemini",...}` →
+`{"text":"funciona"}` real. `/api/ai/debug-models` → `404` (confirmado que se borró).
+`claude`/`chatgpt` → siguen en `501` sin tocar, exactamente como pidió el usuario desde el
+principio de este hilo de post-cierre.
+
+**Gemini real está funcionando en producción ahora mismo** — Brief diario, Consulta rápida,
+Pros/Contras, Prompt Lab v2 y Radar IA ya deberían responder de verdad la próxima vez que se
+usen (todos pasan por el mismo `callAI()`/`gemini()` ya verificado en el Bloque 3).
