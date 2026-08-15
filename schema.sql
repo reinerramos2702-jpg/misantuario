@@ -34,3 +34,11 @@ CREATE TABLE IF NOT EXISTS push_subscriptions (
   auth TEXT,
   created_at TEXT
 );
+
+-- Bloque 12: rate limit de /api/ai por IP, ventana fija de 10 minutos. Una fila por IP que
+-- haya llamado a /api/ai alguna vez; se sobreescribe cuando arranca una ventana nueva.
+CREATE TABLE IF NOT EXISTS ai_rate_limit (
+  ip TEXT PRIMARY KEY,
+  window_start INTEGER,
+  count INTEGER
+);
