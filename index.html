@@ -3228,6 +3228,43 @@ function saveSophia() {
 }
 
 // ============================================================
+// JOURNALING CORNELL/ZETTELKASTEN
+// ============================================================
+function journalSetMode(mode) {
+  const cornellBtn = $('journal-tab-cornell'), zettelBtn = $('journal-tab-zettel');
+  const cornellForm = $('journal-form-cornell'), zettelForm = $('journal-form-zettel');
+  if (!cornellBtn || !zettelBtn || !cornellForm || !zettelForm) return;
+  const on = { background: 'rgba(16,185,129,0.08)', color: 'var(--mint)', borderColor: 'var(--line-emerald)' };
+  const off = { background: 'transparent', color: 'var(--ink-2)', borderColor: 'var(--line)' };
+  const apply = (btn, active) => { const s = active ? on : off; btn.style.background = s.background; btn.style.color = s.color; btn.style.borderColor = s.borderColor; };
+  apply(cornellBtn, mode === 'cornell');
+  apply(zettelBtn, mode === 'zettel');
+  cornellForm.style.display = mode === 'cornell' ? '' : 'none';
+  zettelForm.style.display = mode === 'zettel' ? '' : 'none';
+}
+function saveCornell() {
+  const p = $('jc-preg').value.trim(), n = $('jc-notas').value.trim(), s = $('jc-sint').value.trim();
+  if (!p && !n && !s) return;
+  const txt = `📇 Cornell\n❓ Preguntas: ${p}\n📝 Notas: ${n}\n💡 Síntesis: ${s}`;
+  state.journal.unshift({ txt, ts: ts() });
+  ['jc-preg','jc-notas','jc-sint'].forEach(id => $(id).value = '');
+  addXP(20);
+  save(); renderMente('journal');
+}
+function saveZettel() {
+  const ref = $('jz-ref').value.trim(), cont = $('jz-cont').value.trim(), conn = $('jz-conn').value.trim(), refl = $('jz-refl').value.trim();
+  if (!ref && !cont && !conn && !refl) return;
+  let zid = $('jz-id').value.trim();
+  if (!zid) zid = 'Z-' + Date.now().toString(36).toUpperCase();
+  const txt = `🗂 Zettelkasten [${zid}]\n📚 Referencia: ${ref}\n📄 Contenido: ${cont}\n🔗 Conexiones: ${conn}\n💭 Reflexión: ${refl}`;
+  state.journal.unshift({ txt, ts: ts() });
+  $('jz-id').value = '';
+  ['jz-ref','jz-cont','jz-conn','jz-refl'].forEach(id => $(id).value = '');
+  addXP(20);
+  save(); renderMente('journal');
+}
+
+// ============================================================
 // SOPHIA — Progreso de fases (independiente del sistema de XP diario)
 // ============================================================
 const SOPHIA_FASES = [
