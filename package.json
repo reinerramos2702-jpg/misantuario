@@ -4,6 +4,6 @@
   "version": "1.0.0",
   "description": "Worker de Mi Santuario (D1 API + IA + Web Push). No es un paquete publicable.",
   "dependencies": {
-    "web-push": "^3.6.7"
+    "@block65/webcrypto-web-push": "^1.0.2"
   }
 }
