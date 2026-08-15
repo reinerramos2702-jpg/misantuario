@@ -460,7 +460,7 @@ EXISTENTES esta vez — no top-level nuevas, así que no tocaron `SECS` ni el dr
 
 **Decisión de scope importante (instrucción explícita en el contrato, cumplida):** el mapa
 GOD NODE dice "Vida Fácil archivado → reemplazar por RAI/MediGo/Content Engine" en el
-contexto de fuentes de ingreso del presupuesto. Le until pedí al agente que NO tocara el
+contexto de fuentes de ingreso del presupuesto. Le pedí al agente que NO tocara el
 proyecto `vf`/"Vida Fácil" real (`DEFAULT_PROJECTS`, `tasks.vf`) — sigue intacto, verificado
 por grep. Las 3 fuentes nuevas viven solo dentro de `state.finExpandida.ingresos`, una vista
 de presupuesto nueva, no un rename del proyecto existente. Decisión mía para no arriesgar
