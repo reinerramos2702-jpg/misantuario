@@ -134,6 +134,16 @@ async function handleApi(request, env, url) {
     return json({ ok: true });
   }
 
+  if (pathname === '/api/ai/debug-models' && method === 'GET') {
+    // Diagnóstico temporal (Bloque 12, post-cierre): confirmar qué modelos Gemini están
+    // realmente disponibles para la key configurada, sin exponer la key en ningún log/curl
+    // por fuera del Worker. Se borra en cuanto se confirme el modelo correcto.
+    if (!env.GEMINI_KEY) return json({ error: 'GEMINI_KEY no configurado' }, 501);
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${env.GEMINI_KEY}`);
+    const data = await res.json();
+    const names = (data.models || []).map(m => m.name).filter(n => n.includes('flash') || n.includes('pro'));
+    return json({ status: res.status, models: names });
+  }
   if (pathname === '/api/ai' && method === 'OPTIONS') {
     // Preflight de CORS — solo lo dispara el navegador para llamadas cross-origin (el propio
     // frontend, same-origin, nunca lo necesita). Responder 204 con los headers correctos.
