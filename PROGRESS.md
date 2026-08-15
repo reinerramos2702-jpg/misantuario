@@ -987,3 +987,36 @@ principio de este hilo de post-cierre.
 **Gemini real está funcionando en producción ahora mismo** — Brief diario, Consulta rápida,
 Pros/Contras, Prompt Lab v2 y Radar IA ya deberían responder de verdad la próxima vez que se
 usen (todos pasan por el mismo `callAI()`/`gemini()` ya verificado en el Bloque 3).
+
+## Post-cierre 3 — probé Brief diario y Consulta rápida en la app de verdad (no solo el API)
+
+El usuario pidió probar los 2 flujos reales en la UI, no solo pegarle al endpoint. Con Chrome
+headless por CDP: clic real al botón "⚡ Generar brief con IA" y clic real en "Consultar"
+después de escribir una pregunta en el textarea — el mismo camino que toca el usuario.
+
+**Consulta rápida: funcionó a la primera.** Pregunta real ("¿Cuál es mi meta de Japón y en
+cuánto tiempo?") → respuesta real de Gemini, coherente con el contexto (los $10k, 6 meses,
+JLPT N5, capital $48), en el tono motivador del system prompt. Cero errores de consola.
+
+**Brief diario: falló 3 veces seguidas con `gemini-flash-latest` — no era un bug, era el
+modelo.** Cada intento del brief (prompt más largo, formato con 4 secciones obligatorias)
+devolvió un error distinto pero relacionado: `503 · "This model is currently experiencing
+high demand"` dos veces, y un `524` (timeout) la tercera — mientras que llamadas cortas al
+mismo endpoint/key/modelo (`di hola`) seguían respondiendo instantáneo y consistente en
+paralelo. Ese patrón (llamadas livianas OK, la llamada pesada específicamente falla distinto
+cada vez) apuntaba a saturación real de `gemini-flash-latest` en ese momento, no a un error
+de código. Lo confirmé con datos, no until a ojo: cambié temporalmente el modelo a
+`gemini-flash-lite-latest` (ya lo había visto disponible en el debug de modelos del post-cierre
+anterior) y **el mismo prompt pesado, exacto, respondió bien a la primera** — y también
+un prompt liviano de prueba. Dejé `gemini-flash-lite-latest` como modelo definitivo de
+`handleAI` (antes era `gemini-flash-latest`) porque demostró ser confiable para el rango
+completo de uso real de la app (preguntas cortas Y el brief largo), mientras que
+`flash-latest` mostró inestabilidad real bajo carga en 3 intentos consecutivos a lo largo de
+varios minutos.
+
+**Verificación final, en la UI real, con el modelo ya corregido:** clic real a "Generar brief
+con IA" → el brief salió con la estructura exacta pedida (⚡ Tu hora de oro / 🎯 3 movimientos
+críticos / ⚠️ Alerta del día / 🧭 Frase para hoy), contenido específico y real referenciando
+el estado actual (EducaLibros, Arquitecto Digital, japonés 0/5, fondo Japón en $0, cita de
+Séneca). Clic real a "Consultar" → respuesta real y coherente. **Cero errores de consola,
+cero excepciones, en ambos flujos, con el modelo definitivo.**
