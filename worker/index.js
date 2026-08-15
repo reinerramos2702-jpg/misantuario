@@ -249,7 +249,7 @@ async function handleAI(request, env) {
           systemInstruction: system ? { parts: [{ text: system }] } : undefined
         })
       });
-      if (!res.ok) return json({ error: `Gemini HTTP ${res.status}` }, 502);
+      if (!res.ok) return json({ error: `Gemini HTTP ${res.status}${await upstreamErrorDetail(res)}` }, 502);
       const data = await res.json();
       const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
       return json({ text });
