@@ -375,3 +375,65 @@ localmente (incluye el commit del swap de dependencia que quedó pendiente de an
 
 **Bloque 6: CERRADO.** Deploy en producción, smoke test OK contra la URL real, D1 solo
 consultada (no modificada), todo commiteado local.
+
+---
+
+## Bloque 7 — GOD NODE Fase 3 (Creatividad · Dieta de Input · Journaling)
+
+**2 agentes en paralelo (contrato fijado antes, zonas de archivo disjuntas dentro del mismo
+`index.html`, mismo patrón de Bloques 4/5):**
+- Agente A: 2 secciones top-level nuevas — `sec-creativ` (tracker de piezas creativas
+  tweet/artículo/código/diseño, ciclo iniciada→finalizada→publicada, % de finalización con
+  meta >70%, banco de analogías) y `sec-dieta` (contador Twitter 15min/día, YouTube
+  120min/mes, Discord 20min/día, con barra de progreso y aviso visual al pasarse del límite,
+  más tarjeta estática "Lista negra" — TikTok/Reddit/noticias en tiempo real). Único agente
+  que tocó `SECS`, el drawer y `defaultState()` en el punto `foco: {...}`.
+- Agente B: subtab nuevo "Journal" dentro de la sección Mente ya existente (Cornell —
+  proyecto/cliente: preguntas/notas/síntesis — y Zettelkasten — estudio: ID autogenerado
+  `Z-<timestamp base36>` si se deja vacío, referencia, contenido, conexiones, reflexión).
+  Reutiliza `renderMente('journal')`/`delEntry('journal', i)` que ya existían — no duplicó
+  render. Único agente que tocó dentro de `#sec-mente` y el punto `journal: []` en
+  `defaultState()`.
+
+**Verificación de integración que hice yo mismo (no solo confié en el reporte de los
+agentes):**
+- `grep` de ids duplicados sobre todo `index.html` → cero duplicados.
+- `sec-creativ` / `sec-dieta` / `mente-journal` → exactamente 1 ocurrencia cada uno.
+- Extraje el `<script>` completo del archivo YA INTEGRADO (no las copias de cada agente por
+  separado) y corrí `node --check` → sintaxis OK.
+- `grep` de declaraciones `function`/`const` en mayúsculas duplicadas en todo el script → cero.
+- Confirmé `renderCreativ()` y `renderDieta()` están cableados en `init()` justo después de
+  `renderPostMortems()` (lo agregó el Agente A por su cuenta, no estaba en la lista de
+  anclajes pero era necesario para que las secciones pinten al cargar — decisión correcta).
+- Leí el código de las ~9 funciones nuevas de cada zona línea por línea: estados
+  (`state.creatividad`, `state.dietaInput`, `state.journal`) con guardas `ensure*()` estilo
+  `state.academia = state.academia || {...}` del Bloque 5, XP consistente con el resto de la
+  app (`addXP(10)` pieza nueva, `addXP(5)` analogía, `addXP(20)` nota Cornell/Zettelkasten —
+  mismo peso que `saveDec()`), sin overrides de nada existente.
+- **No hice pruebas end-to-end en navegador real esta vez** (nota de método, distinto a
+  Bloques 4/5): la extensión de Chrome no está conectada en este entorno ahora mismo
+  (`Browser extension is not connected`), y abrir la app en un perfil nuevo dispara
+  `syncD1OnLoad()` — que con `cuentas` en 0 filas real volvería a subir los 5 saldos por
+  defecto a la D1 real (el mismo efecto secundario de los Bloques 2/3). Sin forma de sembrar
+  el flag `santuario_d1_synced_v1` antes del load sin la extensión, preferí NO arriesgar la
+  D1 real y en su lugar hice verificación estática exhaustiva (arriba) + smoke test de
+  producción por HTTP. Este bloque es 100% localStorage (no toca D1), así que el riesgo real
+  de bugs ocultos es bajo, pero lo dejo anotado con honestidad: no es el mismo nivel de
+  prueba funcional en vivo que los bloques anteriores.
+
+**Deploy:** `npx wrangler deploy`. Push a GitHub sigue bloqueado por el PAT (mismo problema
+heredado, ver encabezado).
+
+**Smoke test de producción (HTTP contra la URL real):** `GET /` contiene los 9 ids nuevos
+esperados (`sec-creativ`, `sec-dieta`, `mente-journal`, `piezas-list`, `analogias-list`,
+`journal-list`, las 3 barras de dieta). `GET /api/cuentas` → `[]` (D1 real intacta, cero
+filas, confirmando que no se disparó el efecto secundario de subida).
+
+**Pendiente:** ninguno específico de este bloque. Si en algún momento se reconecta la
+extensión de Chrome, valdría la pena una pasada funcional en vivo (crear una pieza, cambiar
+su estado 3 veces, registrar minutos de dieta, guardar una nota Cornell y una Zettelkasten) —
+no es urgente porque el riesgo de bug silencioso en estas funciones es bajo (lógica simple,
+sin async, sin dependencias externas).
+
+**Bloque 7: CERRADO.** Deploy en producción, verificación estática exhaustiva + smoke test
+HTTP OK, D1 real sin cambios, todo commiteado local (vía hook de auto-save).
