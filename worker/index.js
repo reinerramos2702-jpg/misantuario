@@ -14,11 +14,58 @@ export default {
   }
 };
 
-function json(data, status = 200) {
+function json(data, status = 200, extraHeaders = {}) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'content-type': 'application/json' }
+    headers: { 'content-type': 'application/json', ...extraHeaders }
   });
+}
+
+// CORS para /api/ai (Bloque 12): el frontend siempre le pega a esta ruta con fetch relativo
+// desde el mismo origen, así que una petición del navegador legítima trae Origin === el
+// origen del propio Worker (o sin header Origin en algunos casos de same-origin). Solo se
+// hace eco de Access-Control-Allow-Origin cuando el Origin recibido coincide exactamente con
+// el origen del Worker — cualquier otro sitio que intente pegarle desde el navegador de un
+// tercero no puede leer la respuesta. Esto NO es la única protección: no evita que alguien le
+// pegue directo por curl/servidor (CORS es una restricción que solo cumplen los navegadores),
+// por eso también hay rate limit por IP abajo, que sí aplica sin importar quién llame.
+function aiCorsHeaders(request, url) {
+  const origin = request.headers.get('Origin');
+  const headers = {
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'content-type',
+    'Access-Control-Max-Age': '86400',
+  };
+  if (origin && origin === url.origin) {
+    headers['Access-Control-Allow-Origin'] = origin;
+    headers['Vary'] = 'Origin';
+  }
+  return headers;
+}
+
+// Rate limit por IP para /api/ai (Bloque 12): ventana fija de 10 minutos, 30 solicitudes por
+// IP. Guardado en D1 (`ai_rate_limit`, ver schema.sql) — un Worker no tiene memoria persistente
+// entre invocaciones/isolates, así que sin esto cualquier límite en memoria se resetearía solo.
+// 30/10min es generoso para uso normal (brief, consulta rápida, pros/contras, prompt lab,
+// radar en una sesión activa) pero corta un abuso sostenido o un loop con bug que golpee el
+// endpoint sin parar.
+const AI_RATE_LIMIT = 30;
+const AI_RATE_WINDOW_SEC = 600;
+async function checkAiRateLimit(env, ip) {
+  const now = Math.floor(Date.now() / 1000);
+  const row = await env.DB.prepare('SELECT window_start, count FROM ai_rate_limit WHERE ip = ?').bind(ip).first();
+  if (!row || now - row.window_start >= AI_RATE_WINDOW_SEC) {
+    await env.DB.prepare(
+      `INSERT INTO ai_rate_limit (ip, window_start, count) VALUES (?,?,1)
+       ON CONFLICT(ip) DO UPDATE SET window_start = excluded.window_start, count = 1`
+    ).bind(ip, now).run();
+    return { allowed: true };
+  }
+  if (row.count >= AI_RATE_LIMIT) {
+    return { allowed: false, retryAfter: AI_RATE_WINDOW_SEC - (now - row.window_start) };
+  }
+  await env.DB.prepare('UPDATE ai_rate_limit SET count = count + 1 WHERE ip = ?').bind(ip).run();
+  return { allowed: true };
 }
 
 async function handleApi(request, env, url) {
