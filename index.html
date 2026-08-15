@@ -3988,6 +3988,8 @@ async function askAI(prompt) {
   } catch (e) {
     if (e.status === 501) {
       body.innerHTML += `<div style="margin-top:14px;font-size:12px;color:var(--stardust)">⚠ Este proveedor aún no tiene su clave configurada en el servidor. Cambia a Gemini, o agrégala con <code style="background:var(--deep);padding:1px 5px;border-radius:4px">wrangler secret put</code>.</div>`;
+    } else if (e.status === 429) {
+      body.innerHTML += `<div style="margin-top:14px;font-size:12px;color:var(--stardust)">⏳ Demasiadas consultas de IA en poco tiempo. Dale un respiro de unos minutos y vuelve a intentar.</div>`;
     } else {
       body.innerHTML += `<div style="color:var(--ember);margin-top:10px">Error de conexión: ${e.message}</div>`;
     }
