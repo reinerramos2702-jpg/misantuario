@@ -185,6 +185,23 @@ Cloudflare, esa función responde con un aviso amigable en vez de tronar. Si "Co
 o el Brief no contestan, es casi seguro que sea eso, no un bug — revisa con
 `npx wrangler secret list --name misantuario` desde la raíz del repo.
 
+`/api/ai` tiene además CORS (solo tu propio dominio puede leer la respuesta) y un rate limit
+de 30 solicitudes/10 min por IP, guardado en D1 (`ai_rate_limit`) — protección contra abuso,
+no algo que debas notar en uso normal.
+
+---
+
+## Deploy — manual hoy, automático es opcional para más adelante
+
+Cada cambio de código se sube a producción con `npx wrangler deploy` desde la raíz del repo
+— así ha sido siempre y **así sigue siendo, a propósito**. Existe un GitHub Action
+(`.github/workflows/deploy.yml`) que podría hacer esto solo en cada `git push`, pero le falta
+un secret (`CLOUDFLARE_API_TOKEN` en GitHub → Settings → Secrets and variables → Actions) que
+**decidiste no configurar por ahora** — el deploy manual ya funciona y es lo que importa. Si
+algún día quieres el pipeline 100% automático (push → deploy solo, sin tocar la terminal),
+solo hace falta agregar ese secret; nada más que cambiar. Mientras tanto, después de cada
+`git push`, sigue corriendo `npx wrangler deploy` a mano.
+
 ---
 
 Todo tu estado vive en `localStorage` de tu navegador — nada de esto sale de tu dispositivo
