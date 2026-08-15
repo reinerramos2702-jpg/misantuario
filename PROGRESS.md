@@ -507,3 +507,73 @@ batch cooking).
 HTTP OK, D1 real sin cambios, todo commiteado local (vía hook de auto-save). Con esto, GOD
 NODE Fase 3 y Fase 4 (Bloques 7 y 8) quedan ambas cerradas — el mapa de integración
 (`MI_SANTUARIO_INTEGRACION_GODNODE.md`) queda completo en sus 4 fases.
+
+---
+
+## Bloque 9 — Cierre técnico
+
+**1. Push a GitHub — sigue bloqueado, confirmado de nuevo (no es un estado viejo):** corrí
+`git push origin main` de verdad, mismo error exacto de siempre (`refusing to allow a
+Personal Access Token to create or update workflow .github/workflows/deploy.yml without
+workflow scope`). **118 commits locales sin subir** (subió de 91 a 118 solo en lo que llevamos
+de esta sesión, Bloques 6-9). Revisé si había alguna forma de rodearlo sin la acción del
+usuario: no hay `gh` CLI instalado en este entorno, y el credential helper de git
+(`manager`, Windows Git Credential Manager) usa el mismo PAT guardado — no hay una vía
+alterna de autenticación disponible para mí. Sigue siendo estrictamente una acción del
+usuario: regenerar el PAT con el scope `workflow` marcado (GitHub → Settings → Developer
+settings → Personal access tokens) y correr `git push origin main`, o pedírmelo en el chat
+una vez regenerado.
+
+**2. Tamaño de `index.html`:** medido con honestidad, no maquillado — **283KB sin comprimir,
+~67KB con gzip (lo que el navegador realmente descarga), 5,823 líneas.** El propio
+`CLAUDE.md` del proyecto se había puesto como restricción "< 50KB bundle" y documentaba
+"4009 líneas" — ambos datos quedaron desactualizados por los módulos GOD NODE de los
+Bloques 4-8. Actualicé `CLAUDE.md` con los números reales y dejé anotado que el budget de
+50KB ya no se cumple tal cual — **no minifiqué ni dividí el archivo por mi cuenta** (habría
+sido un cambio de arquitectura no pedido, con riesgo de introducir bugs, sobre un proyecto
+que deliberadamente eligió single-file sin build step). Queda como decisión abierta para el
+usuario: minificar/dividir en el futuro, o simplemente actualizar el budget documentado para
+reflejar el alcance real de la app hoy. En la práctica sigue cargando rápido (un solo archivo
+estático, cache-first vía `sw.js`, sin build step que agregue latencia).
+
+**3. Limpieza de código — pasada de auditoría, resultado: limpio, no hizo falta arreglar
+nada:**
+- `console.log`/`debugger` sueltos → cero encontrados.
+- Marcadores `TODO`/`FIXME`/`XXX`/`HACK` → cero (los 2 falsos positivos del grep eran la
+  palabra "todo" en español, no marcadores).
+- Archivos sueltos en la raíz del repo (el bug de rutas bash/Windows de agentes de bloques
+  anteriores) → cero, raíz del repo limpia.
+- Selectores CSS duplicados → uno (`​.card`, dos veces): revisado, no es un bug — la segunda
+  declaración (`.card { overflow: hidden; }`) es un override aditivo intencional, no una
+  redefinición redundante. No toqué nada.
+- Nombres de función/const duplicados en todo el script → cero (ya verificado en el cierre de
+  los Bloques 7 y 8, re-confirmado aquí sobre el estado final).
+- `.assetsignore` → correcto: excluye `.git`, `.github`, `.claude`, `.wrangler`, `worker`,
+  `node_modules`, `*.md`, `wrangler.toml`, `package*.json`, `schema.sql` del deploy de
+  assets estáticos — solo `index.html`, `sw.js`, `manifest.json` y `assets/` (un solo ícono
+  SVG de 1.1KB) se sirven en producción. Nada que ajustar.
+- `.gitignore` → correcto: `node_modules/`, `.wrangler/`, `.env`, `.DS_Store`. Ningún secret
+  ni archivo pesado versionado por error.
+
+**4. Confirmar Action de deploy:** revisé `.github/workflows/deploy.yml` — dispara en push a
+`main`, aplica `schema.sql` vía `wrangler d1 execute --remote` (las 4 tablas usan
+`CREATE TABLE IF NOT EXISTS`, así que re-ejecutarlo en cada push es idempotente y seguro, no
+hay riesgo de perder datos) y luego `wrangler deploy`. La estructura del workflow está bien
+formada. **Lo que NO pude confirmar:** si el secret `CLOUDFLARE_API_TOKEN` está realmente
+configurado en GitHub (Settings → Secrets → Actions) — el Action nunca ha corrido ni una sola
+vez todavía, porque el push lleva bloqueado desde el Bloque 2, y no tengo `gh` CLI ni acceso
+a la API de GitHub desde este entorno para verificarlo de otra forma. Esto se confirma solo
+cuando el usuario resuelva el punto 1 y el primer push dispare el workflow de verdad.
+
+**Deploy:** ningún cambio de código de producción en este bloque (solo se tocó `CLAUDE.md`,
+documentación) — no hizo falta `wrangler deploy`.
+
+**Pendiente / bloqueado — necesita al usuario (ambos ya documentados en bloques
+anteriores, siguen igual):**
+- Push a GitHub: regenerar PAT con scope `workflow`.
+- Verificar `CLOUDFLARE_API_TOKEN` en GitHub Secrets — solo se puede confirmar en cuanto el
+  punto anterior se resuelva y el Action corra por primera vez.
+
+**Bloque 9: CERRADO** con esos 2 puntos explícitamente pendientes de tu lado (no son bugs
+míos, son credenciales/acciones que solo tú puedes hacer) — todo lo demás (tamaño real
+documentado, código limpio confirmado, Action revisado y bien formado) quedó verificado.
