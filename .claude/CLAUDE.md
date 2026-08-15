@@ -3,7 +3,8 @@
 **Rol:** Arquitecto full-stack. Claude Code maneja despliegue automático (GitHub Actions + Wrangler), actualizaciones de UI/UX, optimizaciones de rendimiento.
 
 **Stack:**
-- Frontend: Vanilla JS (HTML/CSS/JS inline, 4009 líneas)
+- Frontend: Vanilla JS (HTML/CSS/JS inline, ~5820 líneas al cierre del Bloque 9 — subió desde
+  las 4009 originales por los módulos GOD NODE de los Bloques 4-8; ver `PROGRESS.md`)
 - Backend: Cloudflare Worker (misantuario.reinerramos2702.workers.dev)
 - Hosting: Cloudflare Pages/Workers
 - CI/CD: GitHub Actions + Wrangler CLI
