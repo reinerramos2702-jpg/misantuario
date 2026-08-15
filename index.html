@@ -5304,6 +5304,10 @@ function applyTheme() {
 let importedState = null;
 function openImport() { $('import-modal').classList.add('open'); toggleDrawer(); }
 function closeImport() { $('import-modal').classList.remove('open'); importedState = null; $('import-preview').style.display='none'; $('import-actions').hidden = true; }
+// Manual / Ayuda (Bloque 11) — el botón del drawer ya llama toggleDrawer() por su cuenta
+// (mismo patrón que "Probar Push"), así que openManual() no lo repite.
+function openManual() { $('manual-modal').classList.add('open'); }
+function closeManual() { $('manual-modal').classList.remove('open'); }
 function handleImport(e) {
   const file = e.target.files[0];
   if (!file) return;
