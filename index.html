@@ -1702,6 +1702,36 @@ body.light .hdr h1 {
         <div id="dec-list" style="margin-top:14px"></div>
       </div>
     </div>
+
+    <div class="subsec" id="mente-journal">
+      <div class="card">
+        <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--nebula)"></div><div class="card-title">Journal · Cornell / Zettelkasten</div></div></div>
+        <div class="chips" style="margin-top:0;margin-bottom:14px">
+          <button class="chip" id="journal-tab-cornell" onclick="journalSetMode('cornell')" style="background:rgba(16,185,129,0.08);color:var(--mint);border-color:var(--line-emerald)">📇 Cornell</button>
+          <button class="chip" id="journal-tab-zettel" onclick="journalSetMode('zettel')">🗂 Zettelkasten</button>
+        </div>
+
+        <div id="journal-form-cornell">
+          <div class="card-meta">Nota Cornell — proyecto / cliente</div>
+          <textarea class="txt" id="jc-preg" placeholder="Preguntas" rows="3" style="margin-top:8px;margin-bottom:8px"></textarea>
+          <textarea class="txt" id="jc-notas" placeholder="Notas" rows="4" style="margin-bottom:8px"></textarea>
+          <textarea class="txt" id="jc-sint" placeholder="Síntesis" rows="3"></textarea>
+          <button class="save-btn" onclick="saveCornell()">Guardar nota Cornell</button>
+        </div>
+
+        <div id="journal-form-zettel" style="display:none">
+          <div class="card-meta">Nota Zettelkasten — estudio</div>
+          <input class="txt" id="jz-id" placeholder="ID (vacío = autogenerado, ej. Z-LX3F9K)" style="margin-top:8px;margin-bottom:8px">
+          <input class="txt" id="jz-ref" placeholder="Referencia (fuente, libro, autor...)" style="margin-bottom:8px">
+          <textarea class="txt" id="jz-cont" placeholder="Contenido" rows="4" style="margin-bottom:8px"></textarea>
+          <input class="txt" id="jz-conn" placeholder="Conexiones (ej: Z-LX3F9K, Z-LX2A01...)" style="margin-bottom:8px">
+          <textarea class="txt" id="jz-refl" placeholder="Reflexión" rows="3"></textarea>
+          <button class="save-btn" onclick="saveZettel()">Guardar nota Zettelkasten</button>
+        </div>
+
+        <div id="journal-list" style="margin-top:14px"></div>
+      </div>
+    </div>
   </section>
 
   <!-- ============================================================
