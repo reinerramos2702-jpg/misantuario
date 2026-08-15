@@ -1076,3 +1076,10 @@ funciona de punta a punta.
 Secrets and variables → Actions → New repository secret, con un API token de Cloudflare que
 tenga permiso de editar Workers y D1). Dímelo cuando esté listo y reintentamos el Action —
 o hazlo tú mismo y avísame.
+
+**Decisión del usuario (cierre del proyecto):** por ahora NO se configura. El deploy manual
+con `wrangler deploy` ya funciona y es lo que importa — no es un bloqueante. Queda como
+**pendiente opcional**, no urgente, documentado aquí y en `MANUAL.md` para el día que se
+quiera el pipeline push→deploy 100% automático. Mientras tanto, cada cambio de código sigue
+necesitando un `npx wrangler deploy` manual desde la raíz del repo después de cada push
+(exactamente como se ha hecho en todos los Bloques 6-12).
