@@ -1005,7 +1005,7 @@ high demand"` dos veces, y un `524` (timeout) la tercera — mientras que llamad
 mismo endpoint/key/modelo (`di hola`) seguían respondiendo instantáneo y consistente en
 paralelo. Ese patrón (llamadas livianas OK, la llamada pesada específicamente falla distinto
 cada vez) apuntaba a saturación real de `gemini-flash-latest` en ese momento, no a un error
-de código. Lo confirmé con datos, no until a ojo: cambié temporalmente el modelo a
+de código. Lo confirmé con datos, no a ojo: cambié temporalmente el modelo a
 `gemini-flash-lite-latest` (ya lo había visto disponible en el debug de modelos del post-cierre
 anterior) y **el mismo prompt pesado, exacto, respondió bien a la primera** — y también
 un prompt liviano de prueba. Dejé `gemini-flash-lite-latest` como modelo definitivo de
