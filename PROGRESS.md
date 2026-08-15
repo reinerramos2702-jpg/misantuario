@@ -894,24 +894,28 @@ secciones + 23 subtabs + 28 funciones render (80/80 en verde), tag `v1.0` creado
   eligió dejarlo como está. No es un punto pendiente, es una decisión tomada.
 - Todo lo demás pedido en el Bloque 12 se completó.
 
-### Pendiente real (2 puntos, ambos credenciales del usuario, sin cambios desde bloques
-anteriores)
+### Estado final (actualizado tras el cierre real — todo lo de arriba en esta sección ya
+se resolvió, se deja el detalle completo arriba por transparencia del proceso)
 
-1. **Push a GitHub bloqueado** — el Personal Access Token no tiene el scope `workflow`.
-   **134 commits + el tag `v1.0` esperando en local.** Arreglo: GitHub → Settings →
-   Developer settings → Personal access tokens → regenerar con el scope `workflow` marcado
-   → `git push origin main --tags`. Mientras tanto, todo el código SÍ está en producción
-   real (desplegado directo con `wrangler deploy` en cada bloque) — el repo de GitHub está
-   desactualizado, pero la app que usas cada día tiene todo esto ya viviendo.
-2. **`GEMINI_KEY` / `CLAUDE_KEY` / `OPENAI_KEY` sin configurar como secrets del Worker** —
-   bloqueado por el clasificador de seguridad de la sesión, no por falta de la key en el caso
-   de Gemini (ya la tengo, es la misma que ya estaba pública en el código antes del Bloque 3).
-   `npx wrangler secret put GEMINI_KEY --name misantuario` (y lo mismo para `CLAUDE_KEY`/
-   `OPENAI_KEY`) desde la raíz del repo, o dímelo en el chat y lo corro yo.
+Los 2 puntos que quedaron pendientes al cerrar el Bloque 12 **ya se resolvieron** en la
+conversación de post-cierre, documentada en detalle más arriba en este mismo archivo:
 
-Como consecuencia directa del punto 2: no pude confirmar con una ejecución real de GitHub
-Actions que el deploy automático "funciona sin fallos" — nunca ha corrido. Revisé el YAML y
-está bien formado, pero eso no es lo mismo que una confirmación real.
+1. ~~Push a GitHub bloqueado~~ → **resuelto.** `main` y el tag `v1.0` están publicados en
+   GitHub, verificado con `git ls-remote` coincidiendo exacto con el local. En el camino
+   encontré y arreglé un secret filtrado por mi propio error de documentación (nunca llegó a
+   estar público — GitHub Push Protection lo atajó antes de aceptar el push) — historial
+   local reescrito y verificado en cero coincidencias antes de reintentar.
+2. ~~`GEMINI_KEY` sin configurar~~ → **resuelto.** Gemini responde de verdad en producción
+   (Brief diario y Consulta rápida probados con clics reales en la UI, no solo el API).
+   `CLAUDE_KEY`/`OPENAI_KEY` siguen sin configurar a propósito — decisión del usuario, no
+   pendiente.
+
+**Único punto que sigue abierto, y por decisión explícita del usuario, no por bloqueo mío:**
+`CLOUDFLARE_API_TOKEN` no está configurado en GitHub Secrets, así que el Action de deploy
+automático falla en su primer (y único) run real hasta ahora. El usuario decidió **no
+configurarlo por ahora** — el deploy manual con `wrangler deploy` ya cubre la necesidad real.
+Queda como pendiente opcional, documentado también en `MANUAL.md`, para el día que se quiera
+el pipeline 100% automático.
 
 ### Estado real de producción ahora mismo
 
@@ -920,8 +924,10 @@ y verificado en vivo (no solo "debería funcionar"): 80/80 checks del smoke test
 verde, D1 real limpia (`cuentas`/`movimientos`/`proyectos` en `[]`, `push_subscriptions` y
 `ai_rate_limit` con solo datos operativos, ninguno de prueba dejado atrás), offline
 confirmado con red real desconectada, export manual confirmado, CORS+rate-limit de `/api/ai`
-verificados con tráfico real, íconos PWA correctos para iOS y Android. **No toqué tus datos
-financieros reales ni una vez en toda esta sesión.**
+verificados con tráfico real, íconos PWA correctos para iOS y Android, **IA real (Gemini)
+funcionando de punta a punta con clics reales en la UI**. `main` y el tag `v1.0` publicados
+en GitHub, coincidiendo exacto con el local. **No toqué tus datos financieros reales ni una
+vez en toda esta sesión.**
 
 ---
 
