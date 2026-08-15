@@ -2951,6 +2951,114 @@ function renderHabits() {
   $('habits-bar').style.width = pct+'%';
   renderStreakBadge();
 }
+
+// ============================================================
+// HARDWARE BIOLÓGICO — sueño (horas + consistencia) y batch cooking
+// ============================================================
+// No existía tracking de sueño en la app (el hábito "Sueño" del módulo genérico de
+// Hábitos, si existe como item ahí, es solo un check binario diario, sin horas ni
+// horario — esto es un módulo nuevo e independiente, sin duplicar nada).
+//
+// Horas: se calculan automáticamente a partir de hora de dormir + hora de despertar
+// (no se piden por separado), manejando el cruce de medianoche.
+// Consistencia: heurística simple — se normaliza cada "hora de dormir" a una línea de
+// tiempo nocturna (para que 23:30 y 00:45 queden cerca, no en extremos opuestos del
+// día), se compara contra el promedio de dormir de las últimas 7 entradas, y se marca
+// ✓ si la diferencia es ≤60 min, ⚠ si no.
+function suenoDormirMinutos(hhmm) {
+  const [h, m] = hhmm.split(':').map(Number);
+  let mins = h * 60 + m;
+  if (h < 12) mins += 24 * 60; // después de medianoche: se cuenta como "madrugada" del ciclo anterior
+  return mins;
+}
+function computeSuenoHoras(dormir, despertar) {
+  const [dh, dm] = dormir.split(':').map(Number);
+  const [wh, wm] = despertar.split(':').map(Number);
+  let start = dh * 60 + dm, end = wh * 60 + wm;
+  if (end <= start) end += 24 * 60; // despertar cruza a después de medianoche
+  return Math.round((end - start) / 60 * 10) / 10;
+}
+function saveSueno() {
+  const dormir = $('sueno-dormir').value;
+  const despertar = $('sueno-despertar').value;
+  if (!dormir || !despertar) { toast('😴', 'Faltan datos', 'Completa hora de dormir y de despertar'); return; }
+  const horas = computeSuenoHoras(dormir, despertar);
+  const hoy = todayKey();
+  state.bioHW.sueno = state.bioHW.sueno.filter(s => s.fecha !== hoy); // un registro por día
+  state.bioHW.sueno.push({ fecha: hoy, dormir, despertar, horas, ts: ts() });
+  state.bioHW.sueno.sort((a, b) => a.fecha < b.fecha ? -1 : 1);
+  addXP(10);
+  save();
+  renderSueno();
+  toast('😴', 'Sueño registrado', horas + ' h');
+}
+function renderSueno() {
+  const list = $('sueno-list');
+  if (!list) return;
+  const entries = state.bioHW.sueno.slice(-7);
+  if (!entries.length) { list.innerHTML = '<div class="empty">Sin registros todavía</div>'; return; }
+  const avgDormir = entries.reduce((sum, e) => sum + suenoDormirMinutos(e.dormir), 0) / entries.length;
+  list.innerHTML = entries.slice().reverse().map(e => {
+    const diff = Math.abs(suenoDormirMinutos(e.dormir) - avgDormir);
+    const ok = diff <= 60;
+    return `
+    <div class="entry">
+      <div class="entry-meta">${e.fecha} · ${e.horas} h</div>
+      <div class="entry-txt">🛌 ${e.dormir} → ⏰ ${e.despertar} &nbsp; ${ok ? '<span style="color:var(--mint)">✓ consistente</span>' : '<span style="color:var(--ember)">⚠ fuera de rango</span>'}</div>
+    </div>`;
+  }).join('');
+}
+// Batch cooking: checklist semanal. weekKey guarda la fecha (YYYY-MM-DD) del domingo
+// más reciente; si al renderizar ese domingo ya no coincide con el actual, se
+// resetean los `done` a false y se actualiza weekKey — mismo espíritu que
+// checkDailyReset() pero a nivel semanal, sin racha.
+function currentSundayKey() {
+  const d = new Date();
+  d.setDate(d.getDate() - d.getDay()); // getDay()===0 es domingo
+  return d.toISOString().slice(0, 10);
+}
+function checkBatchWeeklyReset() {
+  const wk = currentSundayKey();
+  if (state.bioHW.batchCooking.weekKey !== wk) {
+    state.bioHW.batchCooking.items.forEach(it => it.done = false);
+    state.bioHW.batchCooking.weekKey = wk;
+    save();
+  }
+}
+function toggleBatchItem(id) {
+  const it = state.bioHW.batchCooking.items.find(i => i.id === id);
+  if (!it) return;
+  vibrate(20);
+  it.done = !it.done;
+  if (state.bioHW.batchCooking.items.every(i => i.done)) addXP(20);
+  save();
+  renderBatchCooking();
+}
+function renderBatchCooking() {
+  checkBatchWeeklyReset();
+  const wrap = $('batch-list');
+  if (!wrap) return;
+  const items = state.bioHW.batchCooking.items;
+  wrap.innerHTML = items.map(it => `
+    <div class="habit ${it.done?'done':''}" onclick="toggleBatchItem('${it.id}')">
+      <div class="habit-ico">🍱</div>
+      <div class="habit-body">
+        <div class="habit-name">${it.label}</div>
+        <div class="habit-meta">Domingo</div>
+      </div>
+      <div class="habit-chk">${it.done?'✓':''}</div>
+    </div>
+  `).join('');
+  const done = items.filter(i => i.done).length;
+  const pct = Math.round(done / items.length * 100);
+  $('batch-pct').textContent = pct+'%';
+  $('batch-bar').style.width = pct+'%';
+}
+function renderBioHW() {
+  renderSueno();
+  renderBatchCooking();
+}
+
 function toggleHabit(i) {
   vibrate(20);
   state.habits[i].done = !state.habits[i].done;
