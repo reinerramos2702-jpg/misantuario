@@ -437,3 +437,73 @@ sin async, sin dependencias externas).
 
 **Bloque 7: CERRADO.** Deploy en producción, verificación estática exhaustiva + smoke test
 HTTP OK, D1 real sin cambios, todo commiteado local (vía hook de auto-save).
+
+---
+
+## Bloque 8 — GOD NODE Fase 4 (Hardware Biológico · Polimatía · Finanzas expandida)
+
+**2 agentes en paralelo (contrato fijado antes, zonas disjuntas dentro de secciones
+EXISTENTES esta vez — no top-level nuevas, así que no tocaron `SECS` ni el drawer):**
+- Agente A: subtab nuevo "Hardware Bio" dentro de Vida (`vida-bio`) — Sueño (hora de
+  dormir/despertar, horas calculadas manejando cruce de medianoche, heurística de
+  consistencia ±60min contra el promedio de las últimas 7 noches) + Batch cooking (checklist
+  de 5 ítems fijos domingo, reset semanal por `weekKey` = fecha del domingo más reciente,
+  mismo espíritu que `checkDailyReset()` pero sin racha). Único agente que tocó `#sec-vida`
+  y el punto `sophiaProgress: {...}` de `defaultState()`.
+- Agente B: tarjeta nueva "Polimatía" dentro de Academia (disciplina activa del trimestre:
+  tema/libros/aplicación/output esperado + tracker de lectura interdisciplinaria con meta
+  120min/semana) + subtab nuevo "Metas" dentro de Finanzas (`fin-metas`: 3 metas fijas
+  corto/medio/largo con barra de progreso, reglas de dinero como lista libre, y "fuentes de
+  ingreso" — RAI Agency/MediGo/Content Engine — como módulo de presupuesto NUEVO e
+  independiente). Único agente que tocó `#sec-academia`, `#sec-finanzas` y el punto
+  `creatividad: {...}` de `defaultState()`.
+
+**Decisión de scope importante (instrucción explícita en el contrato, cumplida):** el mapa
+GOD NODE dice "Vida Fácil archivado → reemplazar por RAI/MediGo/Content Engine" en el
+contexto de fuentes de ingreso del presupuesto. Le until pedí al agente que NO tocara el
+proyecto `vf`/"Vida Fácil" real (`DEFAULT_PROJECTS`, `tasks.vf`) — sigue intacto, verificado
+por grep. Las 3 fuentes nuevas viven solo dentro de `state.finExpandida.ingresos`, una vista
+de presupuesto nueva, no un rename del proyecto existente. Decisión mía para no arriesgar
+datos/tareas ya en uso del proyecto Vida Fácil sin que el usuario lo pidiera explícitamente.
+
+**Verificación de integración que hice yo mismo:**
+- `grep` de ids duplicados sobre todo `index.html` (ya con Bloques 7 y 8 integrados) → cero
+  duplicados. `vida-bio` / `fin-metas` / `sec-creativ` / `sec-dieta` / `mente-journal` →
+  exactamente 1 ocurrencia cada uno.
+- Extraje el `<script>` completo ya integrado y corrí `node --check` → sintaxis OK. Cero
+  declaraciones `function`/`const` duplicadas en todo el archivo.
+- **Bug real encontrado y corregido por mí antes de desplegar:** el `forEach(renderMente)` de
+  `init()` (línea ~5702) listaba `['diario','vault','grat','dec','sophia']` — el Agente del
+  Journaling (Bloque 7) nunca necesitó tocar esa línea porque no era uno de sus anclajes
+  asignados, así que `journal` quedó afuera. Efecto: las notas Cornell/Zettelkasten ya
+  guardadas no se mostraban al cargar la página, solo aparecían después de guardar una nueva
+  (bug de "primera carga", no de guardado). Agregué `'journal'` al array. Re-verificado
+  `node --check` después del fix → OK.
+- Confirmé `renderBioHW()` (llama a `renderSueno()`+`renderBatchCooking()` internamente),
+  `renderPolimatia()` y `renderFinExpandida()` están cableados en `init()` y son
+  autocontenidos (pintan sus propios campos con guardas `$(...)? :` defensivas, no dependen
+  de que otra función los llame primero).
+- Confirmé por grep que `tasks.vf` y `DEFAULT_PROJECTS` no cambiaron de posición ni contenido
+  (el módulo Vida Fácil real sigue exactamente igual).
+
+**Deploy:** `npx wrangler deploy`. Push a GitHub sigue bloqueado por el PAT (mismo problema
+heredado).
+
+**Smoke test de producción:** `GET /` contiene los 8 ids nuevos esperados (`vida-bio`,
+`fin-metas`, `poli-tema`, `reglas-list`, `ingresos-list`, `meta-corto-bar`, `batch-list`,
+`sueno-list`). `GET /api/cuentas` → `[]`, `GET /api/proyectos` → 200 (D1 real sin cambios).
+
+**Nota de método (igual que Bloque 7):** tampoco hice pruebas end-to-end en navegador real
+esta vez — la extensión de Chrome sigue sin conectar en este entorno. Mismo razonamiento:
+100% localStorage, riesgo bajo, verificación estática + smoke test HTTP como sustituto
+razonable mientras no haya forma segura de sembrar el flag de D1 antes de cargar la app.
+
+**Pendiente:** ninguno específico de este bloque, salvo la misma nota de pasada funcional en
+vivo si se reconecta la extensión de Chrome (crear una disciplina trimestral, registrar
+lectura, guardar una meta, registrar un ingreso, registrar sueño, marcar el checklist de
+batch cooking).
+
+**Bloque 8: CERRADO.** Deploy en producción, verificación estática exhaustiva + smoke test
+HTTP OK, D1 real sin cambios, todo commiteado local (vía hook de auto-save). Con esto, GOD
+NODE Fase 3 y Fase 4 (Bloques 7 y 8) quedan ambas cerradas — el mapa de integración
+(`MI_SANTUARIO_INTEGRACION_GODNODE.md`) queda completo en sus 4 fases.
