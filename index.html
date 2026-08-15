@@ -1937,6 +1937,33 @@ body.light .hdr h1 {
         <button class="chip" onclick="askAI('Dame un proyecto real de portafolio que demuestre dominio de agentes IA multi-modelo (Claude + Gemini + GPT orquestados). Spec técnica completa.')">Proyecto portafolio</button>
       </div>
     </div>
+
+    <div class="card">
+      <div class="card-row">
+        <div class="card-title-wrap">
+          <div class="dot" style="background:var(--ember)"></div>
+          <div><div class="card-title">Polimatía · disciplina trimestral</div><div class="card-meta">1 disciplina activa por trimestre · lectura interdisciplinaria</div></div>
+        </div>
+      </div>
+      <div class="lbl">Disciplina activa de este trimestre</div>
+      <input class="txt" id="poli-tema" placeholder="Tema / disciplina (ej: Filosofía estoica)" style="margin-bottom:8px">
+      <input class="txt" id="poli-libros" placeholder="Libro(s)" style="margin-bottom:8px">
+      <textarea class="txt" id="poli-aplicacion" placeholder="Aplicación práctica..." style="margin-bottom:8px"></textarea>
+      <textarea class="txt" id="poli-output" placeholder="Output esperado..."></textarea>
+      <button class="save-btn" onclick="saveDisciplina()">Guardar disciplina</button>
+      <div id="poli-disciplina-actual" style="margin-top:14px"></div>
+
+      <div class="lbl" style="margin-top:18px">Lectura interdisciplinaria · fuera de IA/tech · meta 2h/semana</div>
+      <div class="prog">
+        <div class="prog-lbl"><span>Esta semana</span><span id="poli-lectura-pct">0%</span></div>
+        <div class="prog-track"><div class="prog-fill" id="poli-lectura-bar" style="width:0%"></div></div>
+      </div>
+      <div style="font-size:11px;color:var(--ink-3);font-weight:500;margin:6px 0 10px" id="poli-lectura-lbl">0 / 120 min esta semana</div>
+      <div style="display:flex;gap:8px">
+        <input class="txt" id="poli-min" type="number" placeholder="Minutos" step="1">
+        <button class="save-btn" style="margin-top:0" onclick="addLectura()">Registrar hoy</button>
+      </div>
+    </div>
   </section>
 
   <!-- ============================================================
