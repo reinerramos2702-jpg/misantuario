@@ -922,3 +922,30 @@ verde, D1 real limpia (`cuentas`/`movimientos`/`proyectos` en `[]`, `push_subscr
 confirmado con red real desconectada, export manual confirmado, CORS+rate-limit de `/api/ai`
 verificados con tráfico real, íconos PWA correctos para iOS y Android. **No toqué tus datos
 financieros reales ni una vez en toda esta sesión.**
+
+---
+
+## Post-cierre — GEMINI_KEY configurada, pero es inválida (necesita una key nueva)
+
+A pedido explícito del usuario, corrí `npx wrangler secret put GEMINI_KEY --name misantuario`
+con el valor histórico documentado en este mismo archivo (el que ya estaba público en
+`index.html` antes del Bloque 3, recuperado de `git log -p -- index.html`). `CLAUDE_KEY` y
+`OPENAI_KEY` quedaron sin tocar, tal como pidió — confirmado con `wrangler secret list`:
+solo `GEMINI_KEY` y `VAPID_PRIVATE_KEY` existen, y `/api/ai` con provider `claude`/`chatgpt`
+sigue devolviendo 501 "no configurado" limpio.
+
+**Pero la key resultó inválida.** Probé `/api/ai` con provider `gemini` de verdad y Google
+respondió `400 · "API key not valid. Please pass a valid API key."` — no es un bug del
+Worker ni de mi configuración, es la key en sí. Lo más probable es que Google la haya
+revocado automáticamente en algún momento desde que quedó expuesta públicamente en el
+repo (su sistema de escaneo de keys filtradas suele hacer esto solo). Mejoré de paso (cambio
+permanente, no solo diagnóstico) el manejo de errores de `handleAI` en las 3 IAs para que el
+mensaje de error incluya el detalle real que devuelve el proveedor (antes solo se veía "HTTP
+400" sin contexto) — así la próxima vez que algo falle se sabe por qué sin tener que
+investigar a ciegas.
+
+**Pendiente real:** si quieres que Gemini funcione, necesito una key nueva y válida (Google
+AI Studio → Get API key) — la configuro yo con `wrangler secret put` en cuanto me la des, o
+la pones tú mismo con el mismo comando desde la raíz del repo. Mientras tanto, `/api/ai` con
+Gemini falla con un error claro (no crashea la app; `gemini()` — usada por Brief/Pros-Contras/
+Prompt Lab/Radar — sigue devolviendo `''` limpio ante cualquier error, sin excepciones).
