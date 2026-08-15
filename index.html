@@ -3678,6 +3678,179 @@ function marcarFaseCompletada(n) {
 }
 
 // ============================================================
+// POLIMATÍA
+// ============================================================
+function ensurePolimatia() {
+  state.polimatia = state.polimatia || { disciplina: { tema: '', libros: '', aplicacion: '', outputEsperado: '' }, lecturaLog: [] };
+  return state.polimatia;
+}
+function saveDisciplina() {
+  const p = ensurePolimatia();
+  p.disciplina = {
+    tema: $('poli-tema').value.trim(),
+    libros: $('poli-libros').value.trim(),
+    aplicacion: $('poli-aplicacion').value.trim(),
+    outputEsperado: $('poli-output').value.trim(),
+  };
+  addXP(15);
+  save();
+  renderPolimatia();
+  toast('✓', 'Disciplina trimestral guardada', p.disciplina.tema || 'Sin tema');
+}
+function weekStartKey() {
+  const d = new Date();
+  const dow = (d.getDay() + 6) % 7; // lunes = 0
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - dow);
+  return d.toISOString().slice(0, 10);
+}
+function addLectura() {
+  const p = ensurePolimatia();
+  const inp = $('poli-min');
+  const minutos = parseInt(inp.value) || 0;
+  if (!minutos) return;
+  p.lecturaLog.push({ minutos, fecha: todayKey(), ts: ts() });
+  inp.value = '';
+  addXP(5);
+  save();
+  renderPolimatia();
+}
+function polimatiaMinutosSemana() {
+  const p = ensurePolimatia();
+  const inicio = weekStartKey();
+  return p.lecturaLog.filter(e => e.fecha >= inicio).reduce((s, e) => s + e.minutos, 0);
+}
+function renderPolimatia() {
+  const p = ensurePolimatia();
+  const d = p.disciplina || {};
+  if ($('poli-tema')) $('poli-tema').value = d.tema || '';
+  if ($('poli-libros')) $('poli-libros').value = d.libros || '';
+  if ($('poli-aplicacion')) $('poli-aplicacion').value = d.aplicacion || '';
+  if ($('poli-output')) $('poli-output').value = d.outputEsperado || '';
+  const actualEl = $('poli-disciplina-actual');
+  if (actualEl) {
+    actualEl.innerHTML = d.tema
+      ? `<div class="entry"><div class="entry-meta">Disciplina activa de este trimestre</div><div class="entry-txt"><b>${escapeHTML(d.tema)}</b>${d.libros ? ' · ' + escapeHTML(d.libros) : ''}</div></div>`
+      : '<div class="empty">Sin disciplina activa aún</div>';
+  }
+  const META_MIN = 120;
+  const total = polimatiaMinutosSemana();
+  const pct = Math.min(100, Math.round(total / META_MIN * 100));
+  const pctEl = $('poli-lectura-pct');
+  if (pctEl) pctEl.textContent = pct + '%';
+  const bar = $('poli-lectura-bar');
+  if (bar) bar.style.width = pct + '%';
+  const lbl = $('poli-lectura-lbl');
+  if (lbl) lbl.textContent = `${total} / ${META_MIN} min esta semana`;
+}
+
+// ============================================================
+// FINANZAS EXPANDIDA
+// ============================================================
+const FUENTES_INGRESO = ['RAI Agency', 'MediGo', 'Content Engine'];
+function ensureFinExpandida() {
+  state.finExpandida = state.finExpandida || {
+    metas: {
+      corto: { nombre: 'Corto plazo', objetivo: 0, actual: 0 },
+      medio: { nombre: 'Medio plazo', objetivo: 0, actual: 0 },
+      largo: { nombre: 'Largo plazo', objetivo: 0, actual: 0 },
+    },
+    reglas: [],
+    ingresos: [],
+  };
+  return state.finExpandida;
+}
+function saveMeta(slot) {
+  const fe = ensureFinExpandida();
+  const m = fe.metas[slot];
+  if (!m) return;
+  m.nombre = $('meta-' + slot + '-nombre').value.trim() || m.nombre;
+  m.objetivo = parseFloat($('meta-' + slot + '-objetivo').value) || 0;
+  m.actual = parseFloat($('meta-' + slot + '-actual').value) || 0;
+  save();
+  renderFinExpandida();
+  toast('✓', 'Meta guardada', m.nombre);
+}
+function addRegla() {
+  const fe = ensureFinExpandida();
+  const v = $('regla-txt').value.trim();
+  if (!v) return;
+  fe.reglas.unshift({ txt: v, ts: ts() });
+  $('regla-txt').value = '';
+  save();
+  renderFinExpandida();
+}
+function delRegla(i) {
+  const fe = ensureFinExpandida();
+  fe.reglas.splice(i, 1);
+  save();
+  renderFinExpandida();
+}
+function addIngreso(fuente) {
+  const fe = ensureFinExpandida();
+  const slug = fuente.replace(/\s+/g, '-').toLowerCase();
+  const inp = $('ingreso-amt-' + slug);
+  const monto = parseFloat(inp.value) || 0;
+  if (!monto) return;
+  fe.ingresos.push({ fuente, monto, fecha: todayKey(), ts: ts() });
+  inp.value = '';
+  addXP(10);
+  save();
+  renderFinExpandida();
+  toast('✓', 'Ingreso registrado', `${fuente} · $${monto}`);
+}
+function ingresoMesFuente(fuente) {
+  const fe = ensureFinExpandida();
+  const mes = todayKey().slice(0, 7);
+  return fe.ingresos.filter(e => e.fuente === fuente && e.fecha.slice(0, 7) === mes).reduce((s, e) => s + e.monto, 0);
+}
+function renderFinExpandida() {
+  const fe = ensureFinExpandida();
+  ['corto', 'medio', 'largo'].forEach(slot => {
+    const m = fe.metas[slot];
+    if (!m) return;
+    if ($('meta-' + slot + '-nombre')) $('meta-' + slot + '-nombre').value = m.nombre || '';
+    if ($('meta-' + slot + '-objetivo')) $('meta-' + slot + '-objetivo').value = m.objetivo || 0;
+    if ($('meta-' + slot + '-actual')) $('meta-' + slot + '-actual').value = m.actual || 0;
+    const pct = m.objetivo > 0 ? Math.min(100, Math.round(m.actual / m.objetivo * 100)) : 0;
+    const pctEl = $('meta-' + slot + '-pct');
+    if (pctEl) pctEl.textContent = pct + '%';
+    const bar = $('meta-' + slot + '-bar');
+    if (bar) bar.style.width = pct + '%';
+    const lbl = $('meta-' + slot + '-lbl');
+    if (lbl) lbl.textContent = m.nombre || slot;
+  });
+  const rl = $('reglas-list');
+  if (rl) {
+    if (!fe.reglas.length) rl.innerHTML = '<div class="empty">Sin reglas aún</div>';
+    else rl.innerHTML = fe.reglas.map((r, i) => `
+      <div class="entry">
+        <button class="entry-del" onclick="delRegla(${i})">×</button>
+        <div class="entry-meta">${r.ts}</div>
+        <div class="entry-txt">${escapeHTML(r.txt)}</div>
+      </div>
+    `).join('');
+  }
+  const il = $('ingresos-list');
+  if (il) {
+    il.innerHTML = FUENTES_INGRESO.map(fuente => {
+      const slug = fuente.replace(/\s+/g, '-').toLowerCase();
+      const total = ingresoMesFuente(fuente);
+      return `
+        <div class="entry">
+          <div class="entry-meta">${escapeHTML(fuente)} · este mes</div>
+          <div class="entry-txt" style="font-family:'Fraunces',serif;font-size:20px;font-weight:500">$${total.toFixed(2)}</div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <input class="txt" id="ingreso-amt-${slug}" type="number" placeholder="Monto $" step="0.01">
+            <button class="save-btn" style="margin-top:0" onclick="addIngreso('${fuente}')">Registrar ingreso este mes</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+// ============================================================
 // RADAR sources (enhanced version below)
 // ============================================================
 
