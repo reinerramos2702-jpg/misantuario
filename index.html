@@ -1986,6 +1986,108 @@ body.light .hdr h1 {
   </section>
 
   <!-- ============================================================
+       SEC: CREATIVIDAD
+       ============================================================ -->
+  <section class="sec" id="sec-creativ">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Creatividad</div>
+        <div class="sec-sub">Piezas creativas · del inicio a lo publicado</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--nebula)"></div><div class="card-title">Nueva pieza</div></div></div>
+      <select class="txt" id="pieza-tipo" style="margin-bottom:8px">
+        <option value="tweet">Tweet</option>
+        <option value="articulo">Artículo</option>
+        <option value="codigo">Código</option>
+        <option value="diseno">Diseño</option>
+      </select>
+      <input class="txt" id="pieza-txt" placeholder="Título / descripción corta" style="margin-bottom:8px">
+      <button class="save-btn" onclick="addPieza()">+ Agregar pieza</button>
+    </div>
+
+    <div class="card">
+      <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--mint)"></div><div class="card-title">Finalización</div></div></div>
+      <div class="card-meta">Meta: &gt;70% de piezas finalizadas o publicadas</div>
+      <div class="prog">
+        <div class="prog-lbl"><span>Progreso</span><span id="creativ-pct">0%</span></div>
+        <div class="prog-track"><div class="prog-fill" id="creativ-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--stellar)"></div><div class="card-title">Piezas</div></div></div>
+      <div id="piezas-list" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--stardust)"></div><div class="card-title">Banco de analogías</div></div></div>
+      <div class="card-meta" style="margin-bottom:10px">Transferencia de ideas entre dominios</div>
+      <input class="txt" id="analogia-txt" placeholder="Nueva analogía..." style="margin-bottom:8px">
+      <button class="save-btn" onclick="addAnalogia()">Guardar</button>
+      <div id="analogias-list" style="margin-top:14px"></div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SEC: DIETA DE INPUT
+       ============================================================ -->
+  <section class="sec" id="sec-dieta">
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Dieta de <em>Input</em></div>
+        <div class="sec-sub">Consumo consciente · límites diarios y mensuales</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--stellar)"></div><div class="card-title">Twitter / X</div></div></div>
+      <div class="card-meta">Límite: 15 min/día</div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input class="txt" type="number" id="dieta-twitter" placeholder="Minutos">
+        <button class="save-btn" style="margin-top:0;width:auto;padding:13px 16px" onclick="registrarInput('twitter')">Registrar hoy</button>
+      </div>
+      <div class="prog">
+        <div class="prog-lbl"><span id="dieta-twitter-lbl">0 / 15 min hoy</span></div>
+        <div class="prog-track"><div class="prog-fill" id="dieta-twitter-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--ember)"></div><div class="card-title">YouTube</div></div></div>
+      <div class="card-meta">Límite: 120 min/mes</div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input class="txt" type="number" id="dieta-youtube" placeholder="Minutos">
+        <button class="save-btn" style="margin-top:0;width:auto;padding:13px 16px" onclick="registrarInput('youtube')">Registrar hoy</button>
+      </div>
+      <div class="prog">
+        <div class="prog-lbl"><span id="dieta-youtube-lbl">0 / 120 min este mes</span></div>
+        <div class="prog-track"><div class="prog-fill" id="dieta-youtube-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--nebula)"></div><div class="card-title">Discord</div></div></div>
+      <div class="card-meta">Límite: 20 min/día</div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input class="txt" type="number" id="dieta-discord" placeholder="Minutos">
+        <button class="save-btn" style="margin-top:0;width:auto;padding:13px 16px" onclick="registrarInput('discord')">Registrar hoy</button>
+      </div>
+      <div class="prog">
+        <div class="prog-lbl"><span id="dieta-discord-lbl">0 / 20 min hoy</span></div>
+        <div class="prog-track"><div class="prog-fill" id="dieta-discord-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-row"><div class="card-title-wrap"><div class="dot" style="background:var(--ink-4)"></div><div class="card-title">Lista negra</div></div></div>
+      <div class="card-meta">TikTok, Reddit, noticias en tiempo real — prohibido, sin tracker, solo recordatorio</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
        SEC: ARQUITECTO DIGITAL
        ============================================================ -->
   <section class="sec" id="sec-arq">
