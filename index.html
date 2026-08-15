@@ -1424,6 +1424,43 @@ body.light .hdr h1 {
         <div id="cierre-list" style="margin-top:14px"></div>
       </div>
     </div>
+
+    <div class="subsec" id="vida-bio">
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title-wrap">
+            <div class="dot" style="background:var(--stellar)"></div>
+            <div>
+              <div class="card-title">Sueño · horas & consistencia</div>
+              <div class="card-meta">Hora de dormir / despertar · últimos 7 registros</div>
+            </div>
+          </div>
+        </div>
+        <div class="lbl">Hora de dormir</div>
+        <input class="txt" type="time" id="sueno-dormir" style="margin-bottom:8px">
+        <div class="lbl">Hora de despertar</div>
+        <input class="txt" type="time" id="sueno-despertar">
+        <button class="save-btn" onclick="saveSueno()">Registrar sueño de hoy</button>
+        <div id="sueno-list" style="margin-top:14px"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title-wrap">
+            <div class="dot" style="background:var(--mint)"></div>
+            <div>
+              <div class="card-title">Batch cooking · domingo</div>
+              <div class="card-meta">Checklist semanal · se reinicia cada domingo</div>
+            </div>
+          </div>
+        </div>
+        <div id="batch-list"></div>
+        <div class="prog">
+          <div class="prog-lbl"><span>Completado</span><span id="batch-pct">0%</span></div>
+          <div class="prog-track"><div class="prog-fill" id="batch-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ============================================================
