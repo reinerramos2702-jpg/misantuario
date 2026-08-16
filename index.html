@@ -4004,7 +4004,7 @@ async function askAI(prompt) {
   modal.classList.add('open');
 
   try {
-    const sys = 'Eres el agente personal de Reiner. Responde en español latinoamericano, conciso, directo, motivador. Usa markdown ligero. Contexto: emprendedor venezolano, meta Japón en 6 MESES con $10k acumulados y JLPT N5, capital actual $48, proyectos: EducaLibros, VidaFácil, La Estrella de Medianoche, MaxziMedia, Arquitecto Digital (clientes freelance), Sizestreet en standby. Estudia IA para magíster. Tiende a dispersarse: necesita foco brutal en 1-2 acciones por sesión.';
+    const sys = 'Eres el agente personal de Reiner. Responde en español latinoamericano, conciso, directo, motivador. Usa markdown ligero. Contexto: emprendedor venezolano, meta Japón en 6 MESES con $10k acumulados y JLPT N5, capital actual $48, proyectos activos: RAI Agency (clientes freelance — webs, apps, automatizaciones), SizeStreet, Quadro Café, MediGo, La Estrella de Medianoche. Estudia IA para magíster. Tiende a dispersarse: necesita foco brutal en 1-2 acciones por sesión.';
     const txt = await callAI(ai, prompt, sys);
     body.innerHTML = `<div style="font-size:12px;color:var(--ink-3);margin-bottom:10px">Tu pregunta:</div>
       <div style="font-style:italic;color:var(--ink-2);margin-bottom:14px;padding:10px;background:var(--deep);border-radius:10px;font-size:12.5px">${escapeHTML(prompt)}</div>
