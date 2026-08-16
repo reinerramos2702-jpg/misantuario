@@ -2750,19 +2750,50 @@ function migrateState(next) {
   next = { ...base, ...next };
   next.tasks = { ...base.tasks, ...(next.tasks || {}) };
 
-  // Retirados: Hotel La Guaira y Dropshipping (proyectos cerrados) — limpia estado ya guardado.
-  const RETIRED_IDS = ['drop', 'hotel'];
+  // Retirados: Hotel La Guaira, Dropshipping, y (Bloque 13) EducaLibros/VidaFácil/MaxziMedia
+  // (proyectos cerrados) — limpia estado ya guardado, no solo el default de instalaciones
+  // nuevas.
+  const RETIRED_IDS = ['drop', 'hotel', 'edu', 'vf', 'maxz'];
   RETIRED_IDS.forEach(id => { delete next.tasks[id]; });
   if (Array.isArray(next.tasks.inicio)) {
-    next.tasks.inicio = next.tasks.inicio.filter(t => !/dropshipping/i.test(t.txt || ''));
+    next.tasks.inicio = next.tasks.inicio
+      .filter(t => !/dropshipping/i.test(t.txt || ''))
+      // Bloque 13: fuera las tareas del checklist crítico ligadas a EducaLibros (proyecto
+      // cerrado); la de Arquitecto Digital se conserva pero renombrada a RAI Agency.
+      .filter(t => !/Story \+ reel EducaLibros|DM personalizado a 10 contactos cálidos/i.test(t.txt || ''))
+      .map(t => t.txt === 'Prospectar 1 cliente nuevo Arquitecto Digital'
+        ? { ...t, txt: 'Prospectar 1 cliente nuevo RAI Agency' } : t);
+    // Un placeholder vacío por cada proyecto activo real, para que Reiner los edite con la
+    // tarea del día — solo se agrega si todavía no existe uno para ese proyecto.
+    ['SizeStreet', 'RAI Agency', 'Quadro Café', 'MediGo', 'La Estrella de Medianoche'].forEach(name => {
+      const marker = `(${name})`;
+      if (!next.tasks.inicio.some(t => (t.txt || '').startsWith(marker))) {
+        next.tasks.inicio.push({ txt: `${marker} — tarea del día pendiente de definir`, done: false, tag: 'muted' });
+      }
+    });
   }
   if (Array.isArray(next.clients)) {
     next.clients = next.clients.filter(c => c.name !== 'Hotel La Guaira');
+  }
+  // Bloque 13: renombrar el territorio "Content Engine" → "CRM RAI Agency" si el usuario ya
+  // tenía Sistema Maestro guardado (no es un proyecto nuevo, es solo el nombre corregido).
+  if (next.sistemaMaestro && Array.isArray(next.sistemaMaestro.territorios)) {
+    next.sistemaMaestro.territorios.forEach(t => { if (t && t.nombre === 'Content Engine') t.nombre = 'CRM RAI Agency'; });
   }
 
   const known = Array.isArray(next.projects) && next.projects.length
     ? next.projects.filter(p => !RETIRED_IDS.includes(p.id))
     : DEFAULT_PROJECTS.map(p => ({ ...p }));
+  // Bloque 13: agrega los proyectos activos reales nuevos aunque el usuario ya tuviera
+  // `projects` guardado de antes (si no, solo aparecerían en instalaciones nuevas).
+  ['rai', 'quadro', 'medigo'].forEach(id => {
+    if (!known.some(p => p.id === id)) {
+      const def = DEFAULT_PROJECTS.find(p => p.id === id);
+      if (def) known.push({ ...def });
+    }
+  });
+  // Corrige la capitalización vieja "Sizestreet" → "SizeStreet" si ya estaba guardado.
+  known.forEach(p => { if (p.id === 'size' && p.name === 'Sizestreet') p.name = 'SizeStreet'; });
   const used = new Set(Object.keys(next.tasks));
   const makeId = (name, fallback) => {
     const baseId = (name || fallback).toLowerCase()
