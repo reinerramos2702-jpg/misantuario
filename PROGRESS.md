@@ -1089,3 +1089,93 @@ con `wrangler deploy` ya funciona y es lo que importa — no es un bloqueante. Q
 quiera el pipeline push→deploy 100% automático. Mientras tanto, cada cambio de código sigue
 necesitando un `npx wrangler deploy` manual desde la raíz del repo después de cada push
 (exactamente como se ha hecho en todos los Bloques 6-12).
+
+---
+
+## Bloque 13 — Limpieza de marca y datos reales (post-v1.0)
+
+Bloque de datos/branding real, no un módulo nuevo — lo hice yo directo, sin subagentes:
+casi todo tocaba las mismas estructuras compartidas (`DEFAULT_PROJECTS`,
+`defaultState().tasks`, `migrateState()`), así que dividirlo en paralelo habría sido
+garantía de choques.
+
+**1-2. Renombres** — "Arquitecto Digital" → "RAI Agency" y "Content Engine" → "CRM RAI
+Agency" en cada lugar hardcodeado que encontré por grep (título de sección, drawer, modal de
+ayuda, `MANUAL.md`, el system prompt de IA, el ctx del Brief, la tarjeta de Roadmap 12
+meses, la tarea del checklist crítico). Los subtabs de RAI Agency (Clientes, Captura rápida,
+Radar servicios, Portafolio) quedaron intactos, como pidió el usuario — no toqué
+`/api/portfolio` ni nada de esa integración, eso queda para otro bloque cuando el usuario dé
+la URL real.
+
+**3. Fuentes de ingreso** — `FUENTES_INGRESO` ahora es `['RAI Agency', 'MediGo', 'Quadro
+Café']`. "Content Engine" sigue existiendo solo como territorio en Sistema Maestro (ya
+renombrado a "CRM RAI Agency"), no como fuente de ingreso — tal como pidió el usuario
+explícitamente ("todavía no genera ingresos").
+
+**4. Proyectos activos** — `DEFAULT_PROJECTS` ahora es RAI Agency / SizeStreet / Quadro Café
+/ MediGo / La Estrella de Medianoche. EducaLibros, VidaFácil y MaxziMedia, fuera. Colores
+CSS nuevos (`.proj-rai`, `.proj-quadro`, `.proj-medigo`) para que los 3 proyectos nuevos
+tengan su propio acento visual en vez de caer al genérico `proj-custom`.
+
+**5. Checklist crítico** — quité las 2 tareas de `tasks.inicio` que sí estaban ahí ligadas a
+EducaLibros (el texto exacto de la tercera que mencionó el usuario, "Video filosófico La
+Estrella + CTA al pack", en realidad vivía en `tasks.edu`, no en `tasks.inicio` — se fue
+solo al retirar el proyecto completo, no hizo falta tratarla aparte). La tarea de
+"Arquitecto Digital" se conservó, solo renombrada. Los 3 ítems que pidió dejar tal cual
+siguen intactos. Agregué un placeholder vacío por cada uno de los 5 proyectos activos
+reales, formato `(Nombre) — tarea del día pendiente de definir`, para que el usuario los
+edite.
+
+**6. Registrar movimiento — detalle de "Otro"** — nuevo campo `#exp-cat-otro` que aparece
+solo cuando la categoría es "Otro" (`toggleExpCatOtro()`, disparado por el `onchange` del
+select). Se guarda como `otroDesc` en el movimiento local y se muestra en la lista como
+"Otro: <detalle>" en vez de "Otro" pelado. Para D1 (que no tiene columna propia para esto)
+se concatena dentro de `categoria` (`"Otro: <detalle>"`) en vez de perder el dato — decisión
+mía para no tocar el schema por un campo que cabe perfectamente en el string existente.
+
+**El paso más importante de este bloque — la migración de estado real, no solo los
+defaults:** cambiar `defaultState()` únicamente afecta instalaciones nuevas. Reiner ya tiene
+`state` guardado de verdad en su navegador (D1 real ya tiene sus saldos reales, confirmado
+en la verificación). Añadí a `migrateState()`: `edu`/`vf`/`maxz` a `RETIRED_IDS` (limpia
+tasks y projects ya guardados, mismo patrón que Hotel La Guaira/Dropshipping), un filtro +
+rename sobre `tasks.inicio` ya guardado, inyección de los 3 proyectos nuevos aunque el
+usuario ya tuviera `projects` guardado de antes, corrección de la capitalización vieja
+"Sizestreet"→"SizeStreet", y un rename del territorio "Content Engine"→"CRM RAI Agency" en
+`sistemaMaestro` ya guardado — todo esto preservando el progreso real del usuario (probado
+explícitamente: un ítem con `done:true` y un territorio con objetivo/kpi/progreso reales
+sobrevivieron la migración intactos).
+
+**Verificación (Chrome headless por CDP, perfil nuevo, D1 flag sembrado como siempre) — 50
+checks en total, 0 fails, 0 errores de consola, 0 excepciones:**
+- 30 checks de migración, corridos DOS VECES: una vez sobre una instalación nueva (sin
+  `state` previo) y otra vez sembrando un `state` viejo realista (con `tasks.edu/vf/maxz`,
+  proyectos edu/vf/maxz, territorio "Content Engine", una tarea completada, un territorio
+  con progreso real) para probar el camino de migración de verdad, no solo el default —
+  ambas corridas en verde, incluida la preservación de datos reales del usuario.
+- 7 checks del campo "Otro": aparece/desaparece con el cambio real de categoría (evento
+  `change` disparado de verdad, no solo `.value`), el clic real a "Registrar" guarda
+  `otroDesc` correctamente, la lista muestra el detalle, y confirmé en D1 real que
+  `categoria` llegó como `"Otro: regalo de cumpleaños"` — luego borré esa fila de prueba por
+  `id` exacto (la API no tiene DELETE para movimientos, usé `wrangler d1 execute` directo,
+  mismo método ya usado en bloques anteriores para limpiar datos de prueba).
+- 13 checks de UI: sección RAI Agency con sus 4 subtabs intactos, territorio renombrado
+  visible, fuentes de ingreso correctas, kanban de Proyectos con el roster nuevo exacto,
+  selector de proyecto del Calendario actualizado, Manual sin menciones viejas.
+- **D1 real confirmada con datos reales del usuario, no de prueba:** `cuentas` ya tiene sus
+  5 saldos reales (Binance $45, etc. — subieron solos por el sync automático mientras el
+  usuario usaba la app), `movimientos` tiene 1 fila real suya ("prueba", ts 15 ago) que NO
+  toqué — until solo borré la fila que yo mismo creé para probar el campo "Otro", identificada
+  por `id` exacto.
+
+**Deploy:** `npx wrangler deploy`.
+
+**Commit + push:** mismo flujo que ya quedó funcionando desde el post-cierre — hook de
+auto-save commiteó cada archivo, sin secretos ni datos sensibles en ningún commit (verificado
+antes de push, esta vez no hubo nada que redactar).
+
+**Pendiente:** ninguno de este bloque. El Portafolio queda explícitamente fuera de alcance a
+pedido del usuario, para cuando dé la URL real de la web de RAI Agency.
+
+**Bloque 13: CERRADO.** 50/50 checks en verde contra producción real, migración de estado
+probada con datos realistas (no solo defaults), D1 real con datos genuinos del usuario sin
+tocar, deploy en producción, todo commiteado y listo para push.
