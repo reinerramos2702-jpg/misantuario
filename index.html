@@ -3370,6 +3370,13 @@ async function syncD1OnLoad() {
     console.warn('Sync D1 inicial no completada, se reintentará:', e.message);
   }
 }
+// Bloque 13: cuando la categoría es "Otro", muestra un campo de detalle libre — se guarda
+// como sub-descripción del movimiento (`otroDesc`) en vez de quedar genérico como "Otro".
+function toggleExpCatOtro() {
+  const show = $('exp-cat').value === 'Otro';
+  $('exp-cat-otro').style.display = show ? '' : 'none';
+  if (!show) $('exp-cat-otro').value = '';
+}
 function addExp() {
   const desc = $('exp-desc').value.trim();
   const amt = parseFloat($('exp-amt').value);
@@ -3378,22 +3385,27 @@ function addExp() {
   const fx = parseFloat($('exp-fx').value) || 1;
   const usd = cur === 'USD' ? amt : cur === 'BsS' ? amt / fx : amt / 150;
   const cat = $('exp-cat').value;
+  const otroDesc = cat === 'Otro' ? $('exp-cat-otro').value.trim() : '';
   const acc = $('exp-acc').value;
   const type = $('exp-type').value;
   const movTs = ts();
   state.exps.unshift({
     desc, amt, cur, fx, usd,
-    cat, acc, type,
+    cat, otroDesc, acc, type,
     ts: movTs
   });
   $('exp-desc').value = '';
   $('exp-amt').value = '';
+  $('exp-cat-otro').value = '';
   save(); renderFin();
   // Write-through a D1, sin bloquear el flujo local (apiFetch ya atrapa sus propios errores).
+  // El esquema de `movimientos` no tiene columna propia para la sub-descripción de "Otro",
+  // así que se concatena dentro de `categoria` para no perder el detalle en D1 tampoco.
+  const categoriaD1 = (cat === 'Otro' && otroDesc) ? `Otro: ${otroDesc}` : cat;
   apiFetch('/api/movimientos', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ fecha: todayKey(), descripcion: desc, monto: amt, moneda: cur, cuenta: acc, categoria: cat, tipo: type, ts: movTs })
+    body: JSON.stringify({ fecha: todayKey(), descripcion: desc, monto: amt, moneda: cur, cuenta: acc, categoria: categoriaD1, tipo: type, ts: movTs })
   });
 }
 function renderFin() {
