@@ -2812,7 +2812,7 @@ function migrateState(next) {
     theme: p.theme || 'proj-custom',
   }));
   next.projects.forEach(p => { next.tasks[p.id] = next.tasks[p.id] || []; });
-  if (!next.projects.some(p => p.id === next.activeProject)) next.activeProject = next.projects[0]?.id || 'edu';
+  if (!next.projects.some(p => p.id === next.activeProject)) next.activeProject = next.projects[0]?.id || 'rai';
   next.sophiaProgress = { ...base.sophiaProgress, ...(next.sophiaProgress || {}) };
   if (!Array.isArray(next.sophiaProgress.log)) next.sophiaProgress.log = [];
   return next;
