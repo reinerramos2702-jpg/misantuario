@@ -162,10 +162,11 @@ y Discord (límite 20/día) — la barra te avisa cuando te pasaste. TikTok, Red
 tiempo real están en la lista negra: ahí no hay tracker, solo el recordatorio de que decidiste
 no entrar.
 
-## Arquitecto Digital
+## RAI Agency
 
 Tu workspace de clientes — webs, apps, automatizaciones. Kanban de clientes, captura rápida
-para anotar algo en el momento sin perder el hilo.
+para anotar algo en el momento sin perder el hilo. Los subtabs (Clientes, Captura rápida,
+Radar servicios, Portafolio) siguen igual, solo cambió el nombre del módulo.
 
 ## Prompt Lab v2
 
