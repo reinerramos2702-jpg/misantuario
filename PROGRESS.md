@@ -1164,7 +1164,7 @@ checks en total, 0 fails, 0 errores de consola, 0 excepciones:**
 - **D1 real confirmada con datos reales del usuario, no de prueba:** `cuentas` ya tiene sus
   5 saldos reales (Binance $45, etc. — subieron solos por el sync automático mientras el
   usuario usaba la app), `movimientos` tiene 1 fila real suya ("prueba", ts 15 ago) que NO
-  toqué — until solo borré la fila que yo mismo creé para probar el campo "Otro", identificada
+  toqué — solo borré la fila que yo mismo creé para probar el campo "Otro", identificada
   por `id` exacto.
 
 **Deploy:** `npx wrangler deploy`.
