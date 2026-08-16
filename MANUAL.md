@@ -12,7 +12,7 @@ No hace falta leerlo de corrido. Ábrelo cuando algo se te olvide.
 
 **Nav de abajo** (Inicio · Proyectos · Finanzas · Vida) son los cuatro que tocas todos los
 días. Todo lo demás vive en el **drawer** (el ícono de menú, arriba) — Japón, Sophia, Mente,
-Sistema Maestro, Bloques de Foco, Academia, Creatividad, Dieta de Input, Arquitecto Digital,
+Sistema Maestro, Bloques de Foco, Academia, Creatividad, Dieta de Input, RAI Agency,
 Prompt Lab, Radar, Calendario, Compras.
 
 **Buscador global** — toca la lupa arriba, o `Cmd/Ctrl+K` desde cualquier pantalla. Busca de
