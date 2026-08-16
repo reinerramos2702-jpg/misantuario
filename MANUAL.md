@@ -105,7 +105,7 @@ espacio libre para símbolos, lugares, ideas filosóficas que alimentan esto.
 
 Fricciones, territorios, el único avión, revisión diaria. **Vómito mental** es donde sueltas
 lo que te está rozando, sin filtro. **3 Territorios** son tus máximo 3 áreas activas ahora
-mismo (RAI Agency, Content Engine, Dominio Técnico IA), cada una con su objetivo a 6 meses y
+mismo (RAI Agency, CRM RAI Agency, Dominio Técnico IA), cada una con su objetivo a 6 meses y
 su KPI. **El único avión** es el proyecto crítico del momento, con deadline y bloqueantes
 explícitos — todo lo demás espera. **Revisión diaria** es tu check de 5 minutos con
 historial. (El cierre operacional de 10 minutos vive en Vida → Cierre, no aquí — hay un
