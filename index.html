@@ -1205,11 +1205,12 @@ body.light .hdr h1 {
             <option value="BsS">BsS</option>
             <option value="JPY">JPY</option>
           </select>
-          <select class="txt" id="exp-cat">
+          <select class="txt" id="exp-cat" onchange="toggleExpCatOtro()">
             <option>Comida</option><option>Medicamentos</option><option>Transporte</option>
             <option>Deuda</option><option>Proyecto</option><option>Ads</option><option>Otro</option>
           </select>
         </div>
+        <input class="txt" id="exp-cat-otro" placeholder="¿Qué fue exactamente? (detalle de 'Otro')" style="display:none;margin-top:8px">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
           <select class="txt" id="exp-acc">
             <option>Binance</option><option>PayPal</option><option>BdV</option><option>Efectivo BsS</option>
