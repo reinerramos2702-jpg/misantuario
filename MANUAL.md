@@ -74,8 +74,8 @@ Multi-moneda (USD · BsS · JPY), conversión manual. **Hoy** te muestra capital
 disponible. **Cuentas** es donde ajustas saldos. **Ahorros Japón** es tu fondo específico
 para la meta de los 6 meses. **Metas** (la más nueva) tiene tres metas de ahorro fijas —
 corto, medio, largo plazo — con su propia barra; una lista libre de reglas de dinero que te
-pones a ti mismo; y el registro de ingresos por fuente activa (RAI Agency, MediGo, Content
-Engine) mes a mes.
+pones a ti mismo; y el registro de ingresos por fuente activa (RAI Agency, MediGo, Quadro
+Café) mes a mes.
 
 ## Vida — cuerpo & mente
 
