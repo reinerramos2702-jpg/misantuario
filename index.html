@@ -4911,7 +4911,7 @@ async function generarBrief() {
   const hPend = state.habits.filter(h => !h.done).map(h => h.name);
   const tHoy = (state.tasks.inicio || []).filter(t => !t.done).map(t => t.txt);
   const jpSesionesSem = state.jpWeek.filter(Boolean).length;
-  const cap = Object.values(state.accounts).reduce((s,v) => s + (parseFloat(v)||0), 0);
+  const cap = totalCapitalUSD();
   const fondoJpn = state.japan?.total || 0;
   const proyTareas = Object.entries(state.tasks).filter(([k]) => k!=='inicio').map(([k,arr]) => `${k}: ${arr.filter(t=>!t.done).length} pendientes`).join(' · ');
   const clientes = (state.clients||[]).length;
