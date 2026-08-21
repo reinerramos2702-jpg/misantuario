@@ -1249,14 +1249,31 @@ body.light .hdr h1 {
           </div>
         </div>
         <div id="accounts-list"></div>
-        <div class="lbl" style="margin-top:14px">Actualizar saldo</div>
+
+        <div class="lbl" style="margin-top:14px">Tasa de cambio manual (USD → BsS)</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input class="txt" id="fx-rate" type="number" placeholder="Tasa" step="0.01" value="677" onchange="updateFxRate()">
+        </div>
+        <div style="font-size:10px;color:var(--ink-3);margin-top:4px">Convierte las cuentas en Bs (como BdV) al capital total en USD.</div>
+
+        <div class="lbl" style="margin-top:18px">Actualizar saldo</div>
         <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px">
-          <select class="txt" id="acc-name">
-            <option>Binance</option><option>PayPal</option><option>BdV</option><option>Efectivo BsS</option><option>JPY futuro</option>
-          </select>
+          <select class="txt" id="acc-name"></select>
           <input class="txt" id="acc-bal" type="number" placeholder="Saldo" step="0.01">
         </div>
         <button class="save-btn" onclick="updateAccount()">Actualizar</button>
+
+        <div class="lbl" style="margin-top:18px">Agregar cuenta nueva</div>
+        <input class="txt" id="new-acc-name" placeholder="Nombre (ej. Ahorros, Efectivo $)" style="margin-bottom:8px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <select class="txt" id="new-acc-cur">
+            <option value="USD">USD</option>
+            <option value="BsS">BsS</option>
+            <option value="JPY">JPY</option>
+          </select>
+          <input class="txt" id="new-acc-bal" type="number" placeholder="Saldo inicial" step="0.01">
+        </div>
+        <button class="save-btn" onclick="addAccount()">Agregar cuenta</button>
       </div>
     </div>
 
