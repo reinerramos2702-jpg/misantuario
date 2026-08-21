@@ -3494,7 +3494,7 @@ function renderFin() {
   const out = state.exps.filter(e => e.type === 'out').reduce((s,e) => s + e.usd, 0);
   $('fin-spent').textContent = '$' + out.toFixed(0);
   $('fin-count').textContent = state.exps.length + ' mov.';
-  const totalAcc = Object.values(state.accounts).reduce((s,v) => s + (parseFloat(v)||0), 0);
+  const totalAcc = totalCapitalUSD();
   $('fin-capital').textContent = '$' + totalAcc.toFixed(0);
   $('fin-avail').textContent = '$' + Math.max(0, 8 - out).toFixed(0);
   // List
