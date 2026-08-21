@@ -217,6 +217,13 @@ body::before {
   gap: 10px; margin-bottom: 14px;
 }
 .card-title-wrap { display: flex; align-items: center; gap: 11px; min-width: 0; }
+/* El div que envuelve título+meta dentro de .card-title-wrap es un flex item sin
+   min-width:0 propio — por default no encoge por debajo del ancho de su contenido,
+   así que un nombre largo (ej. proyecto "La Estrella de Medianoche") empuja los
+   botones de acción (Agente/Eliminar) fuera de la tarjeta en vez de truncar con
+   ellipsis. Regla genérica, no solo para Proyectos: cualquier card-row con acciones
+   al lado del título se beneficia. */
+.card-title-wrap > div { min-width: 0; }
 .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 8px currentColor; }
 .card-title {
   font-size: 13.5px; font-weight: 600; color: var(--ink); letter-spacing: -0.1px;
