@@ -5910,12 +5910,7 @@ function showDebugPanel() {
   ta.focus();
   ta.select();
 }
-const dbgBtn = document.createElement('button');
-dbgBtn.textContent = '🐛';
-dbgBtn.id = 'debug-fab';
-dbgBtn.style.cssText = 'position:fixed;bottom:96px;left:10px;z-index:99998;width:40px;height:40px;border-radius:50%;border:1px solid #444;background:rgba(0,0,0,.6);color:#fff;font-size:18px;opacity:.5;';
-dbgBtn.onclick = showDebugPanel;
-document.body.appendChild(dbgBtn);
+window.showDebugPanel = showDebugPanel;
 </script>
 </body>
 </html>
