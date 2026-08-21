@@ -1179,3 +1179,102 @@ pedido del usuario, para cuando dé la URL real de la web de RAI Agency.
 **Bloque 13: CERRADO.** 50/50 checks en verde contra producción real, migración de estado
 probada con datos realistas (no solo defaults), D1 real con datos genuinos del usuario sin
 tocar, deploy en producción, todo commiteado y listo para push.
+
+---
+
+## Bloque 14 — Fixes de UX en producción (capturas reales del celular)
+
+7 bugs/mejoras reportados desde el celular real, todos directo (sin subagentes: casi todo
+tocaba `state`/`renderFin`/`init` compartidos).
+
+**1. Finanzas — moneda por cuenta real.** `state.accounts` nunca tuvo moneda explícita: se
+adivinaba por substring en el nombre (`"BsS"` o `"JPY"` en el texto), así que BdV (que
+guarda bolívares) se sumaba al capital como si ya fueran dólares. Nuevo `state.accountCurrency`
+por cuenta (BdV → `BsS`) + `state.fxRate` (tasa manual persistida, editable en Cuentas) +
+`totalCapitalUSD()` como única fuente de verdad para el capital (Misión Activa, `fin-capital`,
+contexto del Agente Diario y del cierre semanal — los 3 lugares que antes sumaban
+`Object.values(state.accounts)` a pelo). Verificado con un `state` legado simulado
+(BdV: 18077 sin `accountCurrency`, como lo tiene Reiner hoy): capital pasó de sumarlo crudo
+(→ cientos de miles) a **$84** correctamente convertido, sin tocar el saldo guardado.
+Cuentas nuevas "Efectivo $" y "Ahorros" agregadas vía migración (no rompe instalaciones
+existentes). "Saldos por cuenta" dejó de ser fija: `addAccount()`/`deleteAccount()` (mismo
+patrón que proyectos — `confirm()`, bloquea borrar la última cuenta, toast de feedback),
+selects de cuenta (`acc-name`, `exp-acc`) ahora se repueblan dinámicamente en `renderFin()`.
+
+**2. Proyectos — nombre largo choca con Agente/Eliminar.** El div que envuelve título+meta
+dentro de `.card-title-wrap` era un flex item sin `min-width:0` propio, así que el
+`text-overflow:ellipsis` de `.card-title` nunca se activaba y el título empujaba los botones
+fuera de la tarjeta. Regla CSS genérica (`.card-title-wrap > div { min-width: 0 }`), no
+específica de "La Estrella de Medianoche" — cualquier card-row con acciones al lado del
+título se beneficia.
+
+**3. Ícono flotante de la oruga.** Era el FAB de debug (🐛, abajo a la izquierda,
+`#debug-fab`) — el propio comentario en el código ya decía "temporal, sacar cuando se
+resuelva el bug de scroll". Retirado; `showDebugPanel()` queda accesible por consola
+(`window.showDebugPanel()`) para diagnóstico manual si hace falta.
+
+**4. Agua — reset diario a medianoche local.** Dos bugs reales: (a) el agua nunca se
+reseteaba sola, no había mecanismo — nuevo `state.waterDate` + reset dentro de
+`checkDailyReset()`, con un `setInterval` de 60s en `init()` para que una sesión larga de PWA
+cruzando la medianoche también se resetee sin recargar. (b) `todayKey()` usaba
+`toISOString()`, que es **UTC**, no hora local — en Venezuela (UTC-4) la medianoche "real"
+caía a las 8pm local. Corregido a fecha local (`getFullYear/getMonth/getDate`), lo cual
+también arregla la racha de hábitos de paso. Etiqueta actualizada de "2 litros" fijos a
+"2.5–3 litros" (el total real varía por día; las 8 gotas siguen siendo 8 vasos).
+
+**5. Audiolibros — persistencia real + resumir en el minuto exacto.** `state.lastAudio` se
+guardaba pero nunca se leía de vuelta (recargar perdía el reproductor). `loadAudio()` ahora
+recibe un `resumeAt` del `state.lastAudio.time` guardado (mismo id) y lo pasa como `start` al
+iframe de YouTube; un guardado periódico cada 5s mientras reproduce (`onStateChange` →
+`saveAudioProgress()`, con `getCurrentTime()`) mantiene el minuto al día. `restoreAudio()`
+repuebla el link y recarga el reproductor solo al entrar a la subsección (hook en `showSub`),
+no en cada carga de la app entera.
+
+**6. Notificación "Tales" — swipe real.** El Bloque 6 ya había agregado listeners de
+pointer events pero en el celular real no se sentía deslizable. Dos bugs confirmados: (a)
+`touch-action:pan-y` dejaba que el navegador arbitrara el gesto como scroll nativo ante
+cualquier componente vertical y cancelaba la secuencia (`pointercancel`) antes de acumular
+desplazamiento — cambiado a `touch-action:none` (el toast es un overlay fixed pequeño, no
+tiene contenido propio que scrollear). (b) sin `setPointerCapture`, un swipe rápido sacaba el
+puntero del elemento y perdía los eventos siguientes — agregado. Sumado soporte de swipe
+hacia **arriba** (antes solo izq/der). Verificado disparando `PointerEvent`s reales por CDP:
+swipe de 120px → `translateX(-400px)`, opacity 0, toast removido del DOM en 300ms.
+
+**7. Persistencia de navegación.** `state.sec`/`state.fin`/`state.vida`/`state.mente` NO
+viven en `state` (es UI, no dato de la app) — nueva key aparte en localStorage
+(`santuario_last_nav`) vía `saveLastNav()`/`loadLastNav()`, escrita desde `showSec()` y
+`showSub()`. `restoreLastNav()` corre al final de `init()`: si hay nav guardada, reactiva la
+sección (con su nav-btn si es una de las 4 principales) y el subtab de Finanzas/Vida/Mente.
+Verificado por CDP: navegar a Finanzas → Cuentas, recargar la página completa, y confirmar
+`document.querySelector('.sec.active').id === 'sec-finanzas'` y el subtab de Cuentas activo.
+
+**Verificación — Chrome headless real por CDP (perfil aislado, Node `WebSocket` nativo, sin
+Puppeteer instalado), local primero y luego contra producción real con viewport de celular
+(390×844, `mobile:true`, touch emulado):**
+- Migración con `state` legado simulado (BdV sin `accountCurrency`): capital correcto, sin
+  romper saldos, sin excepciones.
+- CRUD de cuentas: agregar, eliminar, bloqueo de borrar la última — los 3 en verde.
+- Reset de agua con fecha vieja simulada: `water` vuelve a 0, `waterDate` se actualiza.
+- `todayKey()` confirmado en fecha local real (Venezuela, UTC-4), no UTC.
+- Card de "La Estrella de Medianoche" con el proyecto realmente visible en pantalla: sin
+  solape, título con ellipsis, gap real entre título y botón "Agente".
+- Restaurar audiolibro guardado: campo de link poblado, notas visibles, `tsFromSeconds`
+  correcto.
+- Swipe del toast simulado con `PointerEvent`s reales: descarta y remueve del DOM.
+- **Contra producción real** (`https://misantuario.reinerramos2702.workers.dev/`, viewport
+  de celular): 0 errores de consola, `debug-fab` ausente, cuentas nuevas presentes, todas las
+  funciones nuevas definidas, capital correcto.
+- Nota honesta: el smoke test de producción usa un perfil de Chrome nuevo (sin el
+  `localStorage` real del celular de Reiner), así que valida instalación fresca + ausencia de
+  errores, no la migración de SU saldo real de BdV en su dispositivo — eso se confirma solo
+  la próxima vez que abra la app de verdad (la lógica de migración ya se probó exhaustivamente
+  con un estado legado simulado idéntico al suyo: BdV en bolívares sin `accountCurrency`).
+
+**Deploy:** `npx wrangler deploy` — subido antes de verificar producción.
+
+**Pendiente:** ninguno de los 7 ítems. Persistencia de navegación cubre las 4 secciones
+principales + subtabs de Finanzas/Vida/Mente (no los subtabs internos de Arquitecto/Maestro/
+Foco, que usan sistemas de subtabs propios `showSubArq`/`showSubMaestro`/`showSubFoco` — fuera
+de alcance de este bloque, no se pidieron).
+
+**Bloque 14: CERRADO.**
