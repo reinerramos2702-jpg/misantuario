@@ -2832,6 +2832,24 @@ function migrateState(next) {
   if (!next.projects.some(p => p.id === next.activeProject)) next.activeProject = next.projects[0]?.id || 'rai';
   next.sophiaProgress = { ...base.sophiaProgress, ...(next.sophiaProgress || {}) };
   if (!Array.isArray(next.sophiaProgress.log)) next.sophiaProgress.log = [];
+
+  // Bloque 14: cuentas — moneda explícita por cuenta (reclasifica BdV a BsS aunque el
+  // usuario ya tuviera `accounts` guardado, porque antes no existía `accountCurrency` y el
+  // saldo real de BdV vive en bolívares, no dólares), tasa de cambio manual persistida, y
+  // las 2 cuentas nuevas ("Efectivo $", "Ahorros") inyectadas si todavía no existen —
+  // mismo patrón que los proyectos nuevos del Bloque 13, sin tocar saldos ya guardados.
+  next.accounts = { ...(next.accounts || {}) };
+  ['Efectivo $', 'Ahorros'].forEach(name => {
+    if (!(name in next.accounts)) next.accounts[name] = 0;
+  });
+  next.accountCurrency = { ...base.accountCurrency, ...(next.accountCurrency || {}) };
+  Object.keys(next.accounts).forEach(name => {
+    if (!next.accountCurrency[name]) {
+      next.accountCurrency[name] = name.includes('BsS') ? 'BsS' : name.includes('JPY') ? 'JPY' : 'USD';
+    }
+  });
+  next.fxRate = parseFloat(next.fxRate) || base.fxRate;
+
   return next;
 }
 function save() {
