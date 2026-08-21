@@ -5758,32 +5758,47 @@ function toast(icon, title, sub) {
   };
   let autoTimer = setTimeout(dismiss, 3200);
 
-  // Swipe para descartar (pointer events cubren touch + mouse en un solo listener)
-  let startX = null, dx = 0, dragging = false;
-  t.style.touchAction = 'pan-y'; // deja scroll vertical de la página, solo captura el gesto horizontal
+  // Swipe para descartar — izquierda, derecha o arriba (pointer events cubren touch + mouse).
+  // Bloque 14 fix: en el celular real esto NO se sentía deslizable pese a que el Bloque 6 lo
+  // dio por hecho. Dos causas reales, confirmadas en el celular:
+  // 1) `touch-action: pan-y` dejaba que el navegador arbitrara el gesto como scroll nativo en
+  //    cuanto había el mínimo componente vertical, y cancelaba la secuencia de pointer events
+  //    (pointercancel) antes de acumular el desplazamiento — así el drag nunca llegaba al
+  //    umbral. Con el toast siendo un overlay fixed pequeño (no hay contenido propio que
+  //    scrollear dentro de él), `touch-action:none` es seguro y le da control total del gesto.
+  // 2) Sin `setPointerCapture`, un swipe rápido saca el puntero fuera del elemento antes de
+  //    soltar y los pointermove/pointerup posteriores no le llegan a `t` — se siente "pegado".
+  let startX = null, startY = null, dx = 0, dy = 0, dragging = false, pid = null;
+  t.style.touchAction = 'none';
   t.addEventListener('pointerdown', e => {
-    dragging = true; startX = e.clientX; dx = 0;
+    dragging = true; startX = e.clientX; startY = e.clientY; dx = 0; dy = 0; pid = e.pointerId;
+    try { t.setPointerCapture(pid); } catch (err) {}
     clearTimeout(autoTimer); // no auto-descartar mientras el usuario interactúa
     t.style.transition = 'none';
   });
   t.addEventListener('pointermove', e => {
     if (!dragging || startX === null) return;
     dx = e.clientX - startX;
-    t.style.transform = `translateX(${dx}px)`;
-    t.style.opacity = String(Math.max(0.15, 1 - Math.abs(dx) / 160));
+    dy = Math.min(0, e.clientY - startY); // solo "arriba" cuenta como dirección de descarte
+    t.style.transform = `translate(${dx}px, ${dy}px)`;
+    const dist = Math.max(Math.abs(dx), Math.abs(dy));
+    t.style.opacity = String(Math.max(0.15, 1 - dist / 160));
   });
   const endDrag = () => {
     if (!dragging) return;
     dragging = false;
-    if (Math.abs(dx) > 70) {
+    try { if (pid !== null) t.releasePointerCapture(pid); } catch (err) {}
+    const dist = Math.max(Math.abs(dx), Math.abs(dy));
+    if (dist > 70) {
+      const goingUp = Math.abs(dy) > Math.abs(dx);
       t.style.transition = 'transform .25s ease, opacity .25s ease';
-      t.style.transform = `translateX(${dx > 0 ? 400 : -400}px)`;
+      t.style.transform = goingUp ? 'translateY(-300px)' : `translateX(${dx > 0 ? 400 : -400}px)`;
       t.style.opacity = '0';
       dismissed = true;
       setTimeout(removeNow, 250);
     } else {
       t.style.transition = 'transform .25s cubic-bezier(0.34,1.56,0.64,1), opacity .25s ease';
-      t.style.transform = 'translateX(0)';
+      t.style.transform = 'translate(0,0)';
       t.style.opacity = '1';
       autoTimer = setTimeout(dismiss, 2200); // reanuda el auto-dismiss (más corto, ya lo vio)
     }
