@@ -3342,7 +3342,55 @@ function accountSlug(name) {
     .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'cuenta';
 }
 function accountMoneda(name) {
+  if (state.accountCurrency && state.accountCurrency[name]) return state.accountCurrency[name];
+  // Fallback para cuentas que aún no pasaron por migrateState (no debería pasar en la
+  // práctica, pero evita romper si algo llama esto antes de que el state esté listo).
   return name.includes('BsS') ? 'BsS' : name.includes('JPY') ? 'JPY' : 'USD';
+}
+// Capital total en USD real: cada cuenta se convierte según su moneda propia (accountMoneda)
+// y la tasa de cambio manual (state.fxRate) antes de sumar — así una cuenta en Bs (BdV) no
+// se suma como si ya fuera dólares.
+function totalCapitalUSD() {
+  const fx = parseFloat(state.fxRate) || 677;
+  return Object.entries(state.accounts).reduce((sum, [name, bal]) => {
+    const v = parseFloat(bal) || 0;
+    const cur = accountMoneda(name);
+    const usd = cur === 'BsS' ? v / fx : cur === 'JPY' ? v / 150 : v;
+    return sum + usd;
+  }, 0);
+}
+function updateFxRate() {
+  const v = parseFloat($('fx-rate').value);
+  if (isNaN(v) || v <= 0) return;
+  state.fxRate = v;
+  save(); renderFin();
+  toast('💱', 'Tasa actualizada', `1 USD = ${v} BsS`);
+}
+function addAccount() {
+  const nameEl = $('new-acc-name'), curEl = $('new-acc-cur'), balEl = $('new-acc-bal');
+  const name = nameEl.value.trim();
+  if (!name) return toast('＋', 'Ponle nombre a la cuenta', 'Ej. "Ahorros", "Efectivo $"...');
+  if (state.accounts.hasOwnProperty(name)) return toast('!', 'Esa cuenta ya existe', name);
+  const bal = parseFloat(balEl.value) || 0;
+  const cur = curEl.value || 'USD';
+  state.accounts[name] = bal;
+  state.accountCurrency[name] = cur;
+  nameEl.value = ''; balEl.value = '';
+  save(); renderFin();
+  apiFetch('/api/cuentas/' + accountSlug(name), {
+    method: 'PUT',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ saldo: bal, nombre: name, moneda: cur })
+  });
+  toast('＋', 'Cuenta agregada', name);
+}
+function deleteAccount(name) {
+  if (Object.keys(state.accounts).length <= 1) return toast('!', 'No puedes borrar la última cuenta', 'Crea otra antes de eliminar esta.');
+  if (!confirm(`¿Eliminar la cuenta "${name}"? Se pierde su saldo registrado localmente.`)) return;
+  delete state.accounts[name];
+  delete state.accountCurrency[name];
+  save(); renderFin();
+  toast('−', 'Cuenta eliminada', name);
 }
 // Migración de subida (una sola vez, marcada con santuario_d1_synced_v1): si D1 responde y
 // está vacía, sube lo que ya existe en localStorage. Nunca lee de vuelta hacia state ni
