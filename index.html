@@ -2960,6 +2960,8 @@ function showSub(group, id, btn) {
     btn.parentElement.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
   }
+  if (group === 'vida' && id === 'audio') restoreAudio();
+  saveLastNav('vida-sub-' + group, id); // no-op para otros grupos que no persisten subtab
 }
 function toggleDrawer() {
   const d = $('drawer'), b = $('drawer-bg');
