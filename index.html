@@ -4965,7 +4965,7 @@ Nivel actual: ${currentLevel().lvl.name}.
 Sesiones japonés: ${state.jpWeek.filter(Boolean).length}/7.
 Hábitos completados hoy: ${state.habits.filter(h=>h.done).length}/${state.habits.length}.
 Fondo Japón: $${state.japan?.total||0}.
-Capital: $${Object.values(state.accounts).reduce((s,v)=>s+(parseFloat(v)||0),0)}.
+Capital: $${totalCapitalUSD().toFixed(0)}.
 Cierres registrados: ${state.cierres.length}.
 Decisiones tomadas: ${state.dec.length}.
 Ideas capturadas: ${state.vault.length}.
