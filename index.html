@@ -5404,23 +5404,65 @@ let ytReady = false;
 })();
 window.onYouTubeIframeAPIReady = () => { ytReady = true; };
 
+// Bloque 14: persistencia real — antes `state.lastAudio` se guardaba pero nunca se leía de
+// vuelta (recargar la página perdía el reproductor por completo), y no había minuto guardado.
+// Ahora loadAudio() retoma el mismo audiolibro justo donde quedó (audiolibros de hasta 9h,
+// sesiones de ~37min) vía un `start` inicial + seekTo, y un guardado periódico mientras
+// reproduce mantiene `state.lastAudio.time` al día.
+let ytSaveInterval = null;
 function loadAudio() {
   const url = $('audio-url').value.trim();
   if (!url) return;
   const id = parseYTId(url);
   if (!id) { alert('Link inválido. Usa una URL de YouTube.'); return; }
+  const resumeAt = (state.lastAudio && state.lastAudio.id === id) ? (state.lastAudio.time || 0) : 0;
   $('audio-player').innerHTML = `<div id="yt-iframe"></div>`;
   const init = () => {
     ytPlayer = new YT.Player('yt-iframe', {
       height: '200', width: '100%', videoId: id,
-      playerVars: { 'rel': 0, 'modestbranding': 1, 'playsinline': 1 }
+      playerVars: { 'rel': 0, 'modestbranding': 1, 'playsinline': 1, 'start': Math.floor(resumeAt) },
+      events: {
+        onReady: () => { if (resumeAt > 5) toast('⏱', 'Retomando donde quedaste', tsFromSeconds(resumeAt)); },
+        onStateChange: onYTStateChange
+      }
     });
   };
   if (ytReady) init();
   else { const wait = setInterval(() => { if (ytReady) { clearInterval(wait); init(); } }, 200); }
   $('audio-notes-area').style.display = 'block';
-  state.lastAudio = { id, url };
+  state.lastAudio = { id, url, time: resumeAt };
   save();
+}
+// Retoma el audiolibro guardado sin que el usuario tenga que repegar el link — se llama al
+// entrar a la subsección Audiolibros (ver showSub) si hay uno pendiente.
+let audioRestored = false;
+function restoreAudio() {
+  if (audioRestored || !state.lastAudio || !state.lastAudio.id) return;
+  audioRestored = true;
+  $('audio-url').value = state.lastAudio.url || '';
+  loadAudio();
+}
+function tsFromSeconds(s) {
+  s = Math.max(0, Math.floor(s));
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  return (h ? h + ':' + String(m).padStart(2, '0') : String(m)) + ':' + String(sec).padStart(2, '0');
+}
+function onYTStateChange(e) {
+  // YT.PlayerState: 1 = reproduciendo, resto (pausa/fin/buffer) = detener el guardado periódico
+  if (e.data === 1) {
+    if (ytSaveInterval) clearInterval(ytSaveInterval);
+    ytSaveInterval = setInterval(saveAudioProgress, 5000);
+  } else {
+    if (ytSaveInterval) { clearInterval(ytSaveInterval); ytSaveInterval = null; }
+    saveAudioProgress();
+  }
+}
+function saveAudioProgress() {
+  if (!ytPlayer || typeof ytPlayer.getCurrentTime !== 'function' || !state.lastAudio) return;
+  try {
+    const t = ytPlayer.getCurrentTime();
+    if (typeof t === 'number' && !isNaN(t) && t > 0) { state.lastAudio.time = t; save(); }
+  } catch (e) {}
 }
 function tsToSeconds(ts) {
   // "24:35" or "1:24:35"
