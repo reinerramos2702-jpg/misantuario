@@ -2950,6 +2950,37 @@ function showSec(id, btn) {
     // For drawer items, don't activate any nav btn
   }
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  saveLastNav({ sec: id });
+}
+
+// ============================================================
+// PERSISTENCIA DE NAVEGACIÓN (Bloque 14)
+// ============================================================
+// Última sección/subtab activa, en localStorage aparte de `state` (no es dato de la app,
+// es UI — así no se mezcla con el export/import de state ni con el sync a D1).
+const NAV_KEY = 'santuario_last_nav';
+function loadLastNav() {
+  try { return JSON.parse(localStorage.getItem(NAV_KEY)) || {}; } catch (e) { return {}; }
+}
+function saveLastNav(patch) {
+  try { localStorage.setItem(NAV_KEY, JSON.stringify({ ...loadLastNav(), ...patch })); } catch (e) {}
+}
+// Al recargar, vuelve a la sección/subtab donde estaba en vez de siempre Inicio.
+function restoreLastNav() {
+  const nav = loadLastNav();
+  if (!nav || !nav.sec) return; // primera vez: se queda en Inicio, tal como ya está en el HTML
+  const NAV_BTN_IDX = { inicio: 0, proyectos: 1, finanzas: 2, vida: 3 };
+  if (SECS.includes(nav.sec)) {
+    const idx = NAV_BTN_IDX[nav.sec];
+    const btn = idx !== undefined ? document.querySelectorAll('.nav-btn')[idx] : null;
+    showSec(nav.sec, btn);
+  }
+  ['fin', 'vida', 'mente'].forEach(group => {
+    const subId = nav[group];
+    if (!subId) return;
+    const btn = document.querySelector(`.subtab[onclick*="showSub('${group}','${subId}'"]`);
+    if (btn && $(group + '-' + subId)) showSub(group, subId, btn);
+  });
 }
 function showSub(group, id, btn) {
   document.querySelectorAll(`#sec-${group === 'fin' ? 'finanzas' : group === 'vida' ? 'vida' : 'mente'} .subsec`).forEach(el => {
