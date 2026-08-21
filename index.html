@@ -2704,8 +2704,16 @@ function defaultState() {
       { id: 'cierre', icon: '🌙', name: 'Cierre del día', meta: '10 min antes de dormir', done: false },
     ],
     water: 0,
+    waterDate: null,
     exps: [],
-    accounts: { 'Binance': 48, 'PayPal': 0, 'BdV': 0, 'Efectivo BsS': 0, 'JPY futuro': 0 },
+    accounts: { 'Binance': 48, 'PayPal': 0, 'BdV': 0, 'Efectivo BsS': 0, 'Efectivo $': 0, 'Ahorros': 0, 'JPY futuro': 0 },
+    // Moneda real de cada cuenta — antes se adivinaba por substring en el nombre ("BsS"/"JPY"
+    // en el texto), lo que hacía que BdV (que guarda bolívares) se tratara como si fueran
+    // dólares y se sumara tal cual al capital total. Ahora es explícito por cuenta.
+    accountCurrency: { 'Binance': 'USD', 'PayPal': 'USD', 'BdV': 'BsS', 'Efectivo BsS': 'BsS', 'Efectivo $': 'USD', 'Ahorros': 'USD', 'JPY futuro': 'JPY' },
+    // Tasa de cambio manual USD→BsS (multi-moneda · cambio manual, ya anunciado en el
+    // subtítulo de Finanzas) — se usa para convertir cuentas en Bs al capital total en USD.
+    fxRate: 677,
     japan: { total: 0, log: [] },
     jpWeek: [false,false,false,false,false,false,false],
     pages: { today: 0, activeBook: null, library: [] },
