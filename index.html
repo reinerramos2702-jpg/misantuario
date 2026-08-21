@@ -6035,6 +6035,7 @@ function init() {
   renderFinExpandida();
   checkConn();
   applyTheme();
+  restoreLastNav();
   // Marca tema activo en drawer
   document.querySelectorAll('.theme-opt').forEach(b => b.classList.toggle('active', b.dataset.theme === (state.theme||'dark')));
   // Brief del día si ya existe
