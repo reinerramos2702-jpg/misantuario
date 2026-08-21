@@ -5970,6 +5970,12 @@ function init() {
   refreshNotifBadge();
   setInterval(refreshNotifBadge, 60000); // cada minuto
 
+  // Si la app se queda abierta cruzando la medianoche local (PWA de larga sesión), sin esto
+  // el reset diario de hábitos/agua solo se aplicaría en el próximo reload.
+  setInterval(() => {
+    if (checkDailyReset()) { renderHabits(); renderWater(); renderStreakBadge(); }
+  }, 60000);
+
   // Web Push: pedir permiso (si aplica) y chequear alertas críticas
   maybeAskPushPermission();
   checkAndPushCriticalAlerts();
