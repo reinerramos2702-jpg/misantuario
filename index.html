@@ -2880,7 +2880,14 @@ const ts = () => {
   const d = new Date();
   return d.toLocaleString('es-ES', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
 };
-const todayKey = () => new Date().toISOString().slice(0,10);
+// Fecha local (no UTC): toISOString() siempre da la fecha en UTC, lo que corría la
+// medianoche "real" varias horas respecto a la hora local del dispositivo (ej. en
+// Venezuela, UTC-4, la medianoche UTC cae a las 8pm local) — afecta cualquier reset diario
+// (hábitos, agua) que dependa de esta clave.
+const todayKey = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
 
 // Greeting
 function setGreeting() {
