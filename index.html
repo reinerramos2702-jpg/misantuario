@@ -5864,7 +5864,9 @@ function init() {
 init();
 
 // ============================================================
-// DEBUG PANEL — temporal, sacar cuando se resuelva el bug de scroll
+// DEBUG PANEL — sin FAB visible (ícono flotante retirado a pedido del
+// usuario, Bloque 14). showDebugPanel() queda disponible por consola
+// para diagnóstico manual si hace falta.
 // ============================================================
 window.__jsErrors = [];
 window.addEventListener('error', e => {
