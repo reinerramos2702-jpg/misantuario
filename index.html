@@ -3518,13 +3518,34 @@ function renderFin() {
   // Accounts list
   const aList = $('accounts-list');
   if (aList) {
-    aList.innerHTML = Object.entries(state.accounts).map(([name, bal]) => `
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)">
-        <div style="font-size:13px;font-weight:600;color:var(--ink)">${name}</div>
-        <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:500;color:var(--mint)">${name.includes('BsS') ? 'Bs.' : name.includes('JPY') ? '¥' : '$'}${parseFloat(bal||0).toFixed(2)}</div>
+    const fx = parseFloat(state.fxRate) || 677;
+    aList.innerHTML = Object.entries(state.accounts).map(([name, bal]) => {
+      const cur = accountMoneda(name);
+      const sym = cur === 'BsS' ? 'Bs.' : cur === 'JPY' ? '¥' : '$';
+      const v = parseFloat(bal) || 0;
+      const usd = cur === 'BsS' ? v / fx : cur === 'JPY' ? v / 150 : v;
+      return `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);gap:8px">
+        <div style="min-width:0">
+          <div style="font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHTML(name)}</div>
+          <div style="font-size:9.5px;color:var(--ink-4);font-weight:500">${cur}${cur !== 'USD' ? ' · ≈ $' + usd.toFixed(2) : ''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+          <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:500;color:var(--mint)">${sym}${v.toFixed(2)}</div>
+          <button class="entry-del" style="position:static" onclick="deleteAccount('${name.replace(/'/g, "\\'")}')" title="Eliminar cuenta">×</button>
+        </div>
       </div>
-    `).join('');
+    `; }).join('');
   }
+  // Selects dinámicos: reflejan las cuentas reales (agregar/eliminar en Cuentas las actualiza)
+  ['acc-name', 'exp-acc'].forEach(id => {
+    const sel = $(id);
+    if (!sel) return;
+    const prev = sel.value;
+    sel.innerHTML = Object.keys(state.accounts).map(n => `<option ${n === prev ? 'selected' : ''}>${escapeHTML(n)}</option>`).join('');
+  });
+  const fxInput = $('fx-rate');
+  if (fxInput && document.activeElement !== fxInput) fxInput.value = state.fxRate;
   $('k-cap').textContent = '$' + totalAcc.toFixed(0);
 }
 function updateAccount() {
