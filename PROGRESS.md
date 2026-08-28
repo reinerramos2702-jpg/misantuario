@@ -1278,3 +1278,86 @@ Foco, que usan sistemas de subtabs propios `showSubArq`/`showSubMaestro`/`showSu
 de alcance de este bloque, no se pidieron).
 
 **Bloque 14: CERRADO.**
+
+---
+
+## Bloque 15 — Vista de escritorio completa (responsive real)
+
+**Enfoque:** todo aditivo vía `@media (min-width:768px)` / `(min-width:1024px)` al final del
+`<style>` — cero reglas base tocadas, así que mobile (<768px) usa exactamente el mismo CSS
+de siempre (verificado por inspección: las únicas reglas fuera de media queries son
+`:focus-visible` global, inofensiva en touch, y `.toast-close{display:none}` por defecto).
+
+**1. Sidebar de escritorio (≥1024px).** La bottom-nav (`.nav`, 4 botones) y el drawer
+"Más" (`.drawer`, 13 secciones + Exportar/Importar/Probar Push/Manual) se reposicionan con
+`position:fixed;left:0` como un panel único de 264px — mismo HTML, mismos `onclick`, sin capa
+paralela. El botón "Más" se oculta (`display:none` por selector `[onclick*="toggleDrawer"]`)
+porque sus secciones ya están siempre visibles debajo. Resaltado de sección activa: se agregó
+`data-sec="X"` a los 4 nav-btn y a los 13 drawer-item de sección, y `showSec()` ahora también
+hace `document.querySelectorAll('[data-sec]').forEach(el => el.classList.toggle('active', ...))`
+— antes solo marcaba `.nav-btn`, así que los items del drawer nunca se resaltaban (irrelevante
+en mobile porque el drawer se cierra al navegar, pero necesario ahora que es permanente).
+
+**2. Motor genérico de grids responsivos.** En vez de bespoke CSS por módulo, una regla
+genérica: `.sec.active` y `.subsec.active` se vuelven `display:grid` con
+`repeat(auto-fit,minmax(300px,1fr))` en desktop — mismo HTML, las cards se reparten solas
+en 2-3 columnas según el ancho. Los elementos "estructurales" (sec-hdr, subtabs, metric-grid,
+alerts, brief-cards, project-manager, listas `[id$="-list"]`) se marcan `grid-column:1/-1`
+para no romperse en columnas. Cubre de una sola vez: Inicio (checklist+consulta lado a lado),
+Finanzas Hoy (Registrar+Movimientos lado a lado), Sistema Maestro (3 Territorios en 3
+columnas), Mente (notas de cada subtab en grid en vez de lista larga), Sophia (Fases+Notas
+lado a lado), Academia (recursos/agente/polimatía en grid), RAI Agency, Radar IA, Calendario,
+Compras, Prompt Lab, Creatividad, Dieta.
+
+**3. Tratamientos específicos:**
+- **Japón — Roadmap 12 meses:** nueva clase `.jp-roadmap` → grid de 2-3 columnas en vez de
+  filas apiladas.
+- **Academia — Currículo 90 días:** las `.entry` (tema + horas/entregable/checkpoint) se
+  convierten en filas de tabla real con `display:contents` en los dos `<div>` internos —
+  tuvo que ser `display:contents !important` porque esos divs traen `style="display:flex"` /
+  `style="display:grid"` inline desde el render JS (`renderCurriculum()`), y un inline style
+  sin `!important` le gana a cualquier regla externa sin `!important`. Header de columnas
+  (`TEMA/HORAS/ENTREGABLE/CHECKPOINT`) nuevo, oculto en mobile.
+- **Modo Focus (desktop):** `.drawer` faltaba en la lista de elementos ocultos por
+  `body.focus-mode` (la regla original solo escondía `.nav`, porque en mobile el drawer ya
+  estaba cerrado por defecto) — sin este fix el sidebar completo quedaba visible en pantalla
+  completa. También `.shell` recupera `margin:0 auto` en focus-mode porque su margin-left
+  normal reserva espacio para un sidebar que en este modo no existe (si no, el timer quedaba
+  descentrado hacia la derecha).
+- **Snackbar/Tales:** botón `✕` agregado al DOM del toast (`toast-close`, oculto por defecto,
+  visible solo con `@media (hover:hover) and (pointer:fine)`) — el swipe táctil del Bloque 14
+  sigue intacto para touch.
+- **Modales:** centrados verticalmente desde tablet (antes bottom-sheet siempre); ya tenían
+  `max-width:520px`, no hacía falta tocarlo.
+- **Interacción mouse/teclado:** cursor:pointer y hover sutil en botones/tabs/cards/checklist
+  bajo `@media (hover:hover) and (pointer:fine)` (no afecta touch); `:focus-visible` con
+  outline visible global (no se quitó ningún outline sin reemplazo); scrollbar de webkit
+  temática solo en desktop (mobile la sigue ocultando).
+
+**Simplificaciones honestas (no se hicieron, por alcance/riesgo):**
+- **Proyectos:** sigue usando el tab-selector existente (un proyecto visible a la vez) en vez
+  de un kanban real o grid de todas las tarjetas simultáneas — eso requiere cambiar
+  `renderProjectPane()` para renderizar todos los proyectos a la vez, lo cual afecta el
+  comportamiento en mobile también (fuera del alcance "solo CSS/layout" pedido). El layout se
+  ve limpio y con el ancho extra bien aprovechado, pero no es kanban.
+- **GOD NODE / Sophia:** las 5 fases no se convirtieron en stepper horizontal — siguen en lista
+  vertical dentro de su card (que sí se emparejó con Notas de visión).
+- **Manifest PWA:** revisado, ya cumple los requisitos de instalabilidad de Chrome/Edge
+  desktop (`name`, `short_name`, iconos 192/512, `display:standalone`, `sw.js` registrado) —
+  no se tocó, no hacía falta.
+
+**Verificación:** Chrome real (extensión claude-in-chrome) contra `python -m http.server`
+local, viewport 1366×~551 (desktop). Recorridas: Inicio, Proyectos, Finanzas (Hoy/Cuentas),
+Vida (Agua), Japón, Sophia, Sistema Maestro (3 Territorios), Academia (currículo + tabla),
+RAI Agency, Bloques de Foco (normal + modo focus), notificaciones (modal), snackbar (X).
+0 errores de consola en todo el recorrido. **Nota honesta:** no se pudo verificar visualmente
+390px/768px en vivo en esta sesión — la herramienta de resize de ventana del entorno no
+reducía el viewport real (se quedaba en 1366px pese a pedir 390/768). La ausencia de
+regresión en mobile/tablet se verificó por inspección de código: toda regla nueva vive dentro
+de `@media (min-width:768px)` o `(min-width:1024px)`, cero reglas base modificadas.
+
+**Deploy:** pendiente `npx wrangler deploy` manual (igual que siempre, ver
+[[mi-santuario-proyecto]]).
+
+**Bloque 15: CERRADO** (con las simplificaciones de Proyectos/Sophia arriba documentadas como
+pendientes explícitos, no como "hecho").

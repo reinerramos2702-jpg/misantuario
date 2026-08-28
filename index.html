@@ -278,6 +278,7 @@ body.focus-mode .hdr,
 body.focus-mode .offline-banner,
 body.focus-mode .mission,
 body.focus-mode .nav,
+body.focus-mode .drawer,
 body.focus-mode #sec-foco .sec-hdr,
 body.focus-mode #sec-foco .subtabs,
 body.focus-mode #sec-foco .card:not(#foco-timer-card) {
@@ -981,6 +982,207 @@ body.light .hdr h1 {
 .proj-rai { --accent: var(--mint); --accent-soft: rgba(110,231,183,0.15); }
 .proj-quadro { --accent: var(--stardust); --accent-soft: rgba(252,211,77,0.15); }
 .proj-medigo { --accent: var(--stellar); --accent-soft: rgba(96,165,250,0.15); }
+
+/* ============================================================
+   BLOQUE 15 · RESPONSIVE DESKTOP/TABLET
+   Mobile (<768px) queda intacto — todo lo de abajo es aditivo
+   vía min-width. Mismo HTML/estado, distinta disposición visual.
+   ============================================================ */
+
+/* Utilidad: forzar que un item ocupe todo el ancho dentro de un
+   grid de sección/subsección (headers, tablas, banners intro). */
+.span-all { }
+
+/* ---------- Tablet (768–1023px): punto intermedio ---------- */
+@media (min-width: 768px) {
+  .shell { max-width: 680px; }
+  .modal-bg { align-items: center; padding: 20px; }
+  .modal { border-radius: 22px; max-height: 82vh; }
+  .drawer-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ---------- Desktop (≥1024px): sidebar + grids ---------- */
+@media (min-width: 1024px) {
+  :root { --sidebar-w: 264px; }
+
+  body { overflow-x: hidden; }
+
+  .shell {
+    max-width: 920px;
+    margin: 0 auto 0 calc(var(--sidebar-w) + 32px);
+    padding-bottom: 48px;
+  }
+
+  /* --- Sidebar: la bottom-nav + el drawer se convierten en un
+     panel fijo a la izquierda, mismos botones/onclick, sin capa
+     paralela de datos. --- */
+  .nav {
+    position: fixed; top: 0; left: 0; bottom: auto;
+    width: var(--sidebar-w); max-width: none; height: auto;
+    transform: none;
+    flex-direction: column; align-items: stretch;
+    padding: 26px 14px 14px; gap: 3px;
+    border-top: none; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    background: var(--surface);
+    z-index: 101;
+  }
+  .nav-btn {
+    flex-direction: row; justify-content: flex-start; gap: 12px;
+    padding: 10px 12px; min-height: auto; border-radius: 10px;
+  }
+  .nav-btn span { font-size: 12.5px; }
+  .nav-btn svg { width: 18px; height: 18px; }
+  .nav-btn.active::after { display: none; }
+  .nav-btn.active { background: rgba(16,185,129,0.1); }
+  .nav-btn.active svg { transform: none; }
+  /* El botón "Más" desaparece: sus secciones ya viven siempre visibles debajo */
+  .nav-btn[onclick*="toggleDrawer"] { display: none; }
+
+  .drawer-bg { display: none !important; }
+  .drawer {
+    display: flex !important; flex-direction: column;
+    position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh;
+    margin: 0; border-radius: 0; border: none; border-right: 1px solid var(--line);
+    padding: 208px 14px 20px; box-sizing: border-box;
+    animation: none; box-shadow: none; max-height: none;
+    background: var(--surface); z-index: 100; overflow-y: auto;
+  }
+  .drawer-grid { display: flex; flex-direction: column; gap: 2px; margin-top: 0; }
+  .drawer-item {
+    flex-direction: row; justify-content: flex-start; gap: 12px;
+    padding: 9px 12px; font-size: 12.5px; border: 1px solid transparent; background: transparent;
+  }
+  .drawer-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+  .drawer-item.active { background: rgba(16,185,129,0.1); border-color: var(--line-emerald); color: var(--mint); }
+  .drawer-item.active svg { color: var(--mint); }
+  .theme-row { margin: 10px 0 0; }
+
+  /* --- Motor genérico de grids responsivos ---
+     Mismo HTML/estado: cada sección/subsección activa reparte sus
+     cards en columnas que se adaptan al ancho disponible. Los
+     elementos "estructurales" (headers, tabs, tablas, banners)
+     se marcan para ocupar todo el ancho. */
+  .sec.active:not(#sec-foco) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px; align-items: start;
+  }
+  .sec.active:not(#sec-foco) > .sec-hdr,
+  .sec.active:not(#sec-foco) > .subtabs,
+  .sec.active:not(#sec-foco) > .subsec,
+  .sec.active:not(#sec-foco) > .project-manager,
+  .sec.active:not(#sec-foco) > .alert,
+  .sec.active:not(#sec-foco) > .brief-card,
+  .sec.active:not(#sec-foco) > .card.span-all,
+  .sec.active:not(#sec-foco) > #proj-tabs,
+  .sec.active:not(#sec-foco) > #proj-pane {
+    grid-column: 1 / -1;
+  }
+  .subsec.active {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px; align-items: start;
+  }
+  .subsec.active > .metric-grid,
+  .subsec.active > .card.span-all {
+    grid-column: 1 / -1;
+  }
+  /* Listas renderizadas por JS (movimientos, notas, clientes, fuentes...):
+     de tira vertical larga a grid que aprovecha el ancho. La tabla de
+     currículo tiene tratamiento propio (real tabla), se excluye aquí. */
+  .subsec.active [id$="-list"]:not(#curriculum-list),
+  .sec.active:not(#sec-foco) > [id$="-list"]:not(#curriculum-list) {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 10px; align-items: start;
+  }
+
+  /* Roadmap Japón: filas → grid de 2-3 columnas */
+  .jp-roadmap {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;
+  }
+  .jp-roadmap > div {
+    border-bottom: none !important; background: var(--deep);
+    border: 1px solid var(--line); border-radius: 12px; padding: 12px !important;
+  }
+
+  /* Currículo Academia: entries → filas de tabla real */
+  .curriculum-head {
+    display: grid !important; grid-template-columns: 28px 1.6fr 70px 1fr 1fr; gap: 10px;
+    padding: 0 4px 6px; font-size: 10px; color: var(--ink-3); font-weight: 700;
+    letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  #curriculum-list .entry {
+    display: grid; grid-template-columns: 28px 1.6fr 70px 1fr 1fr; align-items: center; gap: 10px;
+  }
+  /* Las dos divs internas tienen display:flex/grid inline (estilo del render JS) —
+     hace falta !important para ganarle al inline y "abrir" sus hijos como celdas
+     directas del grid de fila de `.entry`. */
+  #curriculum-list .entry > div:first-child,
+  #curriculum-list .entry > div:last-child { display: contents !important; }
+  #curriculum-list .entry > div:first-child > button { grid-column: 1; }
+  #curriculum-list .entry > div:first-child > .entry-txt { grid-column: 2; margin-bottom: 0; }
+  #curriculum-list .entry > div:last-child > input:nth-child(1) { grid-column: 3; }
+  #curriculum-list .entry > div:last-child > input:nth-child(2) { grid-column: 4; }
+  #curriculum-list .entry > div:last-child > input:nth-child(3) { grid-column: 5; }
+
+  /* Modo Focus: timer grande y centrado, sigue fullscreen sin nav/sidebar.
+     El sidebar ya se oculta arriba (.drawer sumado a la regla de focus-mode);
+     acá solo hay que devolverle al .shell el centrado real del viewport
+     completo, porque su margin-left normal reserva espacio para un sidebar
+     que en este modo no existe. */
+  body.focus-mode .shell { margin: 0 auto; max-width: 900px; }
+  body.focus-mode #foco-clock { font-size: 108px !important; }
+  body.focus-mode #foco-timer-card { max-width: 480px; }
+
+  /* Snackbar/notificaciones: nunca pegado a un borde raro en pantallas anchas
+     (ya centrado por .toast-wrap; solo confirmamos ancho cómodo) */
+  .toast-wrap { max-width: 420px; }
+}
+
+/* ---------- Interacción mouse/teclado (Bloque 15 adición) ---------- */
+@media (hover: hover) and (pointer: fine) {
+  button, .subtab, .nav-btn, .drawer-item, .chip, .chk, .habit, .habit-chk,
+  .glass, .cal-day, .icon-btn, .icon-action, .theme-opt, .ai-pill, .ts-link,
+  select.txt, input[type="checkbox"], input[type="radio"], input[type="color"],
+  .xp-ring, .search-close, .toast-close { cursor: pointer; }
+  .card:hover { border-color: var(--line-2); }
+  .habit:hover { border-color: var(--line-emerald); background: var(--elevated); }
+  .task:hover { background: rgba(255,255,255,0.025); border-radius: 8px; }
+  .subtab:hover:not(.active) { border-color: var(--line-2); color: var(--ink-2); }
+  .nav-btn:hover:not(.active) { color: var(--ink-2); background: rgba(255,255,255,0.03); }
+  .drawer-item:hover:not(.active) { border-color: var(--line-2); background: rgba(255,255,255,0.03); }
+  .chip:hover { border-color: var(--line-2); color: var(--ink); }
+  .ghost-btn:hover, .save-btn:hover, .icon-btn:hover, .icon-action:hover, .modal-btn:hover { filter: brightness(1.15); }
+  .cal-day:hover { border-color: var(--line-2); }
+  .glass:hover { border-color: var(--line-2); }
+  .search-item:hover { border-color: var(--line-emerald); }
+}
+
+/* Foco de teclado visible — no se quita sin reemplazo */
+:focus-visible {
+  outline: 2px solid var(--mint); outline-offset: 2px; border-radius: 4px;
+}
+
+/* Scrollbar de escritorio acorde al tema (mobile la sigue ocultando) */
+@media (min-width: 1024px) {
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--deep); }
+  ::-webkit-scrollbar-thumb { background: var(--raised); border-radius: 99px; border: 2px solid var(--deep); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--moss); }
+  html { scrollbar-color: var(--raised) var(--deep); scrollbar-width: thin; }
+}
+
+/* Botón de cerrar (X) del toast — solo con mouse; el swipe táctil sigue intacto */
+.toast-close {
+  display: none; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 8px; flex-shrink: 0;
+  background: transparent; border: none; color: var(--ink-3);
+  font-size: 13px; line-height: 1; align-self: center;
+}
+.toast-close:hover { background: var(--elevated); color: var(--ink); }
+@media (hover: hover) and (pointer: fine) {
+  .toast-close { display: flex; }
+}
 </style>
 </head>
 <body>
@@ -1064,7 +1266,7 @@ body.light .hdr h1 {
     </div>
 
     <!-- PUSH · Banner de consentimiento no intrusivo (oculto por defecto, JS decide mostrarlo) -->
-    <div class="card" id="push-banner" style="display:none">
+    <div class="card span-all" id="push-banner" style="display:none">
       <div class="card-row">
         <div class="card-title-wrap">
           <div class="dot" style="background:var(--mint);color:var(--mint)"></div>
@@ -1082,7 +1284,7 @@ body.light .hdr h1 {
     </div>
 
     <!-- DASHBOARD SEMANAL (visible siempre) -->
-    <div class="card" id="weekly-dash" style="display:none">
+    <div class="card span-all" id="weekly-dash" style="display:none">
       <div class="card-row">
         <div class="card-title-wrap">
           <div class="dot" style="background:var(--nebula)"></div>
@@ -1589,14 +1791,14 @@ body.light .hdr h1 {
       <button class="save-btn" onclick="addJpSession()">+ Sesión hoy</button>
     </div>
 
-    <div class="card">
+    <div class="card span-all">
       <div class="card-row">
         <div class="card-title-wrap">
           <div class="dot" style="background:var(--stardust)"></div>
           <div class="card-title">Roadmap 12 meses</div>
         </div>
       </div>
-      <div style="font-size:12.5px;line-height:1.9;color:var(--ink-2)">
+      <div class="jp-roadmap" style="font-size:12.5px;line-height:1.9;color:var(--ink-2)">
         <div style="padding:8px 0;border-bottom:1px solid var(--line)"><b style="color:var(--ember)">Mes 1</b> · Capital base · primer cliente RAI Agency</div>
         <div style="padding:8px 0;border-bottom:1px solid var(--line)"><b style="color:var(--stardust)">Mes 2</b> · Flujo $500+/mes · 3 clientes RAI Agency · hiragana dominado</div>
         <div style="padding:8px 0;border-bottom:1px solid var(--line)"><b style="color:var(--aurora)">Mes 3</b> · $2k+ acumulados · sistema escalable · katakana + 200 kanji básicos</div>
@@ -1628,7 +1830,7 @@ body.light .hdr h1 {
       </div>
     </div>
 
-    <div class="card" style="background:linear-gradient(135deg,rgba(167,139,250,0.06),rgba(252,211,77,0.04));border-color:rgba(167,139,250,0.2)">
+    <div class="card span-all" style="background:linear-gradient(135deg,rgba(167,139,250,0.06),rgba(252,211,77,0.04));border-color:rgba(167,139,250,0.2)">
       <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:400;color:var(--ink);line-height:1.6;font-style:italic">
         "Sophia. Aprendizaje perpetuo para ayudar a la humanidad como un Phoenix en la naturaleza."
       </div>
@@ -1981,7 +2183,7 @@ body.light .hdr h1 {
       </div>
     </div>
 
-    <div class="card" style="background:linear-gradient(135deg,rgba(96,165,250,0.06),rgba(167,139,250,0.04));border-color:rgba(96,165,250,0.2)">
+    <div class="card span-all" style="background:linear-gradient(135deg,rgba(96,165,250,0.06),rgba(167,139,250,0.04));border-color:rgba(96,165,250,0.2)">
       <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:400;color:var(--ink);line-height:1.6;font-style:italic">
         "Magíster en IA. Inmersión profunda. Sin atajos."
       </div>
@@ -1991,13 +2193,14 @@ body.light .hdr h1 {
       </div>
     </div>
 
-    <div class="card">
+    <div class="card span-all">
       <div class="card-row">
         <div class="card-title-wrap">
           <div class="dot" style="background:var(--stardust)"></div>
           <div><div class="card-title">Currículo 90 días</div><div class="card-meta">3 bloques · 9 temas · clic en el emoji para cambiar estado</div></div>
         </div>
       </div>
+      <div class="curriculum-head" style="display:none"><span></span><span>Tema</span><span>Horas</span><span>Entregable</span><span>Checkpoint</span></div>
       <div id="curriculum-list" style="margin-top:14px"></div>
     </div>
 
@@ -2415,19 +2618,19 @@ body.light .hdr h1 {
 
 <!-- NAV -->
 <nav class="nav">
-  <button class="nav-btn active" onclick="showSec('inicio',this)">
+  <button class="nav-btn active" data-sec="inicio" onclick="showSec('inicio',this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3 L4 10 v10 h6 v-6 h4 v6 h6 V10 z"/></svg>
     <span>Inicio</span>
   </button>
-  <button class="nav-btn" onclick="showSec('proyectos',this)">
+  <button class="nav-btn" data-sec="proyectos" onclick="showSec('proyectos',this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M8 6 V4 a2 2 0 0 1 2-2 h4 a2 2 0 0 1 2 2 v2"/></svg>
     <span>Proyectos</span>
   </button>
-  <button class="nav-btn" onclick="showSec('finanzas',this)">
+  <button class="nav-btn" data-sec="finanzas" onclick="showSec('finanzas',this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10 h18 M7 15 h3"/></svg>
     <span>Finanzas</span>
   </button>
-  <button class="nav-btn" onclick="showSec('vida',this)">
+  <button class="nav-btn" data-sec="vida" onclick="showSec('vida',this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 21 C 6 16 3 12 3 8 a4 4 0 0 1 8-1 a4 4 0 0 1 8 1 c0 4-3 8-7 13 z"/></svg>
     <span>Vida</span>
   </button>
@@ -2443,55 +2646,55 @@ body.light .hdr h1 {
   <div style="font-family:'Fraunces',serif;font-size:18px;color:var(--ink);margin-bottom:4px">Más secciones</div>
   <div style="font-size:11px;color:var(--ink-3);font-weight:600">Explora el resto del Santuario</div>
   <div class="drawer-grid">
-    <button class="drawer-item" onclick="showSec('japon');toggleDrawer()">
+    <button class="drawer-item" data-sec="japon" onclick="showSec('japon');toggleDrawer()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
       Japón
     </button>
-    <button class="drawer-item" onclick="showSec('sophia');toggleDrawer()">
+    <button class="drawer-item" data-sec="sophia" onclick="showSec('sophia');toggleDrawer()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2 L15 9 L22 10 L17 15 L18 22 L12 18 L6 22 L7 15 L2 10 L9 9 z"/></svg>
       Sophia
     </button>
-    <button class="drawer-item" onclick="showSec('mente');toggleDrawer()">
+    <button class="drawer-item" data-sec="mente" onclick="showSec('mente');toggleDrawer()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 3 a5 5 0 0 0 -5 5 c0 2 1 4 3 5 a4 4 0 0 0 4 4 V3 z M15 3 a5 5 0 0 1 5 5 c0 2-1 4-3 5 a4 4 0 0 1 -4 4 V3 z"/></svg>
       Mente
     </button>
-    <button class="drawer-item" onclick="showSec('academia');toggleDrawer()">
+    <button class="drawer-item" data-sec="academia" onclick="showSec('academia');toggleDrawer()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 8 L12 4 L21 8 L12 12 z M7 10 v6 a5 5 0 0 0 10 0 v-6"/></svg>
       Academia IA
     </button>
-    <button class="drawer-item" onclick="showSec('arq');toggleDrawer()">
+    <button class="drawer-item" data-sec="arq" onclick="showSec('arq');toggleDrawer()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 21 V10 l9-7 l9 7 V21 z M9 21 v-8 h6 v8"/></svg>
       RAI Agency
     </button>
-    <button class="drawer-item" onclick="showSec('promptlab');toggleDrawer()">
+    <button class="drawer-item" data-sec="promptlab" onclick="showSec('promptlab');toggleDrawer()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 3 v4 L4 17 a3 3 0 0 0 3 4 h10 a3 3 0 0 0 3 -4 L15 7 V3 z M9 3 h6"/></svg>
       Prompt Lab
     </button>
-    <button class="drawer-item" onclick="showSec('radar');toggleDrawer()">
+    <button class="drawer-item" data-sec="radar" onclick="showSec('radar');toggleDrawer()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 3 v9 l6 4"/></svg>
       Radar IA
     </button>
-    <button class="drawer-item" onclick="showSec('calendar');toggleDrawer()">
+    <button class="drawer-item" data-sec="calendar" onclick="showSec('calendar');toggleDrawer()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9 h18 M8 3 v4 M16 3 v4"/></svg>
       Calendario
     </button>
-    <button class="drawer-item" onclick="showSec('compras');toggleDrawer()">
+    <button class="drawer-item" data-sec="compras" onclick="showSec('compras');toggleDrawer()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 6 h2 l2 12 h12 l2-9 H6"/><circle cx="9" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg>
       Compras
     </button>
-    <button class="drawer-item" onclick="showSec('maestro');toggleDrawer()">
+    <button class="drawer-item" data-sec="maestro" onclick="showSec('maestro');toggleDrawer()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 3 L14 10 L21 12 L14 14 L12 21 L10 14 L3 12 L10 10 z"/></svg>
       Sistema Maestro
     </button>
-    <button class="drawer-item" onclick="showSec('foco');toggleDrawer()">
+    <button class="drawer-item" data-sec="foco" onclick="showSec('foco');toggleDrawer()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7 v5 l3.5 3.5"/></svg>
       Bloques de Foco
     </button>
-    <button class="drawer-item" onclick="showSec('creativ');toggleDrawer()">
+    <button class="drawer-item" data-sec="creativ" onclick="showSec('creativ');toggleDrawer()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3 l2.5 6.5 L21 12 l-6.5 2.5 L12 21 l-2.5-6.5 L3 12 l6.5-2.5 Z"/></svg>
       Creatividad
     </button>
-    <button class="drawer-item" onclick="showSec('dieta');toggleDrawer()">
+    <button class="drawer-item" data-sec="dieta" onclick="showSec('dieta');toggleDrawer()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M8 12 h8 M12 8 v8"/></svg>
       Dieta de Input
     </button>
@@ -2944,11 +3147,9 @@ function showSec(id, btn) {
   SECS.forEach(s => $('sec-'+s)?.classList.toggle('active', s === id));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  else {
-    // Default to Inicio when no nav btn (came from drawer)
-    const map = { inicio:0, proyectos:1, finanzas:2, vida:3 };
-    // For drawer items, don't activate any nav btn
-  }
+  // Resalta el item correspondiente en el sidebar de escritorio (nav-btn o
+  // drawer-item), sin depender de que venga un `btn` de la bottom-nav móvil.
+  document.querySelectorAll('[data-sec]').forEach(el => el.classList.toggle('active', el.dataset.sec === id));
   window.scrollTo({ top: 0, behavior: 'smooth' });
   saveLastNav({ sec: id });
 }
@@ -5744,7 +5945,7 @@ function toast(icon, title, sub) {
   const wrap = $('toast-wrap');
   const t = document.createElement('div');
   t.className = 'toast';
-  t.innerHTML = `<div class="toast-icon">${icon}</div><div class="toast-body"><div class="toast-title">${title}</div>${sub?'<div class="toast-sub">'+sub+'</div>':''}</div>`;
+  t.innerHTML = `<div class="toast-icon">${icon}</div><div class="toast-body"><div class="toast-title">${title}</div>${sub?'<div class="toast-sub">'+sub+'</div>':''}</div><button class="toast-close" aria-label="Cerrar">✕</button>`;
   wrap.appendChild(t);
 
   let dismissed = false;
@@ -5757,6 +5958,9 @@ function toast(icon, title, sub) {
     setTimeout(removeNow, 300);
   };
   let autoTimer = setTimeout(dismiss, 3200);
+  // Bloque 15: X de cierre con clic — solo visible con mouse (desktop), el
+  // swipe táctil de arriba se mantiene intacto para touch.
+  t.querySelector('.toast-close')?.addEventListener('click', dismiss);
 
   // Swipe para descartar — izquierda, derecha o arriba (pointer events cubren touch + mouse).
   // Bloque 14 fix: en el celular real esto NO se sentía deslizable pese a que el Bloque 6 lo
